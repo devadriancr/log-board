@@ -16,6 +16,19 @@ class Application extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'requires_auth' => 'boolean',
+            'is_active' => 'boolean',
+        ];
+    }
+
+    /**
      * Get the links that belong to the application.
      */
     public function links()

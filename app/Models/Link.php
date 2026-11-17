@@ -20,6 +20,20 @@ class Link extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'show_description' => 'boolean',
+            'open_in_new_tab' => 'boolean',
+            'is_active' => 'boolean',
+        ];
+    }
+
+    /**
      * Get the card that owns the link.
      */
     public function card()

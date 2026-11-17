@@ -17,6 +17,19 @@ class Board extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_home' => 'boolean',
+            'is_active' => 'boolean',
+        ];
+    }
+
+    /**
      * Get the cards for the board.
      */
     public function cards()
