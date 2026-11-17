@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\LinkStyle;
 use Illuminate\Database\Eloquent\Model;
 
 class Board extends Model
@@ -24,6 +25,7 @@ class Board extends Model
     protected function casts(): array
     {
         return [
+            'link_style' => LinkStyle::class,
             'is_home' => 'boolean',
             'is_active' => 'boolean',
         ];

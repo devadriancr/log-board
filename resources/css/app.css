@@ -64,3 +64,56 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* Insignias con contorno, igual que los botones outline */
+[data-flux-badge] {
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, currentColor 30%, transparent);
+}
+
+/* Botones outline con el contorno más marcado */
+[data-flux-button][class~="border-zinc-200"] {
+    border-color: var(--color-zinc-300);
+}
+
+.dark [data-flux-button][class~="border-zinc-200"] {
+    border-color: var(--color-zinc-500);
+}
+
+[data-flux-button][class*="--color-button-border)_18%"] {
+    border-color: color-mix(in oklab, var(--color-button-border) 55%, white);
+}
+
+.dark [data-flux-button][class*="--color-button-border)_18%"] {
+    border-color: color-mix(in oklab, var(--color-button-border) 60%, transparent);
+}
+
+/* Toasts con el color de su tipo */
+[data-flux-toast-dialog][data-variant="success"] > div {
+    border-color: var(--color-green-400);
+    background-color: color-mix(in oklab, var(--color-green-500) 8%, white);
+}
+
+[data-flux-toast-dialog][data-variant="warning"] > div {
+    border-color: var(--color-amber-400);
+    background-color: color-mix(in oklab, var(--color-amber-500) 8%, white);
+}
+
+[data-flux-toast-dialog][data-variant="danger"] > div {
+    border-color: var(--color-red-400);
+    background-color: color-mix(in oklab, var(--color-red-500) 8%, white);
+}
+
+.dark [data-flux-toast-dialog][data-variant="success"] > div {
+    border-color: var(--color-green-600);
+    background-color: color-mix(in oklab, var(--color-green-500) 18%, var(--color-zinc-800));
+}
+
+.dark [data-flux-toast-dialog][data-variant="warning"] > div {
+    border-color: var(--color-amber-600);
+    background-color: color-mix(in oklab, var(--color-amber-500) 18%, var(--color-zinc-800));
+}
+
+.dark [data-flux-toast-dialog][data-variant="danger"] > div {
+    border-color: var(--color-red-600);
+    background-color: color-mix(in oklab, var(--color-red-500) 18%, var(--color-zinc-800));
+}

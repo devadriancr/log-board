@@ -1,39 +1,32 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
-        <div class="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
-            <div class="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r dark:border-neutral-800">
-                <div class="absolute inset-0 bg-neutral-900"></div>
-                <a href="{{ route('home') }}" class="relative z-20 flex items-center text-lg font-medium" wire:navigate>
-                    <span class="flex h-10 w-10 items-center justify-center rounded-md">
-                        <x-app-logo-icon class="mr-2 h-7 fill-current text-white" />
-                    </span>
+    <body class="min-h-screen bg-white antialiased dark:bg-zinc-900">
+        <div class="grid min-h-dvh lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
+            <div class="relative hidden overflow-hidden bg-linear-to-br from-zinc-700 via-zinc-800 to-zinc-950 p-12 text-white lg:flex lg:flex-col">
+                <div class="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]"></div>
+
+                <a href="{{ route('home') }}" class="relative z-10 flex items-center gap-3 text-lg font-semibold" wire:navigate>
+                    <x-app-logo-icon class="size-9 fill-current text-white" />
                     {{ config('app.name', 'Laravel') }}
                 </a>
 
-                @php
-                    [$message, $author] = str(Illuminate\Foundation\Inspiring::quotes()->random())->explode('-');
-                @endphp
-
-                <div class="relative z-20 mt-auto">
-                    <blockquote class="space-y-2">
-                        <p class="text-lg">&ldquo;{{ trim($message) }}&rdquo;</p>
-                        <footer class="text-sm">{{ trim($author) }}</footer>
-                    </blockquote>
-                </div>
+                <p class="relative z-10 mt-auto max-w-sm text-3xl font-semibold leading-tight tracking-tight">
+                    {{ __('login.tagline') }}
+                </p>
             </div>
-            <div class="w-full lg:p-8">
-                <div class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-                    <a href="{{ route('home') }}" class="z-20 flex flex-col items-center gap-2 font-medium lg:hidden" wire:navigate>
-                        <span class="flex h-9 w-9 items-center justify-center rounded-md">
-                            <x-app-logo-icon class="size-9 fill-current text-black dark:text-white" />
-                        </span>
 
-                        <span class="sr-only">{{ config('app.name', 'Laravel') }}</span>
+            <div class="relative flex items-center justify-center px-6 py-12">
+                <x-appearance-switcher class="absolute right-6 top-6" />
+
+                <div class="flex w-full max-w-sm flex-col gap-8">
+                    <a href="{{ route('home') }}" class="flex items-center gap-3 text-lg font-semibold text-zinc-900 lg:hidden dark:text-white" wire:navigate>
+                        <x-app-logo-icon class="size-8 fill-current text-zinc-900 dark:text-white" />
+                        {{ config('app.name', 'Laravel') }}
                     </a>
+
                     {{ $slot }}
                 </div>
             </div>
