@@ -13,17 +13,19 @@ return new class extends Migration
     {
         Schema::create('links', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('card_id')->nullable()->constrained('cards');
-            $table->foreignId('application_id')->nullable()->constrained('applications');
+            $table->foreignId('card_id')->constrained('cards');
+            $table->foreignId('application_id')->constrained('applications');
             $table->string('label', 255);
             $table->string('path', 255)->default('/');
             $table->text('description')->nullable();
             $table->boolean('show_description')->default(false);
-            $table->boolean('open_in_new_tab')->default(false);
+            $table->boolean('open_in_new_tab')->default(true);
             $table->smallInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
+
+            $table->index(['card_id', 'sort_order']);
         });
     }
 

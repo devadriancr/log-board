@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 255);
             $table->string('slug', 255)->unique();
-            $table->string('link_style')->default('link');
+            $table->string('link_style')->default('button');
             $table->smallInteger('sort_order')->default(0);
             $table->boolean('is_home')->default(false);
             $table->boolean('is_active')->default(true);

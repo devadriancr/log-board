@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('applications', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 255);
-            $table->string('base_url', 255);
+            $table->string('name', 255)->unique();
+            $table->string('base_url', 255)->unique();
             $table->boolean('requires_auth')->default(false);
             $table->text('notes')->nullable();
             $table->boolean('is_active')->default(true);

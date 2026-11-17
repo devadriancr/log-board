@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('label', 255);
             $table->smallInteger('sort_order')->default(0); 
             $table->timestamps();
+
+            $table->unique(['link_id', 'value']);
+            $table->index(['link_id', 'sort_order']);
         });
     }
 

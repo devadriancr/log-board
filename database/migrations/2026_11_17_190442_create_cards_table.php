@@ -13,16 +13,18 @@ return new class extends Migration
     {
         Schema::create('cards', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('board_id')->nullable()->constrained('boards');
+            $table->foreignId('board_id')->constrained('boards');
             $table->string('title', 255);
             $table->unsignedTinyInteger('grid_x');
-            $table->unsignedTinyInteger('grid_y');
+            $table->unsignedSmallInteger('grid_y');
             $table->unsignedTinyInteger('grid_w');
             $table->unsignedTinyInteger('grid_h');
             $table->unsignedTinyInteger('link_columns')->default(1);
             $table->boolean('is_active')->default(true);
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
+
+            $table->index(['board_id', 'grid_y', 'grid_x']);
         });
     }
 
