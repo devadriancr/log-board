@@ -9,7 +9,7 @@ class Link extends Model
     protected $fillable = [
         'url',
         'card_id',
-        'system_id',
+        'application_id',
         'label',
         'path',
         'description',

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('links', function (Blueprint $table) {
             $table->id();
             $table->foreignId('card_id')->nullable()->constrained('cards');
-            $table->foreignId('system_id')->nullable()->constrained('systems');
+            $table->foreignId('application_id')->nullable()->constrained('applications');
             $table->string('label', 255);
             $table->string('path', 255)->default('/');
             $table->text('description')->nullable();

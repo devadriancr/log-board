@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('board_id')->nullable()->constrained('boards');
             $table->string('title', 255);
-            $table->tinyUnsignedInteger('grid_x');
-            $table->tinyUnsignedInteger('grid_y');
-            $table->tinyUnsignedInteger('grid_w');
-            $table->tinyUnsignedInteger('grid_h');
-            $table->tinyUnsignedInteger('link_columns')->default(1);
+            $table->unsignedTinyInteger('grid_x');
+            $table->unsignedTinyInteger('grid_y');
+            $table->unsignedTinyInteger('grid_w');
+            $table->unsignedTinyInteger('grid_h');
+            $table->unsignedTinyInteger('link_columns')->default(1);
             $table->boolean('is_active')->default(true);
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
