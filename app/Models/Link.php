@@ -19,4 +19,36 @@ class Link extends Model
         'is_active',
         'updated_by',
     ];
+
+    /**
+     * Get the card that owns the link.
+     */
+    public function card()
+    {
+        return $this->belongsTo(Card::class);
+    }
+
+    /**
+     * Get the application that owns the link.
+     */
+    public function application()
+    {
+        return $this->belongsTo(Application::class);
+    }
+
+    /**
+     * Get the options for the link.
+     */
+    public function options()
+    {
+        return $this->hasMany(LinkOption::class);
+    }
+
+    /**
+     * Get the user who last updated the link.
+     */
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }

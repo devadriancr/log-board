@@ -12,4 +12,12 @@ class LinkOption extends Model
         'label',
         'sort_order',
     ];
+
+    /**
+     * Get the link that owns the option.
+     */
+    public function link()
+    {
+        return $this->belongsTo(Link::class);
+    }
 }

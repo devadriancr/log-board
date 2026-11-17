@@ -15,4 +15,20 @@ class Board extends Model
         'is_active',
         'updated_by',
     ];
+
+    /**
+     * Get the cards for the board.
+     */
+    public function cards()
+    {
+        return $this->hasMany(Card::class);
+    }
+
+    /**
+     * Get the user who last updated the board.
+     */
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }
