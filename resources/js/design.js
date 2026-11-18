@@ -19,7 +19,7 @@ function init() {
             cellHeight,
             minRow: 4,
             margin: 8,
-            float: false,
+            float: true, // cards stay where they are dropped, no gravity pulling them up
             animate: true,
             draggable: { handle: '.gs-handle' },
             resizable: { handles: 'e, se, s, sw, w' },
@@ -36,9 +36,31 @@ function init() {
         }
     };
 
-    grid.on('change', (event, nodes) => nodes?.forEach(showSize));
+    // Row numbers (like Excel) and two empty rows below the last card so cards can be dropped further down.
+    const rowsElement = document.getElementById('board-rows');
+
+    const syncRows = () => {
+        const bottom = Math.max(0, ...grid.engine.nodes.map((node) => node.y + node.h));
+        const rows = Math.max(4, bottom + 2);
+
+        grid.updateOptions({ minRow: rows });
+
+        rowsElement.innerHTML = Array.from(
+            { length: rows },
+            (_, index) => `<div class="flex items-center justify-center" style="height:${cellHeight}px">${index + 1}</div>`,
+        ).join('');
+    };
+
+    syncRows();
+    grid.on('change', (event, nodes) => {
+        nodes?.forEach(showSize);
+        syncRows();
+    });
     grid.on('resizestop', (event, el) => showSize(el.gridstackNode));
-    grid.on('dragstop', (event, el) => showSize(el.gridstackNode));
+    grid.on('dragstop', (event, el) => {
+        showSize(el.gridstackNode);
+        syncRows();
+    });
 
     const toast = (text, variant) => window.Flux?.toast({ text, variant });
 

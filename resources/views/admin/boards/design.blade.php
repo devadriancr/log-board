@@ -44,15 +44,21 @@
                         <flux:text>{{ __('design.empty') }}</flux:text>
                     </div>
                 @else
-                    <div class="mb-1 grid grid-cols-12 text-center font-mono text-xs text-zinc-400 dark:text-zinc-500" aria-hidden="true">
-                        @for ($column = 1; $column <= 12; $column++)
-                            <span>{{ $column }}</span>
-                        @endfor
+                    <div class="mb-1 flex text-center font-mono text-xs text-zinc-400 dark:text-zinc-500" aria-hidden="true">
+                        <div class="w-7 shrink-0"></div>
+                        <div class="mx-px grid flex-1 grid-cols-12">
+                            @foreach (range('A', 'L') as $column)
+                                <span>{{ $column }}</span>
+                            @endforeach
+                        </div>
                     </div>
+
+                    <div class="flex">
+                    <div id="board-rows" class="w-7 shrink-0 pt-px text-center font-mono text-xs text-zinc-400 dark:text-zinc-500" aria-hidden="true"></div>
 
                     <div
                         id="board-design"
-                        class="grid-stack board-guides"
+                        class="grid-stack board-guides flex-1"
                         data-url="{{ route('admin.boards.design.update', $board) }}"
                         data-token="{{ csrf_token() }}"
                         data-saved="{{ __('design.messages.saved') }}"
@@ -93,7 +99,8 @@
 
                                     <ul class="flex-1 space-y-1 overflow-y-auto px-3 py-2 text-sm">
                                         @forelse ($card->links as $link)
-                                            <li class="truncate">
+                                            <li class="flex items-center gap-2 truncate">
+                                                <span class="w-5 shrink-0 text-right font-mono text-xs text-zinc-400" title="{{ __('links.fields.sort_order') }}">{{ $link->sort_order }}</span>
                                                 <a
                                                     href="{{ route('admin.links.edit', ['link' => $link, 'from' => 'design']) }}"
                                                     @class([
@@ -125,6 +132,7 @@
                                 </div>
                             </div>
                         @endforeach
+                    </div>
                     </div>
                 @endif
             </flux:card.body>

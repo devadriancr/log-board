@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', [PublicBoardController::class, 'index'])->name('home');
-Route::get('tablero/{board:slug}', [PublicBoardController::class, 'show'])->name('boards.show');
+Route::get('board/{board:slug}', [PublicBoardController::class, 'show'])->name('boards.show');
 
 Route::get('dashboard', DashboardController::class)
     ->middleware(['auth'])
