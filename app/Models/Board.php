@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\LinkStyle;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class Board extends Model
@@ -37,6 +38,34 @@ class Board extends Model
     public function cards()
     {
         return $this->hasMany(Card::class);
+    }
+
+    /**
+     * Get the cards the public sees: active cards with at least one active link
+     * whose application is also active.
+     */
+    public function visibleCards(): Collection
+    {
+        return $this->cards()
+            ->where('is_active', true)
+            ->with(['links' => fn ($query) => $query
+                ->where('is_active', true)
+                ->whereHas('application', fn ($application) => $application->where('is_active', true))
+                ->with(['application', 'options' => fn ($options) => $options->orderBy('sort_order')])
+                ->orderBy('sort_order')])
+            ->orderBy('grid_y')
+            ->orderBy('grid_x')
+            ->get()
+            ->filter(fn ($card) => $card->links->isNotEmpty())
+            ->values();
+    }
+
+    /**
+     * Get the address where the public sees the board.
+     */
+    public function publicUrl(): string
+    {
+        return $this->is_home ? route('home') : route('boards.show', ['board' => $this->slug]);
     }
 
     /**

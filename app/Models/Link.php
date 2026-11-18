@@ -34,6 +34,14 @@ class Link extends Model
     }
 
     /**
+     * Get the full URL of the link. The {param} placeholder is kept when the link has options.
+     */
+    public function urlTemplate(): string
+    {
+        return rtrim($this->application->base_url, '/').'/'.ltrim($this->path, '/');
+    }
+
+    /**
      * Get the card that owns the link.
      */
     public function card()

@@ -117,3 +117,62 @@ select:focus[data-flux-control] {
     border-color: var(--color-red-600);
     background-color: color-mix(in oklab, var(--color-red-500) 18%, var(--color-zinc-800));
 }
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* Cuadrícula del tablero (vista pública y vista previa del dashboard).
+   Cada tarjeta ocupa el lugar que se le dio en el diseño (12 columnas) y se adapta al ancho disponible. */
+.board-grid-wrap {
+    container-type: inline-size;
+}
+
+.board-card {
+    container-type: inline-size;
+}
+
+@container (min-width: 48rem) {
+    .board-card {
+        grid-column: var(--x) / span var(--w);
+        grid-row: var(--y) / span var(--h);
+    }
+}
+
+.board-links {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 22rem) {
+    .board-links {
+        grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    }
+}
+
+/* Diseño del tablero: cuadrícula de fondo (12 columnas) y botones que se adaptan al tamaño de la tarjeta */
+.board-guides {
+    --cell-h: 110px;
+    min-height: calc(var(--cell-h) * 4);
+    border: 1px dashed color-mix(in oklab, currentColor 20%, transparent);
+    border-radius: var(--radius-lg);
+    background-image:
+        linear-gradient(to right, color-mix(in oklab, currentColor 12%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in oklab, currentColor 12%, transparent) 1px, transparent 1px);
+    background-size: calc(100% / 12) 100%, 100% var(--cell-h);
+}
+
+.design-card {
+    container-type: inline-size;
+}
+
+@container (max-width: 11rem) {
+    .design-label {
+        display: none;
+    }
+}
+
+@container (max-width: 9rem) {
+    .design-size {
+        display: none;
+    }
+}

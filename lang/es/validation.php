@@ -4,11 +4,15 @@
 // con el texto en inglés del framework (idioma de respaldo).
 
 return [
+    'array' => 'El campo :attribute debe ser una lista.',
     'boolean' => 'El campo :attribute debe ser verdadero o falso.',
+    'distinct' => 'El campo :attribute tiene un valor repetido.',
     'enum' => 'El valor seleccionado en :attribute no es válido.',
+    'exists' => 'El valor seleccionado en :attribute no es válido.',
     'in' => 'El valor seleccionado en :attribute no es válido.',
     'integer' => 'El campo :attribute debe ser un número entero.',
     'max' => [
+        'array' => 'El campo :attribute no puede tener más de :max elementos.',
         'numeric' => 'El campo :attribute no puede ser mayor que :max.',
         'string' => 'El campo :attribute no puede tener más de :max caracteres.',
     ],

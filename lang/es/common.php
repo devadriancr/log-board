@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'select' => 'Seleccionar…',
+
     'actions' => [
         'title' => 'Acciones',
         'create' => 'Crear',
@@ -8,6 +10,8 @@ return [
         'cancel' => 'Cancelar',
         'edit' => 'Editar',
         'delete' => 'Eliminar',
+        'open' => 'Abrir',
+        'remove' => 'Quitar',
     ],
 
     'status' => [

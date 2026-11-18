@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'dashboard' => 'Inicio',
     'admin' => 'Administración',
     'boards' => 'Tableros',
     'cards' => 'Tarjetas',

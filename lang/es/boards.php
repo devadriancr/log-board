@@ -4,6 +4,10 @@ return [
     'title' => 'Tableros',
     'empty' => 'Aún no hay tableros.',
 
+    'actions' => [
+        'design' => 'Diseñar',
+    ],
+
     'create' => [
         'title' => 'Nuevo tablero',
     ],

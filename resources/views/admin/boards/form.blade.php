@@ -27,16 +27,12 @@
                     required
                 />
 
-                <flux:select name="link_style" :label="__('boards.fields.link_style')">
-                    @foreach (LinkStyle::cases() as $style)
-                        <flux:select.option
-                            value="{{ $style->value }}"
-                            :selected="old('link_style', $board->link_style?->value) === $style->value"
-                        >
-                            {{ $style->label() }}
-                        </flux:select.option>
-                    @endforeach
-                </flux:select>
+                <x-listbox
+                    name="link_style"
+                    :label="__('boards.fields.link_style')"
+                    :options="collect(LinkStyle::cases())->mapWithKeys(fn ($style) => [$style->value => $style->label()])"
+                    :value="old('link_style', $board->link_style?->value)"
+                />
 
                 <flux:input
                     name="sort_order"

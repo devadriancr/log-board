@@ -56,6 +56,16 @@
                                                 <flux:button
                                                     size="sm"
                                                     variant="outline"
+                                                    icon="squares-plus"
+                                                    class="min-w-26 justify-center"
+                                                    :href="route('admin.boards.design', $board)"
+                                                >
+                                                    {{ __('boards.actions.design') }}
+                                                </flux:button>
+
+                                                <flux:button
+                                                    size="sm"
+                                                    variant="outline"
                                                     icon="pencil-square"
                                                     class="min-w-26 justify-center"
                                                     :href="route('admin.boards.edit', $board)"
