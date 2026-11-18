@@ -30,7 +30,20 @@
             </nav>
 
             <div class="flex shrink-0 items-center gap-1">
-                <x-appearance-switcher />
+                <flux:dropdown x-data align="end">
+                    <flux:button variant="subtle" size="sm" square class="group" :aria-label="__('appearance.title')" :title="__('appearance.title')">
+                        <flux:icon.sun x-show="$flux.appearance === 'light'" variant="mini" class="text-zinc-500 dark:text-white" />
+                        <flux:icon.moon x-show="$flux.appearance === 'dark'" variant="mini" class="text-zinc-500 dark:text-white" />
+                        <flux:icon.moon x-show="$flux.appearance === 'system' && $flux.dark" variant="mini" />
+                        <flux:icon.sun x-show="$flux.appearance === 'system' && ! $flux.dark" variant="mini" />
+                    </flux:button>
+
+                    <flux:menu>
+                        <flux:menu.item icon="sun" x-on:click="$flux.appearance = 'light'">{{ __('appearance.light') }}</flux:menu.item>
+                        <flux:menu.item icon="moon" x-on:click="$flux.appearance = 'dark'">{{ __('appearance.dark') }}</flux:menu.item>
+                        <flux:menu.item icon="computer-desktop" x-on:click="$flux.appearance = 'system'">{{ __('appearance.system') }}</flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
 
                 <flux:dropdown position="bottom" align="end">
                     <flux:button variant="ghost" size="sm" icon="ellipsis-vertical" :aria-label="__('public.more')" :title="__('public.more')" />
