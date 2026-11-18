@@ -13,9 +13,7 @@ class PublicBoardController extends Controller
     public function index(): View
     {
         $board = Board::where('is_active', true)
-            ->orderByDesc('is_home')
-            ->orderBy('sort_order')
-            ->orderBy('name')
+            ->ordered()
             ->first();
 
         return $this->render($board);
@@ -37,8 +35,7 @@ class PublicBoardController extends Controller
     private function render(?Board $board): View
     {
         $boards = Board::where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('name')
+            ->ordered()
             ->get(['id', 'name', 'slug', 'is_home']);
 
         $cards = $board?->visibleCards() ?? collect();

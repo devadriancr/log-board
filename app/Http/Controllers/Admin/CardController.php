@@ -120,7 +120,7 @@ class CardController extends Controller
      */
     private function boardOptions(): array
     {
-        return Board::orderBy('sort_order')->orderBy('name')->pluck('name', 'id')->all();
+        return Board::ordered()->pluck('name', 'id')->all();
     }
 
     /**

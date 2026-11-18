@@ -18,7 +18,7 @@ class BoardDesignController extends Controller
      */
     public function edit(Board $board): View
     {
-        $boards = Board::orderBy('sort_order')->orderBy('name')->get(['id', 'name']);
+        $boards = Board::ordered()->get(['id', 'name', 'is_home']);
 
         $cards = $board->cards()
             ->with(['links' => fn ($query) => $query->orderBy('sort_order')])

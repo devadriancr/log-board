@@ -33,6 +33,14 @@ class Board extends Model
     }
 
     /**
+     * Order the boards as the tabs are shown: the home board first, then by position.
+     */
+    public function scopeOrdered($query)
+    {
+        return $query->orderByDesc('is_home')->orderBy('sort_order')->orderBy('name');
+    }
+
+    /**
      * Get the cards for the board.
      */
     public function cards()

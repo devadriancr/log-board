@@ -150,5 +150,80 @@ function init() {
     });
 }
 
+// Board tabs: drag to reorder. The home tab is fixed at the start, so a tab can never be dropped before it.
+// The new order is saved right away (it is not part of the "Save" button of the cards).
+function initTabs() {
+    const nav = document.getElementById('board-tabs');
+
+    if (!nav || nav.dataset.ready) {
+        return;
+    }
+
+    nav.dataset.ready = '1';
+
+    let dragged = null;
+
+    nav.addEventListener('dragstart', (event) => {
+        dragged = event.target.closest?.('a[data-board]:not([data-home])') ?? null;
+
+        if (dragged) {
+            event.dataTransfer.effectAllowed = 'move';
+            dragged.classList.add('opacity-40');
+        }
+    });
+
+    nav.addEventListener('dragover', (event) => {
+        if (!dragged) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const next = [...nav.querySelectorAll('a[data-board]:not([data-home])')]
+            .filter((tab) => tab !== dragged)
+            .find((tab) => {
+                const box = tab.getBoundingClientRect();
+
+                // Tabs can wrap into several lines: compare the row first, then the horizontal position.
+                return event.clientY < box.top || (event.clientY <= box.bottom && event.clientX < box.left + box.width / 2);
+            });
+
+        nav.insertBefore(dragged, next ?? null);
+    });
+
+    nav.addEventListener('dragend', async () => {
+        if (!dragged) {
+            return;
+        }
+
+        dragged.classList.remove('opacity-40');
+        dragged = null;
+
+        const ids = [...nav.querySelectorAll('a[data-board]:not([data-home])')].map((tab) => Number(tab.dataset.board));
+
+        try {
+            const response = await fetch(nav.dataset.url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': nav.dataset.token,
+                },
+                body: JSON.stringify({ ids }),
+            });
+
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+        } catch (error) {
+            window.Flux?.toast({ text: nav.dataset.error, variant: 'danger' });
+        }
+    });
+}
+
 init();
-document.addEventListener('livewire:navigated', init);
+initTabs();
+document.addEventListener('livewire:navigated', () => {
+    init();
+    initTabs();
+});

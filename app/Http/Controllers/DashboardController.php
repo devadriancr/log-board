@@ -13,8 +13,7 @@ class DashboardController extends Controller
     public function __invoke(): View
     {
         $boards = Board::where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('name')
+            ->ordered()
             ->get()
             ->each(fn (Board $board) => $board->setRelation('cards', $board->visibleCards()));
 

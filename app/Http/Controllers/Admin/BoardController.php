@@ -18,8 +18,7 @@ class BoardController extends Controller
     public function index(): View
     {
         $boards = Board::withCount('cards')
-            ->orderBy('sort_order')
-            ->orderBy('name')
+            ->ordered()
             ->get();
 
         return view('admin.boards.index', compact('boards'));
@@ -32,7 +31,7 @@ class BoardController extends Controller
     {
         $board = new Board([
             'link_style' => LinkStyle::Button,
-            'sort_order' => 0,
+            'sort_order' => (Board::max('sort_order') ?? 0) + 1,
             'is_active' => true,
         ]);
 
@@ -86,12 +85,37 @@ class BoardController extends Controller
     }
 
     /**
+     * Save the order of the tabs. The home board is not part of it: it always goes first.
+     */
+    public function reorder(Request $request): JsonResponse
+    {
+        $ids = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer', 'distinct', 'exists:boards,id'],
+        ])['ids'];
+
+        DB::transaction(function () use ($ids, $request) {
+            foreach ($ids as $index => $id) {
+                Board::where('id', $id)->where('is_home', false)
+                    ->update(['sort_order' => $index + 1, 'updated_by' => $request->user()->id]);
+            }
+        });
+
+        return response()->json(['message' => __('boards.messages.updated')]);
+    }
+
+    /**
      * Save the board, making sure there is only one home board.
      */
     private function save(Board $board, BoardRequest $request): void
     {
         DB::transaction(function () use ($board, $request) {
             $data = $request->validated() + ['updated_by' => $request->user()->id];
+
+            // A new board always goes last; positions are changed by dragging the tabs in the designer.
+            if (! $board->exists) {
+                $data['sort_order'] = (Board::max('sort_order') ?? 0) + 1;
+            }
 
             if ($data['is_home']) {
                 Board::where('is_home', true)->update(['is_home' => false]);

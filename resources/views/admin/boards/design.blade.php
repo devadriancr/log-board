@@ -22,17 +22,29 @@
             </flux:card.header>
 
             <flux:card.body>
-                <nav class="-mt-1 mb-5 flex flex-wrap gap-1 border-b border-zinc-200 dark:border-zinc-700">
+                <nav
+                    id="board-tabs"
+                    class="-mt-1 mb-5 flex flex-wrap gap-1 border-b border-zinc-200 dark:border-zinc-700"
+                    data-url="{{ route('admin.boards.reorder') }}"
+                    data-token="{{ csrf_token() }}"
+                    data-error="{{ __('design.messages.error') }}"
+                >
                     @foreach ($boards as $item)
                         <a
+                            data-board="{{ $item->id }}"
+                            @if ($item->is_home) data-home title="{{ __('boards.fields.is_home') }}" @else draggable="true" @endif
                             href="{{ route('admin.boards.design', $item) }}"
                             @class([
-                                '-mb-px border-b-2 px-3 py-2 text-sm font-medium',
+                                '-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium',
+                                'cursor-grab active:cursor-grabbing' => ! $item->is_home,
                                 'border-zinc-800 text-zinc-900 dark:border-white dark:text-white' => $item->id === $board->id,
                                 'border-transparent text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-white' => $item->id !== $board->id,
                             ])
                             @if ($item->id === $board->id) aria-current="page" @endif
                         >
+                            @if ($item->is_home)
+                                <flux:icon name="lock-closed" variant="micro" class="size-3.5 text-zinc-400" />
+                            @endif
                             {{ $item->name }}
                         </a>
                     @endforeach

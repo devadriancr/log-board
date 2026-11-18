@@ -41,6 +41,7 @@
                     max="32767"
                     :label="__('boards.fields.sort_order')"
                     :value="old('sort_order', $board->sort_order)"
+                    :readonly="! $board->exists"
                     required
                 />
 
