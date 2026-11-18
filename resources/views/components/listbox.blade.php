@@ -23,6 +23,11 @@
             get text() { return this.options[this.value] ?? @js($placeholder) },
         }"
         x-modelable="value"
+        x-init="
+            const syncWidth = () => { if ($refs.menu) $refs.menu.style.width = $el.offsetWidth + 'px' };
+            new ResizeObserver(syncWidth).observe($el);
+            syncWidth();
+        "
         {{ $attributes->whereStartsWith('x-model') }}
         class="w-full [&_ui-dropdown]:block [&_ui-dropdown]:w-full"
     >
@@ -30,17 +35,17 @@
             <input type="hidden" name="{{ $name }}" x-bind:value="value">
         @endif
 
-        <flux:dropdown>
-            <flux:button variant="outline" icon:trailing="chevron-down" class="w-full justify-between font-normal">
-                <span class="truncate" x-text="text" x-bind:class="value === '' ? 'text-zinc-400' : ''"></span>
+        <flux:dropdown position="bottom" align="start">
+            <flux:button variant="outline" icon:trailing="chevron-down" class="w-full justify-between font-normal [&>span]:min-w-0 [&>span]:flex-1 [&>span]:truncate [&>span]:text-start">
+                <span x-text="text" x-bind:class="value === '' ? 'text-zinc-400' : ''"></span>
             </flux:button>
 
-            <flux:menu class="max-h-72 min-w-56 overflow-y-auto" x-on:click="value = $event.target.closest('[data-value]')?.dataset.value ?? value">
+            <flux:menu x-ref="menu" class="max-h-72 min-w-0 overflow-y-auto overflow-x-hidden" x-on:click="value = $event.target.closest('[data-value]')?.dataset.value ?? value">
                 @foreach ($options as $key => $text)
                     <flux:menu.item as="button" type="button" data-value="{{ $key }}">
-                        <span class="flex w-full items-center justify-between gap-6">
-                            <span>{{ $text }}</span>
-                            <flux:icon name="check" variant="micro" class="size-4" x-show="value === $el.closest('[data-value]').dataset.value" />
+                        <span class="flex w-full min-w-0 items-center justify-between gap-3">
+                            <span class="min-w-0 truncate">{{ $text }}</span>
+                            <flux:icon name="check" variant="micro" class="size-4 shrink-0" x-show="value === $el.closest('[data-value]').dataset.value" />
                         </span>
                     </flux:menu.item>
                 @endforeach
