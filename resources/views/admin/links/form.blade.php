@@ -63,6 +63,7 @@
                     max="32767"
                     :label="__('links.fields.sort_order')"
                     :value="old('sort_order', $link->sort_order)"
+                    :readonly="! $link->exists"
                     required
                 />
 

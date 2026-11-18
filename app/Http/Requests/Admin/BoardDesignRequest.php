@@ -29,6 +29,9 @@ class BoardDesignRequest extends FormRequest
             'cards.*.y' => ['required', 'integer', 'min:0', 'max:60000'],
             'cards.*.w' => ['required', 'integer', 'min:1', 'max:12'],
             'cards.*.h' => ['required', 'integer', 'min:1', 'max:20'],
+            'links' => ['array', 'max:1000'],
+            'links.*.id' => ['required', 'integer', 'distinct'],
+            'links.*.sort_order' => ['required', 'integer', 'min:0', 'max:32767'],
         ];
     }
 

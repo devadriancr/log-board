@@ -62,7 +62,53 @@ function init() {
         syncRows();
     });
 
-    const toast = (text, variant) => window.Flux?.toast({ text, variant });
+    // Reorder the links of a card by dragging them (native drag and drop, links stay in their card).
+    // Reordered lists are renumbered 1..n and sent with the next save.
+    const reordered = new Set();
+    let dragged = null;
+
+    element.addEventListener('dragstart', (event) => {
+        dragged = event.target.closest?.('li[data-link]') ?? null;
+
+        if (dragged) {
+            event.dataTransfer.effectAllowed = 'move';
+            dragged.classList.add('opacity-40');
+        }
+    });
+
+    element.addEventListener('dragover', (event) => {
+        const list = event.target.closest?.('[data-links]');
+
+        if (!dragged || list !== dragged.parentElement) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const next = [...list.querySelectorAll('li[data-link]')]
+            .filter((item) => item !== dragged)
+            .find((item) => event.clientY < item.getBoundingClientRect().top + item.offsetHeight / 2);
+
+        list.insertBefore(dragged, next ?? null);
+    });
+
+    element.addEventListener('dragend', () => {
+        if (!dragged) {
+            return;
+        }
+
+        const list = dragged.parentElement;
+
+        dragged.classList.remove('opacity-40');
+        dragged = null;
+        reordered.add(list);
+
+        list.querySelectorAll('li[data-link]').forEach((item, index) => {
+            item.querySelector('[data-order]').textContent = index + 1;
+        });
+    });
+
+    const toast =(text, variant) => window.Flux?.toast({ text, variant });
 
     document.getElementById('design-save')?.addEventListener('click', async () => {
         const cards = grid.save(false).map((node) => ({
@@ -73,6 +119,13 @@ function init() {
             h: node.h,
         }));
 
+        const links = [...reordered].flatMap((list) =>
+            [...list.querySelectorAll('li[data-link]')].map((item, index) => ({
+                id: Number(item.dataset.link),
+                sort_order: index + 1,
+            })),
+        );
+
         try {
             const response = await fetch(element.dataset.url, {
                 method: 'PUT',
@@ -81,12 +134,14 @@ function init() {
                     Accept: 'application/json',
                     'X-CSRF-TOKEN': element.dataset.token,
                 },
-                body: JSON.stringify({ cards }),
+                body: JSON.stringify({ cards, links }),
             });
 
             if (!response.ok) {
                 throw new Error(response.statusText);
             }
+
+            reordered.clear();
 
             toast(element.dataset.saved, 'success');
         } catch (error) {

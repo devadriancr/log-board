@@ -131,6 +131,11 @@ class LinkController extends Controller
             $options = $data['options'] ?? [];
             unset($data['options']);
 
+            // A new link always goes last in its card; the order of existing ones is changed from the designer.
+            if (! $link->exists) {
+                $data['sort_order'] = (Link::where('card_id', $data['card_id'])->max('sort_order') ?? 0) + 1;
+            }
+
             $link->fill($data + ['updated_by' => $request->user()->id])->save();
 
             $link->options()->delete();

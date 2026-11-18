@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BoardDesignRequest;
 use App\Models\Board;
 use App\Models\Card;
+use App\Models\Link;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -41,7 +42,21 @@ class BoardDesignController extends Controller
             return response()->json(['message' => __('design.messages.foreign')], 422);
         }
 
-        DB::transaction(function () use ($layout, $request) {
+        $order = collect($request->validated('links', []))->pluck('sort_order', 'id');
+
+        $linksBelong = Link::whereIn('id', $order->keys())
+            ->whereHas('card', fn ($query) => $query->where('board_id', $board->id))
+            ->count();
+
+        if ($linksBelong !== $order->count()) {
+            return response()->json(['message' => __('design.messages.foreign')], 422);
+        }
+
+        DB::transaction(function () use ($layout, $order, $request) {
+            foreach ($order as $id => $sortOrder) {
+                Link::whereKey($id)->update(['sort_order' => $sortOrder, 'updated_by' => $request->user()->id]);
+            }
+
             foreach ($layout as $id => $item) {
                 Card::whereKey($id)->update([
                     'grid_x' => $item['x'],

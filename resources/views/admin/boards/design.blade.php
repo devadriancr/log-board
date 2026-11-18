@@ -100,11 +100,12 @@
                                         </div>
                                     </div>
 
-                                    <ul class="flex-1 space-y-1 overflow-y-auto px-3 py-2 text-sm">
+                                    <ul class="flex-1 space-y-1 overflow-y-auto px-3 py-2 text-sm" data-links>
                                         @forelse ($card->links as $link)
-                                            <li class="flex items-center gap-2 truncate">
-                                                <span class="w-5 shrink-0 text-right font-mono text-xs text-zinc-400" title="{{ __('links.fields.sort_order') }}">{{ $link->sort_order }}</span>
+                                            <li class="flex cursor-grab items-center gap-2 truncate rounded active:cursor-grabbing" draggable="true" data-link="{{ $link->id }}">
+                                                <span data-order class="w-5 shrink-0 text-right font-mono text-xs text-zinc-400" title="{{ __('links.fields.sort_order') }}">{{ $link->sort_order }}</span>
                                                 <a
+                                                    draggable="false"
                                                     href="{{ route('admin.links.edit', ['link' => $link, 'from' => 'design']) }}"
                                                     @class([
                                                         'text-zinc-600 hover:text-zinc-900 hover:underline dark:text-zinc-300 dark:hover:text-white',
