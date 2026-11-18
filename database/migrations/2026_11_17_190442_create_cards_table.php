@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('board_id')->constrained('boards');
             $table->string('title', 255);
+            $table->string('icon', 50)->nullable();
             $table->unsignedTinyInteger('grid_x');
             $table->unsignedSmallInteger('grid_y');
             $table->unsignedTinyInteger('grid_w');

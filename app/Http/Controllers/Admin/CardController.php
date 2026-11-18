@@ -45,6 +45,7 @@ class CardController extends Controller
         return view('admin.cards.create', [
             'card' => $card,
             'boards' => $this->boardOptions(),
+            'icons' => Card::icons(),
         ]);
     }
 
@@ -73,6 +74,7 @@ class CardController extends Controller
         return view('admin.cards.edit', [
             'card' => $card,
             'boards' => $this->boardOptions(),
+            'icons' => Card::icons(),
         ]);
     }
 

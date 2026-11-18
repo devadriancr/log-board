@@ -32,7 +32,12 @@
             >
                 <flux:card body="divided" class="h-full">
                     <flux:card.header>
-                        <flux:card.heading size="lg">{{ $card->title }}</flux:card.heading>
+                        <flux:card.heading size="lg" class="flex items-center gap-2">
+                            @if ($card->icon)
+                                <flux:icon :name="$card->icon" class="size-5 shrink-0" />
+                            @endif
+                            {{ $card->title }}
+                        </flux:card.heading>
                     </flux:card.header>
 
                     <flux:card.body>

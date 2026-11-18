@@ -80,6 +80,9 @@
                                     <div class="gs-handle flex cursor-move items-center justify-between gap-2 border-b border-zinc-200 px-3 py-2 dark:border-zinc-600">
                                         <div class="flex min-w-0 items-center gap-2">
                                             <flux:icon name="bars-3" variant="micro" class="size-4 shrink-0 text-zinc-400" />
+                                            @if ($card->icon)
+                                                <flux:icon :name="$card->icon" class="size-5 shrink-0 text-zinc-600 dark:text-zinc-300" />
+                                            @endif
                                             <span class="truncate text-sm font-medium text-zinc-800 dark:text-white">{{ $card->title }}</span>
                                         </div>
 

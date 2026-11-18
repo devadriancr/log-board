@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Card;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CardRequest extends FormRequest
 {
@@ -36,7 +38,8 @@ class CardRequest extends FormRequest
         return [
             'board_id' => ['required', 'integer', 'exists:boards,id'],
             'title' => ['required', 'string', 'max:255'],
-            'grid_w' => ['required', 'integer', 'min:1', 'max:12'],
+            'icon' => ['nullable', 'string', Rule::in(Card::icons())],
+            'grid_w' =>['required', 'integer', 'min:1', 'max:12'],
             'grid_h' => ['required', 'integer', 'min:1', 'max:20'],
             'link_columns' => ['required', 'integer', 'min:1', 'max:4'],
             'is_active' => ['boolean'],

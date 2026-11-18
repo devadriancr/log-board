@@ -44,7 +44,7 @@ class LinkController extends Controller
             'path' => '/',
             'show_description' => false,
             'open_in_new_tab' => true,
-            'sort_order' => $last === null ? 0 : $last + 1,
+            'sort_order' => ($last ?? 0) + 1,
             'is_active' => true,
         ]);
 

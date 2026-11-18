@@ -9,6 +9,7 @@ class Card extends Model
     protected $fillable = [
         'board_id',
         'title',
+        'icon',
         'grid_x',
         'grid_y',
         'grid_w',
@@ -33,6 +34,26 @@ class Card extends Model
             'link_columns' => 'integer',
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Names of the icons that <flux:icon> can render (Flux's bundled set plus the ones published in the project).
+     *
+     * @return array<int, string>
+     */
+    public static function icons(): array
+    {
+        return collect([
+            base_path('vendor/livewire/flux/stubs/resources/views/flux/icon'),
+            resource_path('views/flux/icon'),
+        ])
+            ->flatMap(fn (string $dir) => glob("$dir/*.blade.php"))
+            ->map(fn (string $file) => basename($file, '.blade.php'))
+            ->reject('index') // index.blade.php is the <flux:icon> component itself, rendering it loops forever
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
     }
 
     /**

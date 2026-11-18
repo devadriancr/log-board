@@ -15,6 +15,9 @@ return [
     'fields' => [
         'board_id' => 'Tablero',
         'title' => 'Título',
+        'icon' => 'Icono',
+        'icon_none' => 'Sin icono',
+        'icon_search' => 'Buscar icono…',
         'grid_w' => 'Ancho (1 a 12)',
         'grid_h' => 'Alto (filas)',
         'link_columns' => 'Columnas de enlaces',
@@ -24,6 +27,7 @@ return [
     'attributes' => [
         'board_id' => 'tablero',
         'title' => 'título',
+        'icon' => 'icono',
         'grid_w' => 'ancho',
         'grid_h' => 'alto',
         'link_columns' => 'columnas de enlaces',
