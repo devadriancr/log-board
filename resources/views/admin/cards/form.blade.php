@@ -108,26 +108,36 @@
                 />
 
                 @unless ($card->isText())
-                {{-- x-data goes on a plain div: @js is not evaluated inside component tag attributes --}}
-                <div x-data="{ color: @js((string) old('color', $card->color)) }">
+                {{-- Palette colours: they colour the header, the border and the title of the card; the body stays white --}}
+                <div x-data="{ color: @js((string) old('color', $card->color)) }" class="md:col-span-2">
                     <flux:field>
                         <flux:label>{{ __('cards.fields.color') }}</flux:label>
 
                         <input type="hidden" name="color" x-bind:value="color">
 
-                        <div class="flex items-center gap-3">
-                            <input
-                                type="color"
-                                x-bind:value="color || '#a1a1aa'"
-                                x-on:input="color = $event.target.value"
-                                class="h-10 w-16 cursor-pointer rounded-lg border border-zinc-200 bg-white p-1 dark:border-zinc-600 dark:bg-zinc-700"
-                            >
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                title="{{ __('cards.fields.color_none') }}"
+                                aria-label="{{ __('cards.fields.color_none') }}"
+                                x-on:click="color = ''"
+                                class="flex h-10 w-16 items-center justify-center rounded-lg border-2 border-zinc-300 bg-white text-sm text-zinc-700 dark:border-zinc-500 dark:bg-zinc-700 dark:text-zinc-200"
+                                x-bind:class="! color && 'ring-2 ring-zinc-500 ring-offset-2 ring-offset-white dark:ring-zinc-300 dark:ring-offset-zinc-800'"
+                            >Aa</button>
 
-                            <span class="text-sm text-zinc-500 dark:text-zinc-400" x-show="! color" x-text="@js(__('cards.fields.color_none'))"></span>
+                            @foreach (\App\Models\Card::COLORS as $key => $name)
+                                <button
+                                    type="button"
+                                    data-card-color="{{ $key }}"
+                                    title="{{ $name }}"
+                                    aria-label="{{ $name }}"
+                                    x-on:click="color = '{{ $key }}'"
+                                    class="card-swatch flex h-10 w-16 items-center justify-center rounded-lg text-sm font-medium"
+                                    x-bind:class="color === '{{ $key }}' && 'ring-2 ring-zinc-500 ring-offset-2 ring-offset-white dark:ring-zinc-300 dark:ring-offset-zinc-800'"
+                                >Aa</button>
+                            @endforeach
 
-                            <flux:button type="button" size="sm" variant="outline" icon="x-mark" x-show="color" x-cloak x-on:click="color = ''">
-                                {{ __('cards.fields.color_none') }}
-                            </flux:button>
+                            <span class="text-sm text-zinc-500 dark:text-zinc-400" x-text="color ? @js(\App\Models\Card::COLORS)[color] : @js(__('cards.fields.color_none'))"></span>
                         </div>
 
                         <flux:error name="color" />

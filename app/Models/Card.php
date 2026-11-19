@@ -13,6 +13,16 @@ class Card extends Model
 
     public const TYPE_TEXT = 'text';
 
+    /** Colours a card can take: key => name. Header, border and text colours of each one are defined in app.css. */
+    public const COLORS = [
+        'blue' => 'Azul',
+        'green' => 'Verde',
+        'red' => 'Rojo',
+        'amber' => 'Amarillo',
+        'purple' => 'Morado',
+        'slate' => 'Gris',
+    ];
+
     protected $fillable = [
         'board_id',
         'title',
@@ -92,18 +102,12 @@ class Card extends Model
     }
 
     /**
-     * Inline style for the header when the card has a colour: the background and a text colour that stays readable on it.
+     * The key of the palette colour of the card (its CSS lives in app.css), or null when it has none.
+     * Text cards have no header, so they never use one.
      */
-    public function headerStyle(): ?string
+    public function colorName(): ?string
     {
-        if (! $this->color || $this->isText()) {
-            return null;
-        }
-
-        [$r, $g, $b] = sscanf($this->color, '#%02x%02x%02x');
-        $dark = (0.299 * $r + 0.587 * $g + 0.114 * $b) < 150;
-
-        return 'background-color: '.$this->color.'; color: '.($dark ? '#ffffff' : '#18181b').';';
+        return ! $this->isText() && isset(self::COLORS[$this->color]) ? $this->color : null;
     }
 
     /**

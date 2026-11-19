@@ -39,7 +39,7 @@ class CardRequest extends FormRequest
             'board_id' => ['required', 'integer', 'exists:boards,id'],
             'title' => [Rule::requiredIf(fn () => $this->input('type') !== Card::TYPE_TEXT), 'nullable', 'string', 'max:255'],
             'icon' => ['nullable', 'string', Rule::in(Card::icons())],
-            'color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'color' => ['nullable', Rule::in(array_keys(Card::COLORS))],
             'type' => ['required', Rule::in([Card::TYPE_LINKS, Card::TYPE_TEXT])],
             'content' => [Rule::requiredIf(fn () => $this->input('type') === Card::TYPE_TEXT), 'nullable', 'string', 'max:500000'],
             'grid_w' =>['required', 'integer', 'min:1', 'max:12'],

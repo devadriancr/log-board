@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Application;
 use App\Models\Board;
 use App\Models\Card;
+use App\Models\Link;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -58,7 +59,7 @@ class TextCardTest extends TestCase
     public function test_a_text_card_needs_content_and_a_links_card_needs_a_title_and_a_hex_colour(): void
     {
         $this->post(route('admin.cards.store'), $this->payload(['content' => '']))->assertSessionHasErrors('content');
-        $this->post(route('admin.cards.store'), $this->payload(['type' => 'links', 'title' => 'T', 'color' => 'red']))->assertSessionHasErrors('color');
+        $this->post(route('admin.cards.store'), $this->payload(['type' => 'links', 'title' => 'T', 'color' => '#e3322c']))->assertSessionHasErrors('color');
         $this->post(route('admin.cards.store'), $this->payload(['type' => 'links']))->assertSessionHasErrors('title');
     }
 
@@ -118,5 +119,17 @@ class TextCardTest extends TestCase
         $this->get(route('admin.cards.create', ['type' => 'text']))->assertOk()->assertSee('id="rich-editor"', false);
         $this->get(route('admin.cards.create'))->assertOk()->assertDontSee('id="rich-editor"', false);
         $this->get(route('admin.cards.index'))->assertOk();
+    }
+
+    public function test_a_links_card_takes_a_palette_colour_that_reaches_the_public_board_and_the_designer(): void
+    {
+        $this->post(route('admin.cards.store'), ['board_id' => $this->board->id, 'title' => 'Sistemas', 'type' => 'links', 'color' => 'green', 'is_active' => 1, 'grid_w' => 6, 'grid_h' => 2])->assertSessionHasNoErrors();
+        $this->post(route('admin.cards.store'), ['board_id' => $this->board->id, 'title' => 'X', 'type' => 'links', 'color' => 'pink', 'grid_w' => 6, 'grid_h' => 2])->assertSessionHasErrors('color');
+
+        $card = Card::first();
+        $link = Link::create(['card_id' => $card->id, 'application_id' => Application::create(['name' => 'App', 'base_url' => 'https://example.com'])->id, 'label' => 'L', 'sort_order' => 1, 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 12]);
+
+        $this->get(route('home'))->assertOk()->assertSee('data-card-color="green"', false);
+        $this->get(route('admin.boards.design', $this->board))->assertOk()->assertSee('data-card-color="green"', false);
     }
 }

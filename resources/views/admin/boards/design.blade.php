@@ -93,11 +93,11 @@
                                 gs-w="{{ $card->grid_w }}"
                                 gs-h="{{ $card->grid_h }}"
                             >
-                                <div @class([
+                                <div @if ($card->colorName()) data-card-color="{{ $card->colorName() }}" @endif @class([
                                     'grid-stack-item-content design-card flex flex-col overflow-hidden rounded-xl border border-zinc-300 bg-white shadow-xs dark:border-zinc-600 dark:bg-zinc-700',
                                     'opacity-60' => ! $card->is_active,
                                 ])>
-                                    <div class="gs-handle flex cursor-move items-center justify-between gap-2 border-b border-zinc-200 px-3 py-2 dark:border-zinc-600" @if ($card->headerStyle()) style="{{ $card->headerStyle() }}" @endif>
+                                    <div class="gs-handle flex cursor-move items-center justify-between gap-2 border-b border-zinc-200 px-3 py-2 dark:border-zinc-600 @if ($card->colorName()) card-head @endif">
                                         <div class="flex min-w-0 items-center gap-2">
                                             <flux:icon name="bars-3" variant="micro" class="size-4 shrink-0 text-zinc-400" />
                                             {{-- A text card has no header: this bar is only the handle to move it --}}
@@ -105,7 +105,7 @@
                                                 @if ($card->icon)
                                                     <flux:icon :name="$card->icon" class="size-5 shrink-0 text-zinc-600 dark:text-zinc-300" />
                                                 @endif
-                                                <span class="truncate text-sm font-medium text-zinc-800 dark:text-white" @if ($card->color) style="color: inherit" @endif>{{ $card->title }}</span>
+                                                <span class="truncate text-sm font-medium text-zinc-800 dark:text-white">{{ $card->title }}</span>
                                             @endunless
                                         </div>
 

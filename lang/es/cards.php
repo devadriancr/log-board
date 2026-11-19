@@ -18,7 +18,7 @@ return [
         'icon' => 'Icono',
         'icon_none' => 'Sin icono',
         'icon_search' => 'Buscar icono…',
-        'color' => 'Color del encabezado',
+        'color' => 'Color',
         'color_none' => 'Sin color',
         'content' => 'Contenido',
         'grid_w' => 'Ancho (1 a 12)',

@@ -31,11 +31,11 @@
                 style="--x: {{ $card->grid_x + 1 }}; --w: {{ $card->grid_w }}; --y: {{ $card->grid_y + 1 }}; --h: {{ $card->grid_h }}"
             >
                 {{-- The card keeps the size it was given in the designer: when its content does not fit, the body scrolls --}}
-                <flux:card body="divided" class="flex h-full flex-col overflow-hidden">
+                <flux:card body="divided" class="flex h-full flex-col overflow-hidden" :data-card-color="$card->colorName()">
                     {{-- Text cards have no header: the title is part of the content --}}
                     @unless ($card->isText())
-                    <flux:card.header :style="$card->headerStyle()">
-                        <flux:card.heading size="lg" class="flex items-center gap-2" :style="$card->color ? 'color: inherit' : null">
+                    <flux:card.header class="card-head">
+                        <flux:card.heading size="lg" class="flex items-center gap-2">
                             @if ($card->icon)
                                 <flux:icon :name="$card->icon" class="size-5 shrink-0" />
                             @endif

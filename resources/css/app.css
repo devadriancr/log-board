@@ -361,3 +361,44 @@ select:focus[data-flux-control] {
     transform: translate(50%, 50%);
     cursor: nwse-resize;
 }
+
+/* Colores de las tarjetas (Card::COLORS): encabezado, borde y texto del título. El cuerpo de la tarjeta no cambia.
+   Cada color tiene su variante para el tema oscuro. */
+[data-card-color='blue'] { --cc-bg: #dbeafe; --cc-border: #2563eb; --cc-text: #1e3a8a; }
+[data-card-color='green'] { --cc-bg: #dcfce7; --cc-border: #16a34a; --cc-text: #14532d; }
+[data-card-color='red'] { --cc-bg: #fee2e2; --cc-border: #dc2626; --cc-text: #7f1d1d; }
+[data-card-color='amber'] { --cc-bg: #fef3c7; --cc-border: #d97706; --cc-text: #78350f; }
+[data-card-color='purple'] { --cc-bg: #f3e8ff; --cc-border: #9333ea; --cc-text: #581c87; }
+[data-card-color='slate'] { --cc-bg: #f1f5f9; --cc-border: #64748b; --cc-text: #1e293b; }
+
+.dark [data-card-color='blue'] { --cc-bg: #1e3a8a; --cc-border: #60a5fa; --cc-text: #dbeafe; }
+.dark [data-card-color='green'] { --cc-bg: #14532d; --cc-border: #4ade80; --cc-text: #dcfce7; }
+.dark [data-card-color='red'] { --cc-bg: #7f1d1d; --cc-border: #f87171; --cc-text: #fee2e2; }
+.dark [data-card-color='amber'] { --cc-bg: #78350f; --cc-border: #fbbf24; --cc-text: #fef3c7; }
+.dark [data-card-color='purple'] { --cc-bg: #581c87; --cc-border: #c084fc; --cc-text: #f3e8ff; }
+.dark [data-card-color='slate'] { --cc-bg: #1e293b; --cc-border: #94a3b8; --cc-text: #f1f5f9; }
+
+[data-card-color]:not(.card-swatch) {
+    border-color: var(--cc-border);
+}
+
+/* El borde de cada sección (encabezado / cuerpo) también toma el color. */
+[data-card-color]:not(.card-swatch) > * {
+    border-color: var(--cc-border);
+}
+
+[data-card-color] .card-head {
+    background-color: var(--cc-bg);
+    border-color: var(--cc-border);
+}
+
+[data-card-color] .card-head,
+[data-card-color] .card-head * {
+    color: var(--cc-text);
+}
+
+.card-swatch {
+    background-color: var(--cc-bg);
+    border: 2px solid var(--cc-border);
+    color: var(--cc-text);
+}
