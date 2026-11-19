@@ -102,16 +102,6 @@
                     required
                 />
 
-                <flux:input
-                    name="link_columns"
-                    type="number"
-                    min="1"
-                    max="4"
-                    :label="__('cards.fields.link_columns')"
-                    :value="old('link_columns', $card->link_columns)"
-                    required
-                />
-
                 <div class="md:self-end md:pb-2.5">
                     <flux:checkbox
                         name="is_active"

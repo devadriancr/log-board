@@ -21,6 +21,9 @@ return new class extends Migration
             $table->boolean('show_description')->default(false);
             $table->boolean('open_in_new_tab')->default(true);
             $table->smallInteger('sort_order')->default(0);
+            $table->unsignedTinyInteger('grid_x')->default(0);
+            $table->unsignedSmallInteger('grid_y')->default(0);
+            $table->unsignedTinyInteger('grid_w')->default(1);
             $table->boolean('is_active')->default(true);
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();

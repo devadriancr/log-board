@@ -56,17 +56,6 @@
                     required
                 />
 
-                <flux:input
-                    name="sort_order"
-                    type="number"
-                    min="0"
-                    max="32767"
-                    :label="__('links.fields.sort_order')"
-                    :value="old('sort_order', $link->sort_order)"
-                    :readonly="! $link->exists"
-                    required
-                />
-
                 <div class="md:self-end md:pb-2.5">
                     <flux:checkbox
                         name="is_active"

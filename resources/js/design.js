@@ -62,56 +62,40 @@ function init() {
         syncRows();
     });
 
-    // Reorder the links of a card by dragging them (native drag and drop, links stay in their card).
-    // Reordered lists are renumbered 1..n and sent with the next save.
-    const reordered = new Set();
-    let dragged = null;
+    // Links live in a 3-column grid inside each card: drag them and widen them to show 1, 2 or 3 per row.
+    // Initialised after the card grid, which they are nested in. Cards of the page: one sub-grid each.
+    const linkGrids = [...element.querySelectorAll('.link-grid')].map((el) =>
+        GridStack.init(
+            {
+                column: 3,
+                cellHeight: 34,
+                margin: 3,
+                float: false,
+                animate: true,
+                resizable: { handles: 'e, w' },
+            },
+            el,
+        ),
+    );
 
-    element.addEventListener('dragstart', (event) => {
-        dragged = event.target.closest?.('li[data-link]') ?? null;
+    // The order number is the place in the card: top to bottom, left to right.
+    const renumber = (linkGrid) =>
+        [...linkGrid.engine.nodes]
+            .sort((a, b) => a.y - b.y || a.x - b.x)
+            .forEach((node, index) => {
+                node.el.querySelector('[data-order]').textContent = index + 1;
+            });
 
-        if (dragged) {
-            event.dataTransfer.effectAllowed = 'move';
-            dragged.classList.add('opacity-40');
-        }
-    });
-
-    element.addEventListener('dragover', (event) => {
-        const list = event.target.closest?.('[data-links]');
-
-        if (!dragged || list !== dragged.parentElement) {
-            return;
-        }
-
-        event.preventDefault();
-
-        const next = [...list.querySelectorAll('li[data-link]')]
-            .filter((item) => item !== dragged)
-            .find((item) => event.clientY < item.getBoundingClientRect().top + item.offsetHeight / 2);
-
-        list.insertBefore(dragged, next ?? null);
-    });
-
-    element.addEventListener('dragend', () => {
-        if (!dragged) {
-            return;
-        }
-
-        const list = dragged.parentElement;
-
-        dragged.classList.remove('opacity-40');
-        dragged = null;
-        reordered.add(list);
-
-        list.querySelectorAll('li[data-link]').forEach((item, index) => {
-            item.querySelector('[data-order]').textContent = index + 1;
-        });
+    linkGrids.forEach((linkGrid) => {
+        linkGrid.on('change', () => renumber(linkGrid));
+        linkGrid.on('dragstop', () => renumber(linkGrid));
     });
 
     const toast =(text, variant) => window.Flux?.toast({ text, variant });
 
     document.getElementById('design-save')?.addEventListener('click', async () => {
-        const cards = grid.save(false).map((node) => ({
+        // Not grid.save(): it drops w/h when they equal 1, and the server requires both.
+        const cards = grid.engine.nodes.map((node) => ({
             id: Number(node.id),
             x: node.x,
             y: node.y,
@@ -119,11 +103,8 @@ function init() {
             h: node.h,
         }));
 
-        const links = [...reordered].flatMap((list) =>
-            [...list.querySelectorAll('li[data-link]')].map((item, index) => ({
-                id: Number(item.dataset.link),
-                sort_order: index + 1,
-            })),
+        const links = linkGrids.flatMap((linkGrid) =>
+            linkGrid.engine.nodes.map((node) => ({ id: Number(node.id), x: node.x, y: node.y, w: node.w })),
         );
 
         try {
@@ -140,8 +121,6 @@ function init() {
             if (!response.ok) {
                 throw new Error(response.statusText);
             }
-
-            reordered.clear();
 
             toast(element.dataset.saved, 'success');
         } catch (error) {

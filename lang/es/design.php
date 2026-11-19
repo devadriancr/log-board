@@ -11,7 +11,7 @@ return [
     'messages' => [
         'saved' => 'Diseño guardado.',
         'error' => 'No se pudo guardar el diseño.',
-        'overflow' => 'Una tarjeta se sale de las 12 columnas.',
+        'overflow' => 'Una tarjeta o un enlace se sale de su cuadrícula.',
         'foreign' => 'Una de las tarjetas no pertenece a este tablero.',
     ],
 ];

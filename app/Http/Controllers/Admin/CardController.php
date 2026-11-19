@@ -38,7 +38,6 @@ class CardController extends Controller
             'board_id' => $request->integer('board') ?: null,
             'grid_w' => 6,
             'grid_h' => 2,
-            'link_columns' => 1,
             'is_active' => true,
         ]);
 

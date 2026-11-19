@@ -41,13 +41,15 @@
                     </flux:card.header>
 
                     <flux:card.body>
-                        <div class="board-links grid gap-3" style="--cols: {{ $card->link_columns }}">
+                        <div class="board-links grid gap-3">
                             @foreach ($card->links as $link)
+                                @php($place = sprintf('--x: %d; --w: %d; --y: %d', $link->grid_x + 1, $link->grid_w, $link->grid_y + 1))
                                 @if ($link->options->isEmpty())
                                     <a
                                         href="{{ $link->urlTemplate() }}"
                                         @if ($link->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
-                                        class="group flex items-center gap-3 {{ $itemClasses }} {{ $linkClasses }}"
+                                        style="{{ $place }}"
+                                        class="board-link group flex items-center gap-3 {{ $itemClasses }} {{ $linkClasses }}"
                                     >
                                         @unless ($isButton)
                                             <flux:icon name="link" variant="micro" class="size-4 shrink-0 text-zinc-400" />
@@ -71,7 +73,8 @@
                                     </a>
                                 @else
                                     <div
-                                        class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 {{ $itemClasses }}"
+                                        style="{{ $place }}"
+                                        class="board-link flex flex-wrap items-center justify-between gap-x-4 gap-y-2 {{ $itemClasses }}"
                                         x-data="{
                                             param: @js($link->options->first()->value),
                                             url: @js($link->urlTemplate()),

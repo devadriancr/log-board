@@ -20,7 +20,6 @@ return new class extends Migration
             $table->unsignedSmallInteger('grid_y');
             $table->unsignedTinyInteger('grid_w');
             $table->unsignedTinyInteger('grid_h');
-            $table->unsignedTinyInteger('link_columns')->default(1);
             $table->boolean('is_active')->default(true);
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();

@@ -42,19 +42,29 @@ class BoardDesignController extends Controller
             return response()->json(['message' => __('design.messages.foreign')], 422);
         }
 
-        $order = collect($request->validated('links', []))->pluck('sort_order', 'id');
+        $links = collect($request->validated('links', []))->keyBy('id');
 
-        $linksBelong = Link::whereIn('id', $order->keys())
+        // Only links of this board, mapped to their card so the order number can be derived from the position.
+        $cardOf = Link::whereIn('id', $links->keys())
             ->whereHas('card', fn ($query) => $query->where('board_id', $board->id))
-            ->count();
+            ->pluck('card_id', 'id');
 
-        if ($linksBelong !== $order->count()) {
+        if ($cardOf->count() !== $links->count()) {
             return response()->json(['message' => __('design.messages.foreign')], 422);
         }
 
-        DB::transaction(function () use ($layout, $order, $request) {
-            foreach ($order as $id => $sortOrder) {
-                Link::whereKey($id)->update(['sort_order' => $sortOrder, 'updated_by' => $request->user()->id]);
+        DB::transaction(function () use ($layout, $links, $cardOf, $request) {
+            // The order number of a link is its place in the card: top to bottom, left to right.
+            foreach ($links->groupBy(fn ($link) => $cardOf[$link['id']]) as $inCard) {
+                foreach ($inCard->sortBy([['y', 'asc'], ['x', 'asc']])->values() as $index => $link) {
+                    Link::whereKey($link['id'])->update([
+                        'grid_x' => $link['x'],
+                        'grid_y' => $link['y'],
+                        'grid_w' => $link['w'],
+                        'sort_order' => $index + 1,
+                        'updated_by' => $request->user()->id,
+                    ]);
+                }
             }
 
             foreach ($layout as $id => $item) {

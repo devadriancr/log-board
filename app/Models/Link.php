@@ -15,6 +15,9 @@ class Link extends Model
         'show_description',
         'open_in_new_tab',
         'sort_order',
+        'grid_x',
+        'grid_y',
+        'grid_w',
         'is_active',
         'updated_by',
     ];
@@ -27,6 +30,9 @@ class Link extends Model
     protected function casts(): array
     {
         return [
+            'grid_x' => 'integer',
+            'grid_y' => 'integer',
+            'grid_w' => 'integer',
             'show_description' => 'boolean',
             'open_in_new_tab' => 'boolean',
             'is_active' => 'boolean',

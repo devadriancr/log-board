@@ -111,26 +111,40 @@
                                             />
                                         </div>
                                     </div>
+                                    <div class="flex-1 overflow-y-auto px-2 py-1.5 text-sm">
+                                        @if ($card->links->isEmpty())
+                                            <p class="px-1 text-zinc-400">{{ __('design.no_links') }}</p>
+                                        @else
+                                            {{-- 3 columns: each link can be dragged and widened to take 1, 2 or 3 of them --}}
+                                            <div class="grid-stack link-grid">
+                                                @foreach ($card->links as $link)
+                                                    <div
+                                                        class="grid-stack-item"
+                                                        gs-id="{{ $link->id }}"
+                                                        gs-x="{{ $link->grid_x }}"
+                                                        gs-y="{{ $link->grid_y }}"
+                                                        gs-w="{{ $link->grid_w }}"
+                                                        gs-h="1"
+                                                    >
+                                                        <div class="grid-stack-item-content flex cursor-grab items-center gap-1.5 rounded-md border border-zinc-200 bg-zinc-50 px-2 active:cursor-grabbing dark:border-zinc-500 dark:bg-zinc-600/60">
+                                                            <span data-order class="w-4 shrink-0 text-right font-mono text-xs text-zinc-400" title="{{ __('links.fields.sort_order') }}">{{ $link->sort_order }}</span>
+                                                            <a
+                                                                draggable="false"
+                                                                href="{{ route('admin.links.edit', ['link' => $link, 'from' => 'design']) }}"
+                                                                @class([
+                                                                    'min-w-0 truncate text-zinc-700 hover:text-zinc-900 hover:underline dark:text-zinc-200 dark:hover:text-white',
+                                                                    'line-through opacity-60' => ! $link->is_active,
+                                                                ])
+                                                            >
+                                                                {{ $link->label }}
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
 
-                                    <ul class="flex-1 space-y-1 overflow-y-auto px-3 py-2 text-sm" data-links>
-                                        @forelse ($card->links as $link)
-                                            <li class="flex cursor-grab items-center gap-2 truncate rounded active:cursor-grabbing" draggable="true" data-link="{{ $link->id }}">
-                                                <span data-order class="w-5 shrink-0 text-right font-mono text-xs text-zinc-400" title="{{ __('links.fields.sort_order') }}">{{ $link->sort_order }}</span>
-                                                <a
-                                                    draggable="false"
-                                                    href="{{ route('admin.links.edit', ['link' => $link, 'from' => 'design']) }}"
-                                                    @class([
-                                                        'text-zinc-600 hover:text-zinc-900 hover:underline dark:text-zinc-300 dark:hover:text-white',
-                                                        'line-through opacity-60' => ! $link->is_active,
-                                                    ])
-                                                >
-                                                    {{ $link->label }}
-                                                </a>
-                                            </li>
-                                        @empty
-                                            <li class="text-zinc-400">{{ __('design.no_links') }}</li>
-                                        @endforelse
-                                    </ul>
 
                                     <div class="border-t border-zinc-200 px-3 py-2 dark:border-zinc-600">
                                         <flux:button

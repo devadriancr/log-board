@@ -65,7 +65,6 @@ class LinkRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:1000'],
             'show_description' => ['boolean'],
             'open_in_new_tab' => ['boolean'],
-            'sort_order' => ['required', 'integer', 'min:0', 'max:32767'],
             'is_active' => ['boolean'],
             'options' => [
                 Rule::requiredIf(fn () => str_contains((string) $this->input('path'), '{param}')),

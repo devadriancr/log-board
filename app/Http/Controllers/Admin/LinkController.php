@@ -37,14 +37,12 @@ class LinkController extends Controller
     public function create(Request $request): View
     {
         $cardId = $request->integer('card') ?: null;
-        $last = $cardId ? Link::where('card_id', $cardId)->max('sort_order') : null;
 
         $link = new Link([
             'card_id' => $cardId,
             'path' => '/',
             'show_description' => false,
             'open_in_new_tab' => true,
-            'sort_order' => ($last ?? 0) + 1,
             'is_active' => true,
         ]);
 
@@ -131,9 +129,14 @@ class LinkController extends Controller
             $options = $data['options'] ?? [];
             unset($data['options']);
 
-            // A new link always goes last in its card; the order of existing ones is changed from the designer.
-            if (! $link->exists) {
+            // A new link (or one moved to another card) goes last, on its own row. Its place is changed from the designer.
+            if (! $link->exists || $link->card_id !== (int) $data['card_id']) {
+                $lastRow = Link::where('card_id', $data['card_id'])->max('grid_y');
+
                 $data['sort_order'] = (Link::where('card_id', $data['card_id'])->max('sort_order') ?? 0) + 1;
+                $data['grid_x'] = 0;
+                $data['grid_y'] = $lastRow === null ? 0 : $lastRow + 1;
+                $data['grid_w'] = 1;
             }
 
             $link->fill($data + ['updated_by' => $request->user()->id])->save();

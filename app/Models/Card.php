@@ -14,7 +14,6 @@ class Card extends Model
         'grid_y',
         'grid_w',
         'grid_h',
-        'link_columns',
         'is_active',
         'updated_by',
     ];
@@ -31,7 +30,6 @@ class Card extends Model
             'grid_y' => 'integer',
             'grid_w' => 'integer',
             'grid_h' => 'integer',
-            'link_columns' => 'integer',
             'is_active' => 'boolean',
         ];
     }

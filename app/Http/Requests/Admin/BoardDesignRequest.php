@@ -31,12 +31,14 @@ class BoardDesignRequest extends FormRequest
             'cards.*.h' => ['required', 'integer', 'min:1', 'max:20'],
             'links' => ['array', 'max:1000'],
             'links.*.id' => ['required', 'integer', 'distinct'],
-            'links.*.sort_order' => ['required', 'integer', 'min:0', 'max:32767'],
+            'links.*.x' => ['required', 'integer', 'min:0', 'max:2'],
+            'links.*.y' => ['required', 'integer', 'min:0', 'max:1000'],
+            'links.*.w' => ['required', 'integer', 'min:1', 'max:3'],
         ];
     }
 
     /**
-     * Make sure no card goes past the 12th column.
+     * Make sure no card goes past the 12th column and no link past the 3rd column of its card.
      *
      * @return array<int, callable>
      */
@@ -47,6 +49,12 @@ class BoardDesignRequest extends FormRequest
                 foreach ($this->input('cards', []) as $index => $card) {
                     if (((int) ($card['x'] ?? 0)) + ((int) ($card['w'] ?? 0)) > 12) {
                         $validator->errors()->add("cards.$index.x", __('design.messages.overflow'));
+                    }
+                }
+
+                foreach ($this->input('links', []) as $index => $link) {
+                    if (((int) ($link['x'] ?? 0)) + ((int) ($link['w'] ?? 0)) > 3) {
+                        $validator->errors()->add("links.$index.x", __('design.messages.overflow'));
                     }
                 }
             },

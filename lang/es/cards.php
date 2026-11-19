@@ -20,7 +20,6 @@ return [
         'icon_search' => 'Buscar icono…',
         'grid_w' => 'Ancho (1 a 12)',
         'grid_h' => 'Alto (filas)',
-        'link_columns' => 'Columnas de enlaces',
         'is_active' => 'Activa',
     ],
 
@@ -30,7 +29,6 @@ return [
         'icon' => 'icono',
         'grid_w' => 'ancho',
         'grid_h' => 'alto',
-        'link_columns' => 'columnas de enlaces',
         'is_active' => 'activa',
     ],
 

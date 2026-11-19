@@ -41,7 +41,6 @@ class CardRequest extends FormRequest
             'icon' => ['nullable', 'string', Rule::in(Card::icons())],
             'grid_w' =>['required', 'integer', 'min:1', 'max:12'],
             'grid_h' => ['required', 'integer', 'min:1', 'max:20'],
-            'link_columns' => ['required', 'integer', 'min:1', 'max:4'],
             'is_active' => ['boolean'],
         ];
     }
