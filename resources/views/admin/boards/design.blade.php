@@ -115,7 +115,7 @@
                                         @if ($card->links->isEmpty())
                                             <p class="px-1 text-zinc-400">{{ __('design.no_links') }}</p>
                                         @else
-                                            {{-- 3 columns: each link can be dragged and widened to take 1, 2 or 3 of them --}}
+                                            {{-- 12 columns like the cards: each link can be dragged and resized by cells (at least 4, so 3 per row at most) --}}
                                             <div class="grid-stack link-grid">
                                                 @foreach ($card->links as $link)
                                                     <div
@@ -124,6 +124,7 @@
                                                         gs-x="{{ $link->grid_x }}"
                                                         gs-y="{{ $link->grid_y }}"
                                                         gs-w="{{ $link->grid_w }}"
+                                                        gs-min-w="4"
                                                         gs-h="1"
                                                     >
                                                         <div class="grid-stack-item-content flex cursor-grab items-center gap-1.5 rounded-md border border-zinc-200 bg-zinc-50 px-2 active:cursor-grabbing dark:border-zinc-500 dark:bg-zinc-600/60">
@@ -131,6 +132,7 @@
                                                             <a
                                                                 draggable="false"
                                                                 href="{{ route('admin.links.edit', ['link' => $link, 'from' => 'design']) }}"
+                                                                title="{{ $link->label }}"
                                                                 @class([
                                                                     'min-w-0 truncate text-zinc-700 hover:text-zinc-900 hover:underline dark:text-zinc-200 dark:hover:text-white',
                                                                     'line-through opacity-60' => ! $link->is_active,

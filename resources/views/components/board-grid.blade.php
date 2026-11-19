@@ -56,10 +56,10 @@
                                         @endunless
 
                                         <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-                                            <span class="{{ $labelClasses }}">{{ $link->label }}</span>
+                                            <span class="truncate {{ $labelClasses }}" title="{{ $link->label }}">{{ $link->label }}</span>
 
                                             @if ($link->show_description && $link->description)
-                                                <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ $link->description }}</span>
+                                                <span class="truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $link->description }}">{{ $link->description }}</span>
                                             @endif
                                         </span>
 
@@ -91,10 +91,10 @@
                                             @endunless
 
                                             <span class="flex min-w-0 flex-col gap-0.5">
-                                                <span class="text-sm font-medium text-zinc-800 dark:text-white">{{ $link->label }}</span>
+                                                <span class="truncate text-sm font-medium text-zinc-800 dark:text-white" title="{{ $link->label }}">{{ $link->label }}</span>
 
                                                 @if ($link->show_description && $link->description)
-                                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ $link->description }}</span>
+                                                    <span class="truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $link->description }}">{{ $link->description }}</span>
                                                 @endif
                                             </span>
 

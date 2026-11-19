@@ -136,7 +136,7 @@ class LinkController extends Controller
                 $data['sort_order'] = (Link::where('card_id', $data['card_id'])->max('sort_order') ?? 0) + 1;
                 $data['grid_x'] = 0;
                 $data['grid_y'] = $lastRow === null ? 0 : $lastRow + 1;
-                $data['grid_w'] = 1;
+                $data['grid_w'] = 12;
             }
 
             $link->fill($data + ['updated_by' => $request->user()->id])->save();

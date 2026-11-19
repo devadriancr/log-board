@@ -62,12 +62,12 @@ function init() {
         syncRows();
     });
 
-    // Links live in a 3-column grid inside each card: drag them and widen them to show 1, 2 or 3 per row.
+    // Links live in a 12-column grid inside each card (like the cards): drag and resize them by cells, at least 4 wide so 3 fit per row.
     // Initialised after the card grid, which they are nested in. Cards of the page: one sub-grid each.
     const linkGrids = [...element.querySelectorAll('.link-grid')].map((el) =>
         GridStack.init(
             {
-                column: 3,
+                column: 12,
                 cellHeight: 34,
                 margin: 3,
                 float: false,

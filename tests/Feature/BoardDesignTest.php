@@ -46,26 +46,34 @@ class BoardDesignTest extends TestCase
         $this->putJson(route('admin.boards.design.update', $this->board), [
             'cards' => [['id' => $this->card->id, 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1]],
             'links' => [
-                ['id' => $this->links[0]->id, 'x' => 0, 'y' => 0, 'w' => 1],
-                ['id' => $this->links[2]->id, 'x' => 1, 'y' => 0, 'w' => 2],
-                ['id' => $this->links[1]->id, 'x' => 0, 'y' => 1, 'w' => 3],
+                ['id' => $this->links[0]->id, 'x' => 0, 'y' => 0, 'w' => 6],
+                ['id' => $this->links[2]->id, 'x' => 6, 'y' => 0, 'w' => 6],
+                ['id' => $this->links[1]->id, 'x' => 0, 'y' => 1, 'w' => 12],
             ],
         ])->assertOk();
 
         $this->assertSame(1, $this->card->fresh()->grid_w);
         $this->assertSame(1, $this->card->fresh()->grid_h);
         $this->assertSame(
-            ['grid_x' => 1, 'grid_y' => 0, 'grid_w' => 2, 'sort_order' => 2],
+            ['grid_x' => 6, 'grid_y' => 0, 'grid_w' => 6, 'sort_order' => 2],
             $this->links[2]->fresh()->only('grid_x', 'grid_y', 'grid_w', 'sort_order'),
         );
         $this->assertSame(3, $this->links[1]->fresh()->sort_order);
     }
 
-    public function test_rejects_a_link_that_goes_past_the_third_column_of_its_card(): void
+    public function test_rejects_a_link_that_goes_past_the_12th_column(): void
     {
         $this->putJson(route('admin.boards.design.update', $this->board), [
             'cards' => [['id' => $this->card->id, 'x' => 0, 'y' => 0, 'w' => 6, 'h' => 2]],
-            'links' => [['id' => $this->links[0]->id, 'x' => 2, 'y' => 0, 'w' => 2]],
+            'links' => [['id' => $this->links[0]->id, 'x' => 8, 'y' => 0, 'w' => 6]],
+        ])->assertUnprocessable();
+    }
+
+    public function test_rejects_a_link_narrower_than_4_columns(): void
+    {
+        $this->putJson(route('admin.boards.design.update', $this->board), [
+            'cards' => [['id' => $this->card->id, 'x' => 0, 'y' => 0, 'w' => 6, 'h' => 2]],
+            'links' => [['id' => $this->links[0]->id, 'x' => 0, 'y' => 0, 'w' => 3]],
         ])->assertUnprocessable();
     }
 
@@ -79,7 +87,7 @@ class BoardDesignTest extends TestCase
         ])->assertRedirect();
 
         $this->assertSame(
-            ['grid_x' => 0, 'grid_y' => 3, 'grid_w' => 1, 'sort_order' => 4],
+            ['grid_x' => 0, 'grid_y' => 3, 'grid_w' => 12, 'sort_order' => 4],
             Link::where('label', 'New')->first()->only('grid_x', 'grid_y', 'grid_w', 'sort_order'),
         );
     }

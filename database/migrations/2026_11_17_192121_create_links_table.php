@@ -23,7 +23,7 @@ return new class extends Migration
             $table->smallInteger('sort_order')->default(0);
             $table->unsignedTinyInteger('grid_x')->default(0);
             $table->unsignedSmallInteger('grid_y')->default(0);
-            $table->unsignedTinyInteger('grid_w')->default(1);
+            $table->unsignedTinyInteger('grid_w')->default(12);
             $table->boolean('is_active')->default(true);
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();

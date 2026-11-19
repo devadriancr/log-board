@@ -139,14 +139,14 @@ select:focus[data-flux-control] {
     }
 }
 
-/* Los enlaces de una tarjeta usan 3 columnas y respetan el lugar y el ancho del diseño; en tarjetas angostas se apilan. */
+/* Los enlaces de una tarjeta usan 12 columnas (como las tarjetas) y respetan el lugar y el ancho del diseño; en tarjetas angostas se apilan. */
 .board-links {
     grid-template-columns: minmax(0, 1fr);
 }
 
 @container (min-width: 26rem) {
     .board-links {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(12, minmax(0, 1fr));
     }
 
     .board-link {
