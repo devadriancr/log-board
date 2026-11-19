@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Stevebauman\Purify\Facades\Purify;
 
 class Card extends Model
@@ -64,6 +65,18 @@ class Card extends Model
     }
 
     /**
+     * A text card has no title or header: its name (for lists) is taken from the first words of its content.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Card $card) {
+            if ($card->isText()) {
+                $card->title = Str::limit(trim(html_entity_decode(strip_tags((string) $card->content))), 60) ?: __('cards.types.text');
+            }
+        });
+    }
+
+    /**
      * The HTML of a text card is cleaned every time it is stored, so it is safe to print as it is.
      */
     protected function content(): Attribute
@@ -83,7 +96,7 @@ class Card extends Model
      */
     public function headerStyle(): ?string
     {
-        if (! $this->color) {
+        if (! $this->color || $this->isText()) {
             return null;
         }
 

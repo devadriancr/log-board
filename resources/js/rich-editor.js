@@ -2,9 +2,20 @@ import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
+import { FontSize, TextStyle } from '@tiptap/extension-text-style';
+
+// Sizes offered in the toolbar, in px like the text of the page (the base size of a text card is 14).
+const FONT_SIZES = [10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64];
 
 // Images carry their position as a class (img-left / img-center / img-right): the server only lets those through.
 const PositionedImage = Image.extend({
+    // Drag the corners of the selected image to resize it (width/height are saved in the HTML).
+    addOptions() {
+        return {
+            ...this.parent?.(),
+            resize: { enabled: true, directions: ['top-left', 'top-right', 'bottom-left', 'bottom-right'], minWidth: 40, minHeight: 40, alwaysPreserveAspectRatio: true },
+        };
+    },
     addAttributes() {
         return {
             ...this.parent?.(),
@@ -39,6 +50,8 @@ function init() {
                 link: { openOnClick: false, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } },
             }),
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
+            TextStyle,
+            FontSize,
             PositionedImage,
         ],
         editorProps: { attributes: { class: 'rich-content min-h-48 px-3 py-2 outline-none' } },
@@ -154,6 +167,23 @@ function init() {
                 button.disabled = !editor.isActive('image');
             }
         });
+    });
+
+    // Font size, like the box in Word: 14 is the normal size of the text, so choosing it removes the size.
+    const size = document.createElement('select');
+
+    size.title = labels.font_size;
+    size.setAttribute('aria-label', labels.font_size);
+    size.className = 'mr-1 rounded-md border border-zinc-200 bg-white px-1 py-1 text-sm text-zinc-700 dark:border-zinc-500 dark:bg-zinc-700 dark:text-zinc-200';
+    size.innerHTML = FONT_SIZES.map((n) => `<option value="${n}">${n}</option>`).join('');
+    size.addEventListener('change', () => {
+        const chain = editor.chain().focus();
+
+        (Number(size.value) === 14 ? chain.unsetFontSize() : chain.setFontSize(`${size.value}px`)).run();
+    });
+    toolbar.prepend(size);
+    refreshers.push(() => {
+        size.value = parseInt(editor.getAttributes('textStyle').fontSize, 10) || 14;
     });
 
     const refresh = () => refreshers.forEach((fn) => fn());

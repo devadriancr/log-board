@@ -46,6 +46,7 @@ return [
     'new_text' => 'Nueva tarjeta de texto',
 
     'editor' => [
+        'font_size' => 'Tamaño de letra',
         'bold' => 'Negrita',
         'italic' => 'Cursiva',
         'underline' => 'Subrayado',

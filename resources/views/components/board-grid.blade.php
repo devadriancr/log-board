@@ -24,13 +24,16 @@
 @endphp
 
 <div class="board-grid-wrap">
-    <div class="grid grid-cols-12 gap-5">
+    <div class="board-cards">
         @foreach ($cards as $card)
             <div
-                class="board-card col-span-12"
+                class="board-card"
                 style="--x: {{ $card->grid_x + 1 }}; --w: {{ $card->grid_w }}; --y: {{ $card->grid_y + 1 }}; --h: {{ $card->grid_h }}"
             >
-                <flux:card body="divided" class="h-full">
+                {{-- The card keeps the size it was given in the designer: when its content does not fit, the body scrolls --}}
+                <flux:card body="divided" class="flex h-full flex-col overflow-hidden">
+                    {{-- Text cards have no header: the title is part of the content --}}
+                    @unless ($card->isText())
                     <flux:card.header :style="$card->headerStyle()">
                         <flux:card.heading size="lg" class="flex items-center gap-2" :style="$card->color ? 'color: inherit' : null">
                             @if ($card->icon)
@@ -39,8 +42,9 @@
                             {{ $card->title }}
                         </flux:card.heading>
                     </flux:card.header>
+                    @endunless
 
-                    <flux:card.body>
+                    <flux:card.body class="min-h-0 flex-1 overflow-y-auto">
                         @if ($card->isText())
                             <div class="rich-content">{!! $card->content !!}</div>
                         @else

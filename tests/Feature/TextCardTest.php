@@ -29,25 +29,25 @@ class TextCardTest extends TestCase
     {
         return $extra + [
             'board_id' => $this->board->id,
-            'title' => 'Avisos',
             'type' => 'text',
             'grid_w' => 6,
             'grid_h' => 2,
             'content' => '<p style="text-align:center">Hola <strong>mundo</strong></p>',
-            'color' => '#e3322c',
         ];
     }
 
-    public function test_creates_a_text_card_with_colour_and_cleans_the_html(): void
+    public function test_creates_a_text_card_without_title_and_cleans_the_html(): void
     {
         $this->post(route('admin.cards.store'), $this->payload([
-            'content' => '<p>Hola <strong>mundo</strong></p><script>alert(1)</script><img src="/storage/a.png" class="img-left x" onerror="alert(1)"><a href="javascript:alert(1)">x</a>',
+            'content' => '<p>Hola <strong>mundo</strong></p><span style="font-size: 18px; position: fixed">grande</span><script>alert(1)</script><img src="/storage/a.png" width="200" class="img-left x" onerror="alert(1)"><a href="javascript:alert(1)">x</a>',
         ]))->assertRedirect();
 
         $card = Card::first();
 
         $this->assertTrue($card->isText());
-        $this->assertSame('#e3322c', $card->color);
+        $this->assertStringStartsWith('Hola mundo', $card->title); // taken from the content
+        $this->assertStringContainsString('<span style="font-size:18px;">grande</span>', $card->content);
+        $this->assertStringContainsString('width="200"', $card->content);
         $this->assertStringContainsString('<strong>mundo</strong>', $card->content);
         $this->assertStringContainsString('class="img-left"', $card->content);
         $this->assertStringNotContainsString('script', $card->content);
@@ -55,10 +55,11 @@ class TextCardTest extends TestCase
         $this->assertStringNotContainsString('javascript:', $card->content);
     }
 
-    public function test_a_text_card_needs_content_and_the_colour_must_be_hex(): void
+    public function test_a_text_card_needs_content_and_a_links_card_needs_a_title_and_a_hex_colour(): void
     {
         $this->post(route('admin.cards.store'), $this->payload(['content' => '']))->assertSessionHasErrors('content');
-        $this->post(route('admin.cards.store'), $this->payload(['color' => 'red']))->assertSessionHasErrors('color');
+        $this->post(route('admin.cards.store'), $this->payload(['type' => 'links', 'title' => 'T', 'color' => 'red']))->assertSessionHasErrors('color');
+        $this->post(route('admin.cards.store'), $this->payload(['type' => 'links']))->assertSessionHasErrors('title');
     }
 
     public function test_the_type_of_a_card_cannot_be_changed_when_editing(): void
@@ -86,21 +87,22 @@ class TextCardTest extends TestCase
             ->assertUnprocessable();
     }
 
-    public function test_public_board_shows_text_cards_with_their_header_colour(): void
+    public function test_public_board_shows_text_cards_without_header_and_keeps_the_card_size(): void
     {
-        Card::create(['board_id' => $this->board->id, 'title' => 'Avisos', 'type' => 'text', 'content' => '<p>Hola equipo</p>', 'color' => '#e3322c', 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 2]);
+        Card::create(['board_id' => $this->board->id, 'type' => 'text', 'content' => '<p>Hola equipo</p>', 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 3]);
         Card::create(['board_id' => $this->board->id, 'title' => 'Vacia', 'type' => 'links', 'grid_x' => 6, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 2]);
 
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('Hola equipo', false)
-            ->assertSee('background-color: #e3322c', false)
+            ->assertSee('--w: 6; --y: 1; --h: 3', false)
+            ->assertDontSee('<h2', false)
             ->assertDontSee('Vacia');
     }
 
     public function test_a_link_cannot_be_added_to_a_text_card(): void
     {
-        $card = Card::create(['board_id' => $this->board->id, 'title' => 'T', 'type' => 'text', 'content' => '<p>x</p>', 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 2]);
+        $card = Card::create(['board_id' => $this->board->id, 'type' => 'text', 'content' => '<p>x</p>', 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 2]);
         $app = Application::create(['name' => 'App', 'base_url' => 'https://example.com']);
 
         $this->post(route('admin.links.store'), ['card_id' => $card->id, 'application_id' => $app->id, 'label' => 'L', 'path' => '/'])
@@ -109,9 +111,9 @@ class TextCardTest extends TestCase
 
     public function test_designer_and_forms_render(): void
     {
-        $card = Card::create(['board_id' => $this->board->id, 'title' => 'T', 'type' => 'text', 'content' => '<p>x</p>', 'color' => '#112233', 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 2]);
+        $card = Card::create(['board_id' => $this->board->id, 'type' => 'text', 'content' => '<p>x</p>', 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 2]);
 
-        $this->get(route('admin.boards.design', $this->board))->assertOk()->assertSee('background-color: #112233', false);
+        $this->get(route('admin.boards.design', $this->board))->assertOk()->assertSee('gs-id="'.$card->id.'"', false);
         $this->get(route('admin.cards.edit', $card))->assertOk()->assertSee('id="rich-editor"', false);
         $this->get(route('admin.cards.create', ['type' => 'text']))->assertOk()->assertSee('id="rich-editor"', false);
         $this->get(route('admin.cards.create'))->assertOk()->assertDontSee('id="rich-editor"', false);

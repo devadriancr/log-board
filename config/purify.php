@@ -53,8 +53,8 @@ return [
         'card' => [
             'Core.Encoding' => 'utf-8',
             'HTML.Doctype' => 'HTML 4.01 Transitional',
-            'HTML.Allowed' => 'h2,h3,p[style],br,hr,strong,b,em,i,u,s,code,pre,blockquote,ul,ol,li,a[href|title|target|rel],img[src|alt|width|height|class]',
-            'CSS.AllowedProperties' => 'text-align',
+            'HTML.Allowed' => 'h2,h3,p[style],br,hr,strong,b,em,i,u,s,code,pre,blockquote,ul,ol,li,span[style],a[href|title|target|rel],img[src|alt|width|height|class]',
+            'CSS.AllowedProperties' => 'text-align,font-size',
             'Attr.AllowedClasses' => ['img-left', 'img-center', 'img-right'],
             'Attr.AllowedFrameTargets' => ['_blank'],
             'Attr.AllowedRel' => ['noopener', 'noreferrer'],

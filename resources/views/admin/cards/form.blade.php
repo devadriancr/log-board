@@ -27,6 +27,8 @@
                     :value="old('board_id', $card->board_id)"
                 />
 
+                {{-- Text cards have no header: no title, icon or colour (the title is written in the content) --}}
+                @unless ($card->isText())
                 <flux:input
                     name="title"
                     type="text"
@@ -83,6 +85,7 @@
                     <flux:error name="icon" />
                 </flux:field>
                 </div>
+                @endunless
 
                 <flux:input
                     name="grid_w"
@@ -104,6 +107,7 @@
                     required
                 />
 
+                @unless ($card->isText())
                 {{-- x-data goes on a plain div: @js is not evaluated inside component tag attributes --}}
                 <div x-data="{ color: @js((string) old('color', $card->color)) }">
                     <flux:field>
@@ -129,6 +133,7 @@
                         <flux:error name="color" />
                     </flux:field>
                 </div>
+                @endunless
                 <div class="md:self-end md:pb-2.5">
                     <flux:checkbox
                         name="is_active"
