@@ -58,7 +58,7 @@ class LinkRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'card_id' => ['required', 'integer', 'exists:cards,id'],
+            'card_id' => ['required', 'integer', Rule::exists('cards', 'id')->where('type', 'links')],
             'application_id' => ['required', 'integer', 'exists:applications,id'],
             'label' => ['required', 'string', 'max:255'],
             'path' => ['required', 'string', 'max:255'],

@@ -64,7 +64,7 @@ class Board extends Model
             ->orderBy('grid_y')
             ->orderBy('grid_x')
             ->get()
-            ->filter(fn ($card) => $card->links->isNotEmpty())
+            ->filter(fn ($card) => $card->isText() ? filled($card->content) : $card->links->isNotEmpty())
             ->values();
     }
 

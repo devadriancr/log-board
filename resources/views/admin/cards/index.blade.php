@@ -8,6 +8,10 @@
                     <flux:button variant="outline" icon="plus" :href="route('admin.cards.create')" wire:navigate>
                         {{ __('cards.create.title') }}
                     </flux:button>
+
+                    <flux:button variant="outline" icon="document-text" :href="route('admin.cards.create', ['type' => 'text'])" wire:navigate>
+                        {{ __('cards.new_text') }}
+                    </flux:button>
                 </flux:card.actions>
             </flux:card.header>
 
@@ -33,9 +37,16 @@
                                 @foreach ($cards as $card)
                                     <flux:table.row :key="$card->id">
                                         <flux:table.cell class="py-4">{{ $card->board->name }}</flux:table.cell>
-                                        <flux:table.cell variant="strong" class="py-4">{{ $card->title }}</flux:table.cell>
+                                        <flux:table.cell variant="strong" class="py-4">
+                                            <span class="inline-flex items-center gap-2">
+                                                @if ($card->color)
+                                                    <span class="size-3 shrink-0 rounded-full border border-zinc-300" style="background-color: {{ $card->color }}"></span>
+                                                @endif
+                                                {{ $card->title }}
+                                            </span>
+                                        </flux:table.cell>
                                         <flux:table.cell align="center" class="py-4 font-mono">{{ $card->grid_w }} × {{ $card->grid_h }}</flux:table.cell>
-                                        <flux:table.cell align="center" class="py-4">{{ $card->links_count }}</flux:table.cell>
+                                        <flux:table.cell align="center" class="py-4">{{ $card->isText() ? __('cards.types.text') : $card->links_count }}</flux:table.cell>
                                         <flux:table.cell align="center" class="py-0">
                                             @if ($card->is_active)
                                                 <flux:badge color="green" size="sm">{{ __('common.status.active') }}</flux:badge>

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BoardController;
 use App\Http\Controllers\Admin\BoardDesignController;
 use App\Http\Controllers\Admin\CardController;
 use App\Http\Controllers\Admin\LinkController;
+use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicBoardController;
@@ -28,6 +29,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('boards/{board}/design', [BoardDesignController::class, 'edit'])->name('boards.design');
     Route::put('boards/{board}/design', [BoardDesignController::class, 'update'])->name('boards.design.update');
+    Route::post('uploads/image', [UploadController::class, 'image'])->name('uploads.image');
     Route::put('boards/order', [BoardController::class, 'reorder'])->name('boards.reorder');
     Route::resource('boards', BoardController::class)->except('show');
     Route::resource('cards', CardController::class)->except('show');

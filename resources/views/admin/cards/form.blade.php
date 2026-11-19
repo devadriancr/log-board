@@ -16,6 +16,8 @@
             <input type="hidden" name="from" value="design">
         @endif
 
+        <input type="hidden" name="type" value="{{ old('type', $card->type) }}">
+
         <flux:card.body>
             <div class="grid gap-6 md:grid-cols-2">
                 <x-listbox
@@ -102,6 +104,31 @@
                     required
                 />
 
+                {{-- x-data goes on a plain div: @js is not evaluated inside component tag attributes --}}
+                <div x-data="{ color: @js((string) old('color', $card->color)) }">
+                    <flux:field>
+                        <flux:label>{{ __('cards.fields.color') }}</flux:label>
+
+                        <input type="hidden" name="color" x-bind:value="color">
+
+                        <div class="flex items-center gap-3">
+                            <input
+                                type="color"
+                                x-bind:value="color || '#a1a1aa'"
+                                x-on:input="color = $event.target.value"
+                                class="h-10 w-16 cursor-pointer rounded-lg border border-zinc-200 bg-white p-1 dark:border-zinc-600 dark:bg-zinc-700"
+                            >
+
+                            <span class="text-sm text-zinc-500 dark:text-zinc-400" x-show="! color" x-text="@js(__('cards.fields.color_none'))"></span>
+
+                            <flux:button type="button" size="sm" variant="outline" icon="x-mark" x-show="color" x-cloak x-on:click="color = ''">
+                                {{ __('cards.fields.color_none') }}
+                            </flux:button>
+                        </div>
+
+                        <flux:error name="color" />
+                    </flux:field>
+                </div>
                 <div class="md:self-end md:pb-2.5">
                     <flux:checkbox
                         name="is_active"
@@ -111,6 +138,27 @@
                     />
                 </div>
             </div>
+
+            @if ($card->isText())
+                <div class="mt-6">
+                    <flux:label class="mb-2">{{ __('cards.fields.content') }}</flux:label>
+
+                    <div
+                        id="rich-editor"
+                        class="rounded-lg border border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-700"
+                        data-upload="{{ route('admin.uploads.image') }}"
+                        data-token="{{ csrf_token() }}"
+                        data-labels="{{ json_encode(__('cards.editor')) }}"
+                    >
+                        <div data-toolbar class="flex flex-wrap items-center gap-0.5 border-b border-zinc-200 p-1.5 dark:border-zinc-600"></div>
+                        <div data-editor></div>
+                    </div>
+
+                    <textarea id="rich-editor-content" name="content" hidden>{{ old('content', $card->content) }}</textarea>
+
+                    <flux:error name="content" />
+                </div>
+            @endif
         </flux:card.body>
 
         <flux:card.footer>

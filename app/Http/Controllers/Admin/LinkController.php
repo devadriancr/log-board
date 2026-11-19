@@ -100,6 +100,7 @@ class LinkController extends Controller
     private function formData(Link $link): array
     {
         $cards = Card::with('board')
+            ->where('type', Card::TYPE_LINKS)
             ->get()
             ->sortBy([
                 fn (Card $a, Card $b) => [$a->board->sort_order, $a->board_id, $a->grid_y, $a->grid_x]

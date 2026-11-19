@@ -38,6 +38,7 @@ class CardController extends Controller
             'board_id' => $request->integer('board') ?: null,
             'grid_w' => 6,
             'grid_h' => 2,
+            'type' => $request->query('type') === Card::TYPE_TEXT ? Card::TYPE_TEXT : Card::TYPE_LINKS,
             'is_active' => true,
         ]);
 
@@ -83,6 +84,7 @@ class CardController extends Controller
     public function update(CardRequest $request, Card $card): RedirectResponse
     {
         $data = $request->validated();
+        unset($data['type']); // the type is chosen when the card is created
 
         if ((int) $data['board_id'] !== $card->board_id) {
             $data['grid_x'] = 0;

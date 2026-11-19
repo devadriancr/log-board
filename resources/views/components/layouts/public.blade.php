@@ -11,6 +11,10 @@
     </head>
     <body class="min-h-screen bg-zinc-50 text-zinc-800 antialiased dark:bg-zinc-800 dark:text-white">
         <header class="flex items-center gap-2 border-b border-zinc-200 bg-white px-2 py-1.5 sm:px-3 dark:border-zinc-700 dark:bg-zinc-900">
+            <a href="{{ route('home') }}" class="shrink-0 px-1" aria-label="YKM">
+                <img src="{{ asset('images/ykm.svg') }}" alt="YKM" class="h-6 w-auto">
+            </a>
+
             <nav class="flex min-w-0 flex-1 gap-1 overflow-x-auto" aria-label="Tableros">
                 @if ($boards->count() > 1)
                     @foreach ($boards as $item)

@@ -31,8 +31,8 @@
                 style="--x: {{ $card->grid_x + 1 }}; --w: {{ $card->grid_w }}; --y: {{ $card->grid_y + 1 }}; --h: {{ $card->grid_h }}"
             >
                 <flux:card body="divided" class="h-full">
-                    <flux:card.header>
-                        <flux:card.heading size="lg" class="flex items-center gap-2">
+                    <flux:card.header :style="$card->headerStyle()">
+                        <flux:card.heading size="lg" class="flex items-center gap-2" :style="$card->color ? 'color: inherit' : null">
                             @if ($card->icon)
                                 <flux:icon :name="$card->icon" class="size-5 shrink-0" />
                             @endif
@@ -41,6 +41,9 @@
                     </flux:card.header>
 
                     <flux:card.body>
+                        @if ($card->isText())
+                            <div class="rich-content">{!! $card->content !!}</div>
+                        @else
                         <div class="board-links grid gap-3">
                             @foreach ($card->links as $link)
                                 @php($place = sprintf('--x: %d; --w: %d; --y: %d', $link->grid_x + 1, $link->grid_w, $link->grid_y + 1))
@@ -120,6 +123,7 @@
                                 @endif
                             @endforeach
                         </div>
+                        @endif
                     </flux:card.body>
                 </flux:card>
             </div>

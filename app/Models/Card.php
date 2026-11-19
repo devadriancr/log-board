@@ -2,14 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Stevebauman\Purify\Facades\Purify;
 
 class Card extends Model
 {
+    public const TYPE_LINKS = 'links';
+
+    public const TYPE_TEXT = 'text';
+
     protected $fillable = [
         'board_id',
         'title',
         'icon',
+        'type',
+        'content',
+        'color',
         'grid_x',
         'grid_y',
         'grid_w',
@@ -52,6 +61,36 @@ class Card extends Model
             ->sort()
             ->values()
             ->all();
+    }
+
+    /**
+     * The HTML of a text card is cleaned every time it is stored, so it is safe to print as it is.
+     */
+    protected function content(): Attribute
+    {
+        return Attribute::set(fn (?string $html) => $html === null || trim(strip_tags($html, '<img><hr>')) === ''
+            ? null
+            : Purify::config('card')->clean($html));
+    }
+
+    public function isText(): bool
+    {
+        return $this->type === self::TYPE_TEXT;
+    }
+
+    /**
+     * Inline style for the header when the card has a colour: the background and a text colour that stays readable on it.
+     */
+    public function headerStyle(): ?string
+    {
+        if (! $this->color) {
+            return null;
+        }
+
+        [$r, $g, $b] = sscanf($this->color, '#%02x%02x%02x');
+        $dark = (0.299 * $r + 0.587 * $g + 0.114 * $b) < 150;
+
+        return 'background-color: '.$this->color.'; color: '.($dark ? '#ffffff' : '#18181b').';';
     }
 
     /**

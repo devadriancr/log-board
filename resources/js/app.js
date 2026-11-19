@@ -3,3 +3,8 @@
 if (document.getElementById('board-design')) {
     import('./design');
 }
+
+// The text card editor (TipTap) is only needed in the card form.
+if (document.getElementById('rich-editor')) {
+    import('./rich-editor');
+}

@@ -9,7 +9,7 @@
                 <div class="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]"></div>
 
                 <a href="{{ route('home') }}" class="relative z-10 flex items-center gap-3 text-lg font-semibold" wire:navigate>
-                    <x-app-logo-icon class="size-9 fill-current text-white" />
+                    <img src="{{ asset('images/ykm-full.svg') }}" alt="" class="h-14 w-auto">
                     {{ config('app.name', 'Laravel') }}
                 </a>
 
@@ -23,7 +23,7 @@
 
                 <div class="flex w-full max-w-sm flex-col gap-8">
                     <a href="{{ route('home') }}" class="flex items-center gap-3 text-lg font-semibold text-zinc-900 lg:hidden dark:text-white" wire:navigate>
-                        <x-app-logo-icon class="size-8 fill-current text-zinc-900 dark:text-white" />
+                        <img src="{{ asset('images/ykm.svg') }}" alt="" class="h-8 w-auto">
                         {{ config('app.name', 'Laravel') }}
                     </a>
 
