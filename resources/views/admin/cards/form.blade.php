@@ -38,6 +38,29 @@
                     autofocus
                 />
 
+                @endunless
+
+                <flux:input
+                    name="grid_w"
+                    type="number"
+                    min="1"
+                    max="12"
+                    :label="__('cards.fields.grid_w')"
+                    :value="old('grid_w', $card->grid_w)"
+                    required
+                />
+
+                <flux:input
+                    name="grid_h"
+                    type="number"
+                    min="1"
+                    max="20"
+                    :label="__('cards.fields.grid_h')"
+                    :value="old('grid_h', $card->grid_h)"
+                    required
+                />
+
+                @unless ($card->isText())
                 {{-- x-data goes on a plain div: @js is not evaluated inside component tag attributes --}}
                 <div x-data="{ icon: @js((string) old('icon', $card->icon)), search: '', open: false }">
                 <flux:field>
@@ -85,31 +108,9 @@
                     <flux:error name="icon" />
                 </flux:field>
                 </div>
-                @endunless
 
-                <flux:input
-                    name="grid_w"
-                    type="number"
-                    min="1"
-                    max="12"
-                    :label="__('cards.fields.grid_w')"
-                    :value="old('grid_w', $card->grid_w)"
-                    required
-                />
-
-                <flux:input
-                    name="grid_h"
-                    type="number"
-                    min="1"
-                    max="20"
-                    :label="__('cards.fields.grid_h')"
-                    :value="old('grid_h', $card->grid_h)"
-                    required
-                />
-
-                @unless ($card->isText())
                 {{-- Palette colours: they colour the header, the border and the title of the card; the body stays white --}}
-                <div x-data="{ color: @js((string) old('color', $card->color)) }" class="md:col-span-2">
+                <div x-data="{ color: @js((string) old('color', $card->color)) }">
                     <flux:field>
                         <flux:label>{{ __('cards.fields.color') }}</flux:label>
 
@@ -121,7 +122,7 @@
                                 title="{{ __('cards.fields.color_none') }}"
                                 aria-label="{{ __('cards.fields.color_none') }}"
                                 x-on:click="color = ''"
-                                class="flex h-10 w-16 items-center justify-center rounded-lg border-2 border-zinc-300 bg-white text-sm text-zinc-700 dark:border-zinc-500 dark:bg-zinc-700 dark:text-zinc-200"
+                                class="flex h-10 w-11 items-center justify-center rounded-lg border-2 border-zinc-300 bg-white text-sm text-zinc-700 dark:border-zinc-500 dark:bg-zinc-700 dark:text-zinc-200"
                                 x-bind:class="! color && 'ring-2 ring-zinc-500 ring-offset-2 ring-offset-white dark:ring-zinc-300 dark:ring-offset-zinc-800'"
                             >Aa</button>
 
@@ -132,7 +133,7 @@
                                     title="{{ $name }}"
                                     aria-label="{{ $name }}"
                                     x-on:click="color = '{{ $key }}'"
-                                    class="card-swatch flex h-10 w-16 items-center justify-center rounded-lg text-sm font-medium"
+                                    class="card-swatch flex h-10 w-11 items-center justify-center rounded-lg text-sm font-medium"
                                     x-bind:class="color === '{{ $key }}' && 'ring-2 ring-zinc-500 ring-offset-2 ring-offset-white dark:ring-zinc-300 dark:ring-offset-zinc-800'"
                                 >Aa</button>
                             @endforeach
