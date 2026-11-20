@@ -11,28 +11,32 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --color-zinc-50: #fafafa;
-    --color-zinc-100: #f5f5f5;
-    --color-zinc-200: #e5e5e5;
-    --color-zinc-300: #d4d4d4;
-    --color-zinc-400: #a3a3a3;
-    --color-zinc-500: #737373;
-    --color-zinc-600: #525252;
-    --color-zinc-700: #404040;
-    --color-zinc-800: #262626;
-    --color-zinc-900: #171717;
-    --color-zinc-950: #0a0a0a;
+    /* Grises con un tinte azul (el de la marca YKM) en lugar de grises puros. */
+    --color-zinc-50: #f7f9fc;
+    --color-zinc-100: #edf2f9;
+    --color-zinc-200: #dde5f0;
+    --color-zinc-300: #c5d1e3;
+    --color-zinc-400: #93a3bd;
+    --color-zinc-500: #5d6d87;
+    --color-zinc-600: #4a5871;
+    --color-zinc-700: #354158;
+    --color-zinc-800: #232d44;
+    --color-zinc-900: #162036;
+    --color-zinc-950: #0d1526;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
+    /* Acento: el azul del logo. */
+    --color-brand-blue: #446ba4;
+    --color-brand-red: #e3322c;
+    --color-accent: #446ba4;
+    --color-accent-content: #365a91;
     --color-accent-foreground: var(--color-white);
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
+        --color-accent: #8db0e6;
+        --color-accent-content: #a9c3ee;
+        --color-accent-foreground: #0d1526;
     }
 }
 
@@ -43,7 +47,7 @@
     ::before,
     ::backdrop,
     ::file-selector-button {
-        border-color: var(--color-gray-200, currentColor);
+        border-color: var(--color-zinc-200, currentColor);
     }
 }
 

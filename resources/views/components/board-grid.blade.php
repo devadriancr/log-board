@@ -7,11 +7,11 @@
 
     // Botón: caja con borde, flecha siempre visible. Enlace: texto subrayado con icono, sin caja.
     $itemClasses = $isButton
-        ? 'rounded-lg border border-zinc-300 bg-white px-4 py-3 shadow-xs dark:border-zinc-500 dark:bg-zinc-700'
+        ? 'rounded-lg border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-600 dark:bg-zinc-800'
         : 'py-1.5';
 
     $linkClasses = $isButton
-        ? 'transition hover:border-zinc-400 hover:bg-zinc-50 dark:hover:border-zinc-400 dark:hover:bg-zinc-600/75'
+        ? 'transition hover:border-accent hover:bg-zinc-50 hover:shadow-xs dark:hover:border-accent dark:hover:bg-white/5'
         : '';
 
     $labelClasses = $isButton
@@ -19,7 +19,7 @@
         : 'text-sm font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-4 group-hover:decoration-current dark:text-white dark:decoration-zinc-500';
 
     $arrowClasses = $isButton
-        ? 'text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200'
+        ? 'text-zinc-400 group-hover:text-accent-content'
         : 'text-zinc-400 opacity-0 transition group-hover:text-zinc-700 group-hover:opacity-100 dark:group-hover:text-zinc-200';
 @endphp
 
@@ -34,7 +34,7 @@
                 <flux:card body="divided" class="flex h-full flex-col overflow-hidden" :data-card-color="$card->colorName()">
                     {{-- Text cards have no header: the title is part of the content --}}
                     @unless ($card->isText())
-                    <flux:card.header class="card-head">
+                    <flux:card.header @class(['card-head', 'bg-zinc-50 dark:bg-white/5' => ! $card->colorName()])>
                         <flux:card.heading size="lg" class="flex items-center gap-2">
                             @if ($card->icon)
                                 <flux:icon :name="$card->icon" class="size-5 shrink-0" />
