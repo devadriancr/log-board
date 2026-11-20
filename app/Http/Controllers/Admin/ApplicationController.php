@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ApplicationRequest;
 use App\Models\Application;
+use App\Models\Board;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ApplicationController extends Controller
@@ -25,14 +27,17 @@ class ApplicationController extends Controller
     /**
      * Show the form for creating a new application.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $application = new Application([
             'requires_auth' => false,
             'is_active' => true,
         ]);
 
-        return view('admin.applications.create', compact('application'));
+        // Opened from the board designer: Cancel and Save go back to that board.
+        $designBoard = $request->query('from') === 'design' ? Board::find($request->integer('board')) : null;
+
+        return view('admin.applications.create', compact('application', 'designBoard'));
     }
 
     /**
@@ -44,7 +49,9 @@ class ApplicationController extends Controller
             ->fill($request->validated() + ['updated_by' => $request->user()->id])
             ->save();
 
-        return to_route('admin.applications.index')
+        $designBoard = $request->input('from') === 'design' ? Board::find($request->integer('board')) : null;
+
+        return ($designBoard ? to_route('admin.boards.design', $designBoard) : to_route('admin.applications.index'))
             ->with('success', __('applications.messages.created'));
     }
 

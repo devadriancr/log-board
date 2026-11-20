@@ -101,17 +101,19 @@ class CardController extends Controller
     /**
      * Remove the card.
      */
-    public function destroy(Card $card): RedirectResponse
+    public function destroy(Request $request, Card $card): RedirectResponse
     {
+        $to = $request->input('from') === 'design'
+            ? to_route('admin.boards.design', $card->board_id)
+            : to_route('admin.cards.index');
+
         if ($card->links()->exists()) {
-            return to_route('admin.cards.index')
-                ->with('error', __('cards.messages.has_links', ['name' => $card->title]));
+            return $to->with('error', __('cards.messages.has_links', ['name' => $card->title]));
         }
 
         $card->delete();
 
-        return to_route('admin.cards.index')
-            ->with('success', __('cards.messages.deleted'));
+        return $to->with('success', __('cards.messages.deleted'));
     }
 
     /**

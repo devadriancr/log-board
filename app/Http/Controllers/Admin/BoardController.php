@@ -45,10 +45,14 @@ class BoardController extends Controller
      */
     public function store(BoardRequest $request): RedirectResponse
     {
-        $this->save(new Board(), $request);
+        $board = new Board();
+        $this->save($board, $request);
 
-        return to_route('admin.boards.index')
-            ->with('success', __('boards.messages.created'));
+        $to = $request->input('from') === 'design'
+            ? to_route('admin.boards.design', $board)
+            : to_route('admin.boards.index');
+
+        return $to->with('success', __('boards.messages.created'));
     }
 
     /**
@@ -66,23 +70,29 @@ class BoardController extends Controller
     {
         $this->save($board, $request);
 
-        return to_route('admin.boards.index')
-            ->with('success', __('boards.messages.updated'));
+        $to = $request->input('from') === 'design'
+            ? to_route('admin.boards.design', $board)
+            : to_route('admin.boards.index');
+
+        return $to->with('success', __('boards.messages.updated'));
     }
 
     /**
      * Remove the board.
      */
-    public function destroy(Board $board): RedirectResponse
+    public function destroy(Request $request, Board $board): RedirectResponse
     {
         if ($board->cards()->exists()) {
-            return to_route('admin.boards.index')
+            return ($request->input('from') === 'design' ? back() : to_route('admin.boards.index'))
                 ->with('error', __('boards.messages.has_cards', ['name' => $board->name]));
         }
 
         $board->delete();
 
-        return to_route('admin.boards.index')
+        // From the designer go on to the first board left, if any.
+        $next = $request->input('from') === 'design' ? Board::ordered()->first() : null;
+
+        return ($next ? to_route('admin.boards.design', $next) : to_route('admin.boards.index'))
             ->with('success', __('boards.messages.deleted'));
     }
 
@@ -120,7 +130,10 @@ class BoardController extends Controller
             }
 
             if ($data['is_home']) {
-                Board::where('is_home', true)->update(['is_home' => false]);
+                // Not this board: its in-memory is_home is already true, so fill() would not write it back.
+                Board::where('is_home', true)
+                    ->when($board->exists, fn ($query) => $query->whereKeyNot($board->id))
+                    ->update(['is_home' => false]);
             }
 
             $board->fill($data)->save();

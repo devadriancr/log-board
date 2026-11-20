@@ -1,3 +1,9 @@
+@php
+    // After a failed save only the modal that was submitted shows what the user typed.
+    $old = fn (string $form, string $key, $default = null) => old('_form') === $form ? old($key, $default) : $default;
+    $hasHome = $boards->contains('is_home', true);
+@endphp
+
 <x-layouts.app>
     <div class="flex w-full flex-1 flex-col gap-6">
         <flux:card body="divided" class="w-full">
@@ -5,9 +11,21 @@
                 <flux:card.heading size="lg" level="1">{{ __('design.title') }}</flux:card.heading>
 
                 <flux:card.actions>
+                    <flux:modal.trigger name="board-settings">
+                        <flux:button variant="outline" icon="cog-6-tooth">{{ __('design.board_settings') }}</flux:button>
+                    </flux:modal.trigger>
+
                     <flux:button
                         variant="outline"
-                        icon="plus"
+                        icon="computer-desktop"
+                        :href="route('admin.applications.create', ['board' => $board->id, 'from' => 'design'])"
+                    >
+                        {{ __('design.new_application') }}
+                    </flux:button>
+
+                    <flux:button
+                        variant="outline"
+                        icon="rectangle-group"
                         :href="route('admin.cards.create', ['board' => $board->id, 'from' => 'design'])"
                     >
                         {{ __('design.new_card') }}
@@ -15,7 +33,7 @@
 
                     <flux:button
                         variant="outline"
-                        icon="plus"
+                        icon="document-text"
                         :href="route('admin.cards.create', ['board' => $board->id, 'from' => 'design', 'type' => 'text'])"
                     >
                         {{ __('cards.new_text_short') }}
@@ -56,6 +74,18 @@
                             {{ $item->name }}
                         </a>
                     @endforeach
+
+                    <flux:modal.trigger name="new-board">
+                        <button
+                            type="button"
+                            data-add
+                            class="-mb-px flex items-center border-b-2 border-transparent px-3 py-2 text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-white"
+                            aria-label="{{ __('design.new_board') }}"
+                            title="{{ __('design.new_board') }}"
+                        >
+                            <flux:icon name="plus" variant="micro" class="size-4" />
+                        </button>
+                    </flux:modal.trigger>
                 </nav>
 
                 @if ($cards->isEmpty())
@@ -120,6 +150,17 @@
                                                 :aria-label="__('common.actions.edit')"
                                                 :title="__('common.actions.edit')"
                                             />
+
+                                            <flux:modal.trigger :name="'delete-card-'.$card->id">
+                                                <flux:button
+                                                    size="xs"
+                                                    variant="outline"
+                                                    color="red"
+                                                    icon="trash"
+                                                    :aria-label="__('common.actions.delete')"
+                                                    :title="__('common.actions.delete')"
+                                                />
+                                            </flux:modal.trigger>
                                         </div>
                                     </div>
                                     @if ($card->isText())
@@ -184,5 +225,145 @@
                 @endif
             </flux:card.body>
         </flux:card>
+
+        {{-- After a failed save, open again the modal that was submitted so its errors are seen --}}
+        @if ($errors->any() && in_array(old('_form'), ['settings', 'new'], true))
+            <div x-data x-init="$nextTick(() => $flux.modal(@js(old('_form') === 'new' ? 'new-board' : 'board-settings')).show())"></div>
+        @endif
+
+        {{-- Modals live outside the grid so GridStack never moves them --}}
+        <flux:modal name="board-settings" class="w-full max-w-lg">
+            <form method="POST" action="{{ route('admin.boards.update', $board) }}" class="space-y-6">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="from" value="design">
+                <input type="hidden" name="_form" value="settings">
+                <input type="hidden" name="sort_order" value="{{ $board->sort_order }}">
+                <input type="hidden" name="is_home" value="{{ (int) $board->is_home }}">
+
+                <flux:heading size="lg">{{ __('design.board_settings') }}</flux:heading>
+
+                <flux:input name="name" type="text" :label="__('boards.fields.name')" :value="$old('settings', 'name', $board->name)" required />
+
+                <flux:input name="slug" type="text" :label="__('boards.fields.slug')" :placeholder="__('boards.placeholders.slug')" :value="$old('settings', 'slug', $board->slug)" required />
+
+                <x-listbox
+                    name="link_style"
+                    :label="__('boards.fields.link_style')"
+                    :options="collect(\App\Enums\LinkStyle::cases())->mapWithKeys(fn ($style) => [$style->value => $style->label()])"
+                    :value="$old('settings', 'link_style', $board->link_style?->value)"
+                />
+
+                <flux:checkbox name="is_active" value="1" :label="__('boards.fields.is_active')" :checked="(bool) $old('settings', 'is_active', $board->is_active)" />
+
+                {{-- Delete asks for a second click; its form is outside this one (forms cannot nest) and is reached with form="" --}}
+                <div class="flex flex-wrap items-center justify-between gap-2" x-data="{ confirm: false }" x-on:modal-close.document="confirm = false">
+                    <div class="flex items-center gap-2">
+                        <flux:button
+                            type="button"
+                            variant="outline"
+                            color="red"
+                            icon="trash"
+                            x-show="! confirm"
+                            x-on:click="confirm = true"
+                            :disabled="$cards->isNotEmpty()"
+                        >
+                            {{ __('design.delete_board') }}
+                        </flux:button>
+
+                        <span x-show="confirm" x-cloak class="flex items-center gap-2">
+                            <span class="text-sm text-zinc-600 dark:text-zinc-300">{{ __('boards.delete.title', ['name' => $board->name]) }}</span>
+
+                            <flux:button type="submit" form="delete-board-form" variant="outline" color="red" icon="trash">{{ __('common.actions.delete') }}</flux:button>
+                        </span>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <flux:modal.close>
+                            <flux:button variant="outline" icon="x-mark">{{ __('common.actions.cancel') }}</flux:button>
+                        </flux:modal.close>
+
+                        <flux:button variant="outline" icon="check" type="submit">{{ __('common.actions.save') }}</flux:button>
+                    </div>
+                </div>
+
+                @if ($cards->isNotEmpty())
+                    <flux:text class="text-xs">{{ __('design.delete_board_blocked') }}</flux:text>
+                @endif
+            </form>
+
+            <form id="delete-board-form" method="POST" action="{{ route('admin.boards.destroy', $board) }}" hidden>
+                @csrf
+                @method('DELETE')
+                <input type="hidden" name="from" value="design">
+            </form>
+        </flux:modal>
+
+        <flux:modal name="new-board" class="w-full max-w-lg">
+            <form method="POST" action="{{ route('admin.boards.store') }}" class="space-y-6">
+                @csrf
+                <input type="hidden" name="from" value="design">
+                <input type="hidden" name="_form" value="new">
+                <input type="hidden" name="sort_order" value="{{ $boards->count() + 1 }}">
+
+                <flux:heading size="lg">{{ __('design.new_board') }}</flux:heading>
+
+                <flux:input name="name" type="text" :label="__('boards.fields.name')" :value="$old('new', 'name')" required />
+
+                <flux:input name="slug" type="text" :label="__('boards.fields.slug')" :placeholder="__('boards.placeholders.slug')" :value="$old('new', 'slug')" required />
+
+                <x-listbox
+                    name="link_style"
+                    :label="__('boards.fields.link_style')"
+                    :options="collect(\App\Enums\LinkStyle::cases())->mapWithKeys(fn ($style) => [$style->value => $style->label()])"
+                    :value="$old('new', 'link_style', \App\Enums\LinkStyle::Button->value)"
+                />
+
+                <div class="flex flex-col gap-3">
+                    <flux:checkbox name="is_active" value="1" :label="__('boards.fields.is_active')" :checked="(bool) $old('new', 'is_active', true)" />
+
+                    {{-- Only one board can be the home: while there is one, this option is locked --}}
+                    <div>
+                        <flux:checkbox name="is_home" value="1" :label="__('boards.fields.is_home')" :checked="! $hasHome && (bool) $old('new', 'is_home')" :disabled="$hasHome" />
+
+                        @if ($hasHome)
+                            <flux:text class="mt-1 ps-6 text-xs">{{ __('design.home_taken') }}</flux:text>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <flux:modal.close>
+                        <flux:button variant="outline" icon="x-mark">{{ __('common.actions.cancel') }}</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button variant="outline" icon="check" type="submit">{{ __('common.actions.save') }}</flux:button>
+                </div>
+            </form>
+        </flux:modal>
+
+        @foreach ($cards as $card)
+            <flux:modal :name="'delete-card-'.$card->id" class="max-w-md">
+                <form method="POST" action="{{ route('admin.cards.destroy', $card) }}" class="space-y-6">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="from" value="design">
+
+                    <flux:heading size="lg">{{ __('cards.delete.title', ['name' => $card->title]) }}</flux:heading>
+
+                    @if ($card->links->isNotEmpty())
+                        <flux:text>{{ __('design.delete_blocked') }}</flux:text>
+                    @endif
+
+                    <div class="flex justify-end gap-2">
+                        <flux:modal.close>
+                            <flux:button variant="outline" icon="x-mark">{{ __('common.actions.cancel') }}</flux:button>
+                        </flux:modal.close>
+
+                        <flux:button variant="outline" color="red" icon="trash" type="submit" :disabled="$card->links->isNotEmpty()">{{ __('common.actions.delete') }}</flux:button>
+                    </div>
+                </form>
+            </flux:modal>
+        @endforeach
     </div>
 </x-layouts.app>

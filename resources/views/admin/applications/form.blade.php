@@ -1,6 +1,11 @@
 <flux:card body="divided" class="w-full">
     <form method="POST" action="{{ $action }}">
         @csrf
+
+        @if ($designBoard ?? null)
+            <input type="hidden" name="from" value="design">
+            <input type="hidden" name="board" value="{{ $designBoard->id }}">
+        @endif
         @isset($method)
             @method($method)
         @endisset
@@ -52,7 +57,7 @@
 
         <flux:card.footer>
             <flux:card.actions>
-                <flux:button variant="outline" icon="x-mark" :href="route('admin.applications.index')" wire:navigate>
+                <flux:button variant="outline" icon="x-mark" :href="($designBoard ?? null) ? route('admin.boards.design', $designBoard) : route('admin.applications.index')" wire:navigate>
                     {{ __('common.actions.cancel') }}
                 </flux:button>
 

@@ -6,6 +6,13 @@ return [
     'save' => 'Guardar diseño',
     'new_card' => 'Nueva tarjeta',
     'new_link' => 'Agregar enlace',
+    'new_application' => 'Nueva aplicación',
+    'board_settings' => 'Ajustes del tablero',
+    'new_board' => 'Nuevo tablero',
+    'delete_board' => 'Eliminar tablero',
+    'delete_board_blocked' => 'Este tablero tiene tarjetas: elimínalas antes de borrarlo.',
+    'home_taken' => 'Ya existe un tablero de inicio.',
+    'delete_blocked' => 'Esta tarjeta tiene enlaces: quítalos antes de eliminarla.',
     'no_links' => 'Sin enlaces',
 
     'messages' => [

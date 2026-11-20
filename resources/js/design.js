@@ -167,7 +167,7 @@ function initTabs() {
                 return event.clientY < box.top || (event.clientY <= box.bottom && event.clientX < box.left + box.width / 2);
             });
 
-        nav.insertBefore(dragged, next ?? null);
+        nav.insertBefore(dragged, next ?? nav.querySelector('[data-add]')); // the + button always stays last
     });
 
     nav.addEventListener('dragend', async () => {
