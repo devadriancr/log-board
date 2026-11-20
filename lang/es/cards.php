@@ -44,6 +44,7 @@ return [
     ],
 
     'new_text' => 'Nueva tarjeta de texto',
+    'new_text_short' => 'Nuevo texto',
 
     'editor' => [
         'font_size' => 'Tamaño de letra',

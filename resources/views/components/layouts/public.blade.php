@@ -9,8 +9,8 @@
     <head>
         @include('partials.head', ['title' => $title])
     </head>
-    <body class="min-h-screen bg-zinc-100 text-zinc-800 antialiased dark:bg-zinc-900 dark:text-zinc-100">
-        <header class="flex items-center gap-2 border-b border-zinc-200 bg-white px-2 py-1.5 shadow-xs sm:px-3 dark:border-zinc-700 dark:bg-zinc-950">
+    <body class="min-h-screen bg-zinc-50 text-zinc-800 antialiased dark:bg-zinc-950 dark:text-zinc-100">
+        <header class="flex items-center gap-2 border-b border-zinc-200 bg-white px-2 py-1.5 shadow-xs sm:px-3 dark:border-zinc-800 dark:bg-zinc-900">
             <a href="{{ route('home') }}" class="shrink-0 px-1" aria-label="YKM">
                 <img src="{{ asset('images/ykm.svg') }}" alt="YKM" class="h-6 w-auto dark:brightness-125">
             </a>

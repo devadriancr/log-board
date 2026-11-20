@@ -15,10 +15,10 @@
 
                     <flux:button
                         variant="outline"
-                        icon="document-text"
+                        icon="plus"
                         :href="route('admin.cards.create', ['board' => $board->id, 'from' => 'design', 'type' => 'text'])"
                     >
-                        {{ __('cards.new_text') }}
+                        {{ __('cards.new_text_short') }}
                     </flux:button>
 
                     @if ($cards->isNotEmpty())
@@ -94,7 +94,7 @@
                                 gs-h="{{ $card->grid_h }}"
                             >
                                 <div @if ($card->colorName()) data-card-color="{{ $card->colorName() }}" @endif @class([
-                                    'grid-stack-item-content design-card flex flex-col overflow-hidden rounded-xl border border-zinc-300 bg-white shadow-xs dark:border-zinc-600 dark:bg-zinc-700',
+                                    'grid-stack-item-content design-card flex flex-col overflow-hidden rounded-xl border border-zinc-300 bg-white shadow-xs dark:border-zinc-800 dark:bg-zinc-900',
                                     'opacity-60' => ! $card->is_active,
                                 ])>
                                     <div class="gs-handle flex cursor-move items-center justify-between gap-2 border-b border-zinc-200 px-3 py-2 dark:border-zinc-600 @if ($card->colorName()) card-head @endif">
