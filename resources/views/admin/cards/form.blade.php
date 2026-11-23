@@ -156,23 +156,50 @@
             </div>
 
             @if ($card->isText())
-                <div class="mt-6">
-                    <flux:label class="mb-2">{{ __('cards.fields.content') }}</flux:label>
+                @php($slides = array_values((array) old('content', $card->content)) ?: [''])
 
-                    <div
-                        id="rich-editor"
-                        class="rounded-lg border border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-700"
-                        data-upload="{{ route('admin.uploads.image') }}"
-                        data-token="{{ csrf_token() }}"
-                        data-labels="{{ json_encode(__('cards.editor')) }}"
-                    >
-                        <div data-toolbar class="flex flex-wrap items-center gap-0.5 border-b border-zinc-200 p-1.5 dark:border-zinc-600"></div>
-                        <div data-editor></div>
+                {{-- Each notice (slide) has its own editor; with several the public board shows them as a carousel --}}
+                <div
+                    id="rich-editor"
+                    class="mt-6"
+                    data-upload="{{ route('admin.uploads.image') }}"
+                    data-token="{{ csrf_token() }}"
+                    data-labels="{{ json_encode(__('cards.editor')) }}"
+                >
+                    <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
+                        <div>
+                            <flux:label>{{ __('cards.fields.slides') }}</flux:label>
+                            <flux:text class="text-xs">{{ __('cards.slides_hint') }}</flux:text>
+                        </div>
+
+                        <div class="w-44">
+                            <flux:input
+                                name="slide_seconds"
+                                type="number"
+                                min="3"
+                                max="60"
+                                size="sm"
+                                :label="__('cards.fields.slide_seconds')"
+                                :value="old('slide_seconds', $card->slide_seconds)"
+                                required
+                            />
+                        </div>
                     </div>
 
-                    <textarea id="rich-editor-content" name="content" hidden>{{ old('content', $card->content) }}</textarea>
+                    <div data-slides>
+                        @foreach ($slides as $html)
+                            @include('admin.cards.slide', ['html' => $html, 'number' => $loop->iteration])
+                        @endforeach
+                    </div>
+
+                    <template data-slide-template>
+                        @include('admin.cards.slide', ['html' => '', 'number' => 0])
+                    </template>
+
+                    <flux:button type="button" variant="outline" icon="plus" data-add-slide>{{ __('cards.add_slide') }}</flux:button>
 
                     <flux:error name="content" />
+                    <flux:error name="slide_seconds" />
                 </div>
             @endif
         </flux:card.body>

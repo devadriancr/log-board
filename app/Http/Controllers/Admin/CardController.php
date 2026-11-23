@@ -38,6 +38,7 @@ class CardController extends Controller
             'board_id' => $request->integer('board') ?: null,
             'grid_w' => 6,
             'grid_h' => 2,
+            'slide_seconds' => 8,
             'type' => $request->query('type') === Card::TYPE_TEXT ? Card::TYPE_TEXT : Card::TYPE_LINKS,
             'is_active' => true,
         ]);

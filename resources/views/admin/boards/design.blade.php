@@ -131,6 +131,9 @@
                                         <div class="flex min-w-0 items-center gap-2">
                                             <flux:icon name="bars-3" variant="micro" class="size-4 shrink-0 text-zinc-400" />
                                             {{-- A text card has no header: this bar is only the handle to move it --}}
+                                            @if ($card->isText() && count($card->content) > 1)
+                                                <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ __('cards.slides_count', ['count' => count($card->content)]) }}</span>
+                                            @endif
                                             @unless ($card->isText())
                                                 @if ($card->icon)
                                                     <flux:icon :name="$card->icon" class="size-5 shrink-0 text-zinc-600 dark:text-zinc-300" />
@@ -164,7 +167,7 @@
                                         </div>
                                     </div>
                                     @if ($card->isText())
-                                        <div class="rich-content flex-1 overflow-y-auto px-3 py-2 text-zinc-700 dark:text-zinc-200">{!! $card->content !!}</div>
+                                        <div class="rich-content flex-1 overflow-y-auto px-3 py-2 text-zinc-700 dark:text-zinc-200">{!! $card->content[0] ?? '' !!}</div>
                                     @else
                                     <div class="flex-1 overflow-y-auto px-2 py-1.5 text-sm">
                                         @if ($card->links->isEmpty())

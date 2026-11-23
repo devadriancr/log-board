@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('title', 255);
             $table->string('icon', 50)->nullable();
             $table->string('type', 10)->default('links'); // links | text
-            $table->longText('content')->nullable(); // sanitized HTML of the text cards
+            $table->longText('content')->nullable(); // text cards: JSON list of sanitized HTML slides (the notices of the carousel)
+            $table->unsignedTinyInteger('slide_seconds')->default(8); // how long each slide stays before the carousel moves on
             $table->string('color', 7)->nullable(); // palette colour (blue, green, red...), see Card::COLORS
             $table->unsignedTinyInteger('grid_x');
             $table->unsignedSmallInteger('grid_y');

@@ -29,6 +29,7 @@ class Card extends Model
         'icon',
         'type',
         'content',
+        'slide_seconds',
         'color',
         'grid_x',
         'grid_y',
@@ -50,6 +51,7 @@ class Card extends Model
             'grid_y' => 'integer',
             'grid_w' => 'integer',
             'grid_h' => 'integer',
+            'slide_seconds' => 'integer',
             'is_active' => 'boolean',
         ];
     }
@@ -81,19 +83,41 @@ class Card extends Model
     {
         static::saving(function (Card $card) {
             if ($card->isText()) {
-                $card->title = Str::limit(trim(html_entity_decode(strip_tags((string) $card->content))), 60) ?: __('cards.types.text');
+                $card->title = Str::limit(trim(html_entity_decode(strip_tags($card->content[0] ?? ''))), 60) ?: __('cards.types.text');
             }
         });
     }
 
     /**
-     * The HTML of a text card is cleaned every time it is stored, so it is safe to print as it is.
+     * A text card holds a list of HTML slides (the notices of its carousel). Each one is cleaned every time
+     * it is stored, so it is safe to print as it is; blank ones are dropped.
+     *
+     * @return Attribute<array<int, string>, array<int, string>|string|null>
      */
     protected function content(): Attribute
     {
-        return Attribute::set(fn (?string $html) => $html === null || trim(strip_tags($html, '<img><hr>')) === ''
-            ? null
-            : Purify::config('card')->clean($html));
+        return Attribute::make(
+            // shortcut: a card saved before slides existed holds one plain HTML text, shown as a single slide.
+            get: fn (?string $json) => is_array($slides = json_decode((string) $json, true))
+                ? $slides
+                : (filled($json) ? [$json] : []),
+            set: function ($slides) {
+                $slides = collect((array) $slides)
+                    ->reject(fn ($html) => self::isBlankSlide($html))
+                    ->map(fn ($html) => Purify::config('card')->clean($html))
+                    ->values();
+
+                return $slides->isEmpty() ? null : $slides->toJson(JSON_UNESCAPED_UNICODE);
+            },
+        );
+    }
+
+    /**
+     * A slide with no text, image or line is blank.
+     */
+    public static function isBlankSlide(?string $html): bool
+    {
+        return trim(strip_tags((string) $html, '<img><hr>')) === '';
     }
 
     public function isText(): bool

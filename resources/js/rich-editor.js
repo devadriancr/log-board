@@ -7,6 +7,9 @@ import { FontSize, TextStyle } from '@tiptap/extension-text-style';
 // Sizes offered in the toolbar, in px like the text of the page (the base size of a text card is 14).
 const FONT_SIZES = [10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64];
 
+// Fixed image widths (px) offered in the toolbar: the same preset gives the same size in every notice and card.
+const IMAGE_SIZES = { image_small: ['P', 80], image_medium: ['M', 140], image_large: ['G', 220] };
+
 // Images carry their position as a class (img-left / img-center / img-right): the server only lets those through.
 const PositionedImage = Image.extend({
     // Drag the corners of the selected image to resize it (width/height are saved in the HTML).
@@ -28,21 +31,13 @@ const PositionedImage = Image.extend({
     },
 });
 
-function init() {
-    const root = document.getElementById('rich-editor');
-
-    if (!root || root.dataset.ready) {
-        return;
-    }
-
-    root.dataset.ready = '1';
-
-    const labels = JSON.parse(root.dataset.labels);
-    const field = document.getElementById('rich-editor-content');
+// Builds the editor of one notice (slide): its toolbar, its editor and its hidden field.
+function initSlide(slide, root, labels) {
+    const field = slide.querySelector('textarea');
     const toast = (text, variant) => window.Flux?.toast({ text, variant });
 
     const editor = new Editor({
-        element: root.querySelector('[data-editor]'),
+        element: slide.querySelector('[data-editor]'),
         content: field.value,
         extensions: [
             StarterKit.configure({
@@ -60,6 +55,8 @@ function init() {
         },
     });
 
+    slide.editor = editor;
+
     const upload = async (file) => {
         const body = new FormData();
         body.append('image', file);
@@ -76,7 +73,8 @@ function init() {
             }
 
             const { url } = await response.json();
-            editor.chain().focus().setImage({ src: url, alt: file.name }).run();
+            // A new image starts small, on the left, with the text wrapping around it.
+            editor.chain().focus().setImage({ src: url, alt: file.name, width: IMAGE_SIZES.image_medium[1], class: 'img-left' }).run();
         } catch (error) {
             toast(labels.upload_error, 'danger');
         }
@@ -93,6 +91,17 @@ function init() {
     });
 
     const imageClass = (name) => () => editor.chain().focus().updateAttributes('image', { class: name }).run();
+
+    // The resize wrapper sets the width inline when it creates the image and does not follow the attribute afterwards,
+    // so besides saving it the width is also set on the image shown in the editor.
+    const imageWidth = (width) => () => {
+        editor.chain().focus().updateAttributes('image', { width, height: null }).run();
+
+        const img = editor.view.nodeDOM(editor.state.selection.from)?.querySelector?.('img');
+
+        img?.style.setProperty('width', `${width}px`);
+        img?.style.setProperty('height', 'auto');
+    };
 
     const askLink = () => {
         const url = window.prompt(labels.link_prompt, editor.getAttributes('link').href ?? 'https://');
@@ -133,12 +142,13 @@ function init() {
         ['◧', 'image_left', imageClass('img-left'), () => editor.isActive('image', { class: 'img-left' }), true],
         ['▣', 'image_center', imageClass('img-center'), () => editor.isActive('image', { class: 'img-center' }), true],
         ['◨', 'image_right', imageClass('img-right'), () => editor.isActive('image', { class: 'img-right' }), true],
+        ...Object.entries(IMAGE_SIZES).map(([key, [text, width]]) => [text, key, imageWidth(width), () => Number(editor.getAttributes('image').width) === width, true]),
         null,
         ['↶', 'undo', () => editor.chain().focus().undo().run(), () => false],
         ['↷', 'redo', () => editor.chain().focus().redo().run(), () => false],
     ];
 
-    const toolbar = root.querySelector('[data-toolbar]');
+    const toolbar = slide.querySelector('[data-toolbar]');
     const refreshers = [];
 
     buttons.forEach((definition) => {
@@ -190,6 +200,50 @@ function init() {
 
     editor.on('transaction', refresh);
     refresh();
+}
+
+// A text card is a list of notices: each one has its own editor, and they can be added or removed.
+function init() {
+    const root = document.getElementById('rich-editor');
+
+    if (!root || root.dataset.ready) {
+        return;
+    }
+
+    root.dataset.ready = '1';
+
+    const labels = JSON.parse(root.dataset.labels);
+    const list = root.querySelector('[data-slides]');
+    const template = root.querySelector('[data-slide-template]');
+    const slides = () => [...list.querySelectorAll('[data-slide]')];
+
+    // Numbers the notices again and keeps the last one from being removed.
+    const renumber = () => slides().forEach((slide, index, all) => {
+        slide.querySelector('[data-slide-number]').textContent = index + 1;
+        slide.querySelector('[data-remove-slide]').disabled = all.length === 1;
+    });
+
+    slides().forEach((slide) => initSlide(slide, root, labels));
+    renumber();
+
+    root.querySelector('[data-add-slide]').addEventListener('click', () => {
+        const slide = template.content.firstElementChild.cloneNode(true);
+
+        list.append(slide);
+        initSlide(slide, root, labels);
+        renumber();
+        slide.editor.commands.focus();
+    });
+
+    list.addEventListener('click', (event) => {
+        const slide = event.target.closest('[data-remove-slide]')?.closest('[data-slide]');
+
+        if (slide && slides().length > 1) {
+            slide.editor.destroy();
+            slide.remove();
+            renumber();
+        }
+    });
 }
 
 init();

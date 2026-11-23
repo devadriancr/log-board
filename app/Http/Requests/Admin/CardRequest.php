@@ -25,6 +25,7 @@ class CardRequest extends FormRequest
     {
         $this->merge([
             'is_active' => $this->boolean('is_active'),
+            'slide_seconds' => $this->integer('slide_seconds') ?: 8,
         ]);
     }
 
@@ -41,7 +42,19 @@ class CardRequest extends FormRequest
             'icon' => ['nullable', 'string', Rule::in(Card::icons())],
             'color' => ['nullable', Rule::in(array_keys(Card::COLORS))],
             'type' => ['required', Rule::in([Card::TYPE_LINKS, Card::TYPE_TEXT])],
-            'content' => [Rule::requiredIf(fn () => $this->input('type') === Card::TYPE_TEXT), 'nullable', 'string', 'max:500000'],
+            'content' => [
+                Rule::requiredIf(fn () => $this->input('type') === Card::TYPE_TEXT),
+                'nullable',
+                'array',
+                'max:20',
+                function (string $attribute, mixed $slides, $fail) {
+                    if ($this->input('type') === Card::TYPE_TEXT && collect($slides)->every(fn ($html) => Card::isBlankSlide($html))) {
+                        $fail(__('validation.required', ['attribute' => __('cards.attributes.content')]));
+                    }
+                },
+            ],
+            'content.*' => ['nullable', 'string', 'max:500000'],
+            'slide_seconds' => ['required', 'integer', 'min:3', 'max:60'],
             'grid_w' =>['required', 'integer', 'min:1', 'max:12'],
             'grid_h' => ['required', 'integer', 'min:1', 'max:20'],
             'is_active' => ['boolean'],

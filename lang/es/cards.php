@@ -21,6 +21,8 @@ return [
         'color' => 'Color',
         'color_none' => 'Sin color',
         'content' => 'Contenido',
+        'slides' => 'Avisos',
+        'slide_seconds' => 'Segundos por aviso',
         'grid_w' => 'Ancho (1 a 12)',
         'grid_h' => 'Alto (filas)',
         'is_active' => 'Activa',
@@ -32,6 +34,7 @@ return [
         'icon' => 'icono',
         'color' => 'color',
         'content' => 'contenido',
+        'slide_seconds' => 'segundos por aviso',
         'type' => 'tipo',
         'grid_w' => 'ancho',
         'grid_h' => 'alto',
@@ -45,6 +48,11 @@ return [
 
     'new_text' => 'Nueva tarjeta de texto',
     'new_text_short' => 'Nuevo texto',
+    'slide' => 'Aviso',
+    'add_slide' => 'Agregar aviso',
+    'remove_slide' => 'Quitar aviso',
+    'slides_hint' => 'Con más de un aviso, la tarjeta los muestra como un carrusel.',
+    'slides_count' => ':count avisos',
 
     'editor' => [
         'font_size' => 'Tamaño de letra',
@@ -68,6 +76,9 @@ return [
         'image_left' => 'Imagen a la izquierda (el texto la rodea)',
         'image_center' => 'Imagen centrada',
         'image_right' => 'Imagen a la derecha (el texto la rodea)',
+        'image_small' => 'Imagen pequeña (80 px)',
+        'image_medium' => 'Imagen mediana (140 px)',
+        'image_large' => 'Imagen grande (220 px)',
         'undo' => 'Deshacer',
         'redo' => 'Rehacer',
         'link_prompt' => 'Dirección del enlace (vacío para quitarlo)',

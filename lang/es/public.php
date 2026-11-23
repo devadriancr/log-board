@@ -6,4 +6,7 @@ return [
     'more' => 'Más opciones',
     'empty' => 'No hay enlaces para mostrar.',
     'requires_auth' => 'Requiere inicio de sesión',
+    'slide' => 'Aviso :n',
+    'previous' => 'Aviso anterior',
+    'next' => 'Aviso siguiente',
 ];

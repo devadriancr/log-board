@@ -44,9 +44,67 @@
                     </flux:card.header>
                     @endunless
 
-                    <flux:card.body class="min-h-0 flex-1 overflow-y-auto">
-                        @if ($card->isText())
-                            <div class="rich-content">{!! $card->content !!}</div>
+                    @php($slides = $card->isText() ? $card->content : [])
+
+                    {{-- With several notices the carousel scrolls inside itself, so the card body only clips --}}
+                    <flux:card.body @class(['min-h-0 flex-1', 'overflow-y-auto' => count($slides) < 2, 'overflow-hidden' => count($slides) > 1])>
+                        @if ($card->isText() && count($slides) > 1)
+                            {{-- Carousel: one notice at a time, changing every slide_seconds; it pauses while the pointer or focus is on it --}}
+                            <div
+                                class="flex h-full flex-col gap-2"
+                                x-data="{
+                                    i: 0,
+                                    n: {{ count($slides) }},
+                                    paused: false,
+                                    timer: null,
+                                    go(k) { this.i = (k + this.n) % this.n },
+                                    init() {
+                                        if (! matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                                            this.timer = setInterval(() => this.paused || this.go(this.i + 1), {{ $card->slide_seconds * 1000 }})
+                                        }
+                                    },
+                                    destroy() { clearInterval(this.timer) },
+                                }"
+                                x-on:mouseenter="paused = true"
+                                x-on:mouseleave="paused = false"
+                                x-on:focusin="paused = true"
+                                x-on:focusout="paused = false"
+                            >
+                                <div class="min-h-0 flex-1 overflow-y-auto">
+                                    @foreach ($slides as $k => $html)
+                                        <div
+                                            x-show="i === {{ $k }}"
+                                            @if ($k) x-cloak @endif
+                                            x-transition:enter="transition-opacity duration-300"
+                                            x-transition:enter-start="opacity-0"
+                                            x-transition:enter-end="opacity-100"
+                                            class="rich-content"
+                                        >{!! $html !!}</div>
+                                    @endforeach
+                                </div>
+
+                                <div class="flex shrink-0 items-center justify-center gap-1.5">
+                                    <button type="button" x-on:click="go(i - 1)" aria-label="{{ __('public.previous') }}" class="rounded p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
+                                        <flux:icon name="chevron-left" variant="micro" class="size-4" />
+                                    </button>
+
+                                    @foreach ($slides as $k => $html)
+                                        <button
+                                            type="button"
+                                            x-on:click="go({{ $k }})"
+                                            aria-label="{{ __('public.slide', ['n' => $k + 1]) }}"
+                                            class="size-2 rounded-full transition"
+                                            x-bind:class="i === {{ $k }} ? 'bg-accent' : 'bg-zinc-300 dark:bg-zinc-600'"
+                                        ></button>
+                                    @endforeach
+
+                                    <button type="button" x-on:click="go(i + 1)" aria-label="{{ __('public.next') }}" class="rounded p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
+                                        <flux:icon name="chevron-right" variant="micro" class="size-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        @elseif ($card->isText())
+                            <div class="rich-content">{!! $slides[0] ?? '' !!}</div>
                         @else
                         <div class="board-links grid gap-3">
                             @foreach ($card->links as $link)

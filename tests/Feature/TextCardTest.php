@@ -9,6 +9,7 @@ use App\Models\Link;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -33,32 +34,33 @@ class TextCardTest extends TestCase
             'type' => 'text',
             'grid_w' => 6,
             'grid_h' => 2,
-            'content' => '<p style="text-align:center">Hola <strong>mundo</strong></p>',
+            'content' => ['<p style="text-align:center">Hola <strong>mundo</strong></p>'],
         ];
     }
 
     public function test_creates_a_text_card_without_title_and_cleans_the_html(): void
     {
         $this->post(route('admin.cards.store'), $this->payload([
-            'content' => '<p>Hola <strong>mundo</strong></p><span style="font-size: 18px; position: fixed">grande</span><script>alert(1)</script><img src="/storage/a.png" width="200" class="img-left x" onerror="alert(1)"><a href="javascript:alert(1)">x</a>',
+            'content' => ['<p>Hola <strong>mundo</strong></p><span style="font-size: 18px; position: fixed">grande</span><script>alert(1)</script><img src="/storage/a.png" width="200" class="img-left x" onerror="alert(1)"><a href="javascript:alert(1)">x</a>'],
         ]))->assertRedirect();
 
         $card = Card::first();
 
         $this->assertTrue($card->isText());
         $this->assertStringStartsWith('Hola mundo', $card->title); // taken from the content
-        $this->assertStringContainsString('<span style="font-size:18px;">grande</span>', $card->content);
-        $this->assertStringContainsString('width="200"', $card->content);
-        $this->assertStringContainsString('<strong>mundo</strong>', $card->content);
-        $this->assertStringContainsString('class="img-left"', $card->content);
-        $this->assertStringNotContainsString('script', $card->content);
-        $this->assertStringNotContainsString('onerror', $card->content);
-        $this->assertStringNotContainsString('javascript:', $card->content);
+        $this->assertStringContainsString('<span style="font-size:18px;">grande</span>', $card->content[0]);
+        $this->assertStringContainsString('width="200"', $card->content[0]);
+        $this->assertStringContainsString('<strong>mundo</strong>', $card->content[0]);
+        $this->assertStringContainsString('class="img-left"', $card->content[0]);
+        $this->assertStringNotContainsString('script', $card->content[0]);
+        $this->assertStringNotContainsString('onerror', $card->content[0]);
+        $this->assertStringNotContainsString('javascript:', $card->content[0]);
     }
 
     public function test_a_text_card_needs_content_and_a_links_card_needs_a_title_and_a_hex_colour(): void
     {
         $this->post(route('admin.cards.store'), $this->payload(['content' => '']))->assertSessionHasErrors('content');
+        $this->post(route('admin.cards.store'), $this->payload(['content' => ['', '<p> </p>']]))->assertSessionHasErrors('content');
         $this->post(route('admin.cards.store'), $this->payload(['type' => 'links', 'title' => 'T', 'color' => '#e3322c']))->assertSessionHasErrors('color');
         $this->post(route('admin.cards.store'), $this->payload(['type' => 'links']))->assertSessionHasErrors('title');
     }
@@ -131,5 +133,43 @@ class TextCardTest extends TestCase
 
         $this->get(route('home'))->assertOk()->assertSee('data-card-color="green"', false);
         $this->get(route('admin.boards.design', $this->board))->assertOk()->assertSee('data-card-color="green"', false);
+    }
+
+    public function test_a_text_card_keeps_several_notices_and_drops_the_blank_ones(): void
+    {
+        $this->post(route('admin.cards.store'), $this->payload([
+            'content' => ['<p>Aviso uno</p>', '', '<p>Aviso dos<script>x</script></p>'],
+            'slide_seconds' => 5,
+        ]))->assertSessionHasNoErrors();
+
+        $card = Card::first();
+
+        $this->assertSame(['<p>Aviso uno</p>', '<p>Aviso dos</p>'], $card->content);
+        $this->assertSame(5, $card->slide_seconds);
+
+        $this->post(route('admin.cards.store'), $this->payload(['slide_seconds' => 2]))->assertSessionHasErrors('slide_seconds');
+        $this->post(route('admin.cards.store'), $this->payload(['slide_seconds' => 61]))->assertSessionHasErrors('slide_seconds');
+        $this->post(route('admin.cards.store'), $this->payload())->assertSessionHasNoErrors(); // no value: 8 seconds
+        $this->assertSame(8, Card::latest('id')->first()->slide_seconds);
+    }
+
+    public function test_public_board_shows_several_notices_as_a_carousel_and_one_as_plain_text(): void
+    {
+        Card::create(['board_id' => $this->board->id, 'type' => 'text', 'is_active' => true, 'content' => ['<p>Uno</p>', '<p>Dos</p>'], 'slide_seconds' => 6, 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 3]);
+        Card::create(['board_id' => $this->board->id, 'type' => 'text', 'is_active' => true, 'content' => ['<p>Solo</p>'], 'grid_x' => 6, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 3]);
+
+        $html = $this->get(route('home'))->assertOk()->assertSee('Uno', false)->assertSee('Dos', false)->assertSee('Solo', false)->getContent();
+
+        $this->assertSame(1, substr_count($html, 'go(i + 1)'));          // a single carousel: the one with two notices
+        $this->assertStringContainsString('6000', $html);                // its 6 seconds
+    }
+
+    public function test_a_card_saved_with_one_plain_html_text_is_shown_as_a_single_notice(): void
+    {
+        $card = Card::create(['board_id' => $this->board->id, 'type' => 'text', 'content' => ['<p>x</p>'], 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 2]);
+        DB::table('cards')->where('id', $card->id)->update(['content' => '<p>antiguo</p>']);
+
+        $this->assertSame(['<p>antiguo</p>'], $card->fresh()->content);
+        $this->get(route('admin.cards.edit', $card))->assertOk()->assertSee('antiguo');
     }
 }
