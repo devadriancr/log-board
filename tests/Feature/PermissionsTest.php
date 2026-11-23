@@ -102,4 +102,22 @@ class PermissionsTest extends TestCase
         $this->delete(route('admin.users.destroy', $super))->assertSessionHas('error');
         $this->assertDatabaseHas('users', ['id' => $super->id]);
     }
+
+    public function test_only_a_super_admin_can_create_super_admins(): void
+    {
+        $data = ['name' => 'Nuevo', 'email' => 'nuevo@example.com', 'password' => 'password1', 'password_confirmation' => 'password1', 'is_active' => 1];
+
+        // Even with the permission to create users, an admin cannot hand out the super admin role.
+        $admin = User::factory()->admin()->create();
+        $admin->givePermissionTo('users.create');
+        $this->actingAs($admin);
+
+        $this->post(route('admin.users.store'), $data + ['role' => 'super-admin'])->assertSessionHasErrors('role');
+        $this->assertDatabaseMissing('users', ['email' => 'nuevo@example.com']);
+
+        $this->actingAs(User::factory()->superAdmin()->create());
+
+        $this->post(route('admin.users.store'), $data + ['role' => 'super-admin'])->assertSessionHasNoErrors();
+        $this->assertTrue(User::where('email', 'nuevo@example.com')->firstOrFail()->isSuperAdmin());
+    }
 }

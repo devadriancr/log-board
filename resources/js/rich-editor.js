@@ -1,4 +1,5 @@
-import { Editor } from '@tiptap/core';
+import { Editor, Extension, textblockTypeInputRule } from '@tiptap/core';
+import { marked } from 'marked';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
@@ -9,6 +10,29 @@ const FONT_SIZES = [10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64];
 
 // Fixed image widths (px) offered in the toolbar: the same preset gives the same size in every notice and card.
 const IMAGE_SIZES = { image_small: ['P', 80], image_medium: ['M', 140], image_large: ['G', 220] };
+
+// Markdown pasted as plain text (a .md file, Notepad, VS Code...) becomes formatted text.
+// The editor only has two heading levels, so # and ## are titles and ### or deeper are subtitles.
+marked.use({ walkTokens: (token) => { if (token.type === 'heading') token.depth = token.depth <= 2 ? 2 : 3; } });
+
+const MARKDOWN = [
+    /^\s{0,3}#{1,6}\s+\S/m, // # title
+    /^\s*(?:[-*+]|\d+[.)])\s+\S/m, // - list, 1. list
+    /^\s{0,3}>\s+\S/m, // > quote
+    /^\s{0,3}(?:```|---+\s*$)/m, // code block, rule
+    /\*\*[^*\n]+\*\*|~~[^~\n]+~~|`[^`\n]+`/, // **bold**, ~~strike~~, `code`
+    /\[[^\]\n]+\]\(https?:\/\/[^)\s]+\)/, // [text](https://...)
+];
+
+const looksLikeMarkdown = (text) => MARKDOWN.some((pattern) => pattern.test(text));
+
+// Typing "# " also makes a title (the shortcuts "## " and "### " already come with the editor).
+const HashTitle = Extension.create({
+    name: 'hashTitle',
+    addInputRules() {
+        return [textblockTypeInputRule({ find: /^#\s$/, type: this.editor.schema.nodes.heading, getAttributes: { level: 2 } })];
+    },
+});
 
 // Images carry their position as a class (img-left / img-center / img-right): the server only lets those through.
 const PositionedImage = Image.extend({
@@ -48,14 +72,64 @@ function initSlide(slide, root, labels) {
             TextStyle,
             FontSize,
             PositionedImage,
+            HashTitle,
         ],
-        editorProps: { attributes: { class: 'rich-content min-h-48 px-3 py-2 outline-none' } },
+        editorProps: {
+            attributes: { class: 'rich-content min-h-48 px-3 py-2 outline-none' },
+            handlePaste: (view, event) => {
+                const data = event.clipboardData;
+                const text = data?.getData('text/plain') ?? '';
+
+                // Text copied from a web page or Word already has its own format: only plain text (or VS Code) is read as Markdown.
+                const plain = !data?.types.includes('text/html') || data.types.includes('vscode-editor-data');
+
+                if (!plain || !looksLikeMarkdown(text)) {
+                    return false;
+                }
+
+                editor.commands.insertContent(marked.parse(text, { gfm: true, breaks: true }));
+
+                return true;
+            },
+        },
         onUpdate: ({ editor }) => {
             field.value = editor.isEmpty ? '' : editor.getHTML();
         },
     });
 
     slide.editor = editor;
+
+    // While an image is being resized, a small label under it shows its size in px.
+    // Inline styles on purpose: this label does not depend on the CSS of the page.
+    const sizeTag = Object.assign(document.createElement('div'), { hidden: true });
+
+    sizeTag.style.cssText = 'position:fixed;z-index:9999;transform:translateX(-50%);pointer-events:none;padding:2px 8px;border-radius:6px;background:#27272a;color:#fff;font:12px/1.5 ui-monospace,monospace;box-shadow:0 2px 6px rgb(0 0 0/.3)';
+
+    document.body.append(sizeTag);
+
+    const watchResize = new MutationObserver(() => {
+        const image = editor.view.dom.querySelector('[data-resize-container][data-resize-state="true"] img');
+
+        if (!image) {
+            sizeTag.hidden = true;
+
+            return;
+        }
+
+        const box = image.getBoundingClientRect();
+
+        sizeTag.textContent = `${Math.round(box.width)} × ${Math.round(box.height)} px`;
+        sizeTag.style.left = `${box.left + box.width / 2}px`;
+        sizeTag.style.top = `${box.bottom + 8}px`;
+        sizeTag.hidden = false;
+    });
+
+    watchResize.observe(editor.view.dom, { subtree: true, attributes: true, attributeFilter: ['style', 'data-resize-state'] });
+
+    editor.on('destroy', () => {
+        watchResize.disconnect();
+        sizeTag.remove();
+    });
 
     const upload = async (file) => {
         const body = new FormData();

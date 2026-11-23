@@ -53,6 +53,7 @@ return [
     'remove_slide' => 'Quitar aviso',
     'slides_hint' => 'Con más de un aviso, la tarjeta los muestra como un carrusel.',
     'slides_count' => ':count avisos',
+    'markdown_hint' => 'Acepta Markdown: escribe **negrita**, ## título, - lista, > cita, o pega texto en Markdown.',
 
     'editor' => [
         'font_size' => 'Tamaño de letra',

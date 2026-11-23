@@ -169,7 +169,7 @@
                     <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
                         <div>
                             <flux:label>{{ __('cards.fields.slides') }}</flux:label>
-                            <flux:text class="text-xs">{{ __('cards.slides_hint') }}</flux:text>
+                            <flux:text class="text-xs">{{ __('cards.slides_hint') }} {{ __('cards.markdown_hint') }}</flux:text>
                         </div>
 
                         <div class="w-44">
