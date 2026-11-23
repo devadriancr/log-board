@@ -4,6 +4,7 @@
     'options' => [],
     'value' => null,
     'placeholder' => null,
+    'size' => 'base',
 ])
 
 @php
@@ -36,7 +37,7 @@
         @endif
 
         <flux:dropdown position="bottom" align="start">
-            <flux:button variant="outline" icon:trailing="chevron-down" class="w-full justify-between font-normal [&>span]:min-w-0 [&>span]:flex-1 [&>span]:truncate [&>span]:text-start">
+            <flux:button :size="$size" variant="outline" icon:trailing="chevron-down" class="w-full justify-between font-normal [&>span]:min-w-0 [&>span]:flex-1 [&>span]:truncate [&>span]:text-start">
                 <span x-text="text" x-bind:class="value === '' ? 'text-zinc-400' : ''"></span>
             </flux:button>
 

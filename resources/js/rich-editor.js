@@ -109,7 +109,10 @@ function initSlide(slide, root, labels) {
                 // Text copied from a web page or Word already has its own format: only plain text (or VS Code) is read as Markdown.
                 const plain = !data?.types.includes('text/html') || data.types.includes('vscode-editor-data');
 
-                if (!plain || !looksLikeMarkdown(text)) {
+                // An alert ("> [!NOTE]") is always Markdown, even when the browser also copied HTML (a chat, a web page).
+                const alert = /^\s{0,3}>\s*\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/im.test(text);
+
+                if (!(plain || alert) || !looksLikeMarkdown(text)) {
                     return false;
                 }
 

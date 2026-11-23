@@ -7,8 +7,8 @@
 
     // Botón: caja con borde, flecha siempre visible. Enlace: texto subrayado con icono, sin caja.
     $itemClasses = $isButton
-        ? 'rounded-lg border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-600 dark:bg-zinc-800'
-        : 'py-1.5';
+        ? 'rounded-lg border border-zinc-200 bg-white px-3 py-1.5 dark:border-zinc-600 dark:bg-zinc-800'
+        : 'py-0.5';
 
     $linkClasses = $isButton
         ? 'transition hover:border-accent hover:bg-zinc-50 hover:shadow-xs dark:hover:border-accent dark:hover:bg-white/5'
@@ -106,7 +106,7 @@
                         @elseif ($card->isText())
                             <div class="rich-content">{!! $slides[0] ?? '' !!}</div>
                         @else
-                        <div class="board-links grid gap-3">
+                        <div class="board-links grid gap-1.5">
                             @foreach ($card->links as $link)
                                 @php($place = sprintf('--x: %d; --w: %d; --y: %d', $link->grid_x + 1, $link->grid_w, $link->grid_y + 1))
                                 @if ($link->options->isEmpty())
@@ -139,7 +139,7 @@
                                 @else
                                     <div
                                         style="{{ $place }}"
-                                        class="board-link flex flex-wrap items-center justify-between gap-x-4 gap-y-2 {{ $itemClasses }}"
+                                        class="board-link flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 {{ $itemClasses }}"
                                         x-data="{
                                             param: @js($link->options->first()->value),
                                             url: @js($link->urlTemplate()),
@@ -174,10 +174,11 @@
                                                     x-model="param"
                                                     :options="$link->options->pluck('label', 'value')"
                                                     :value="$link->options->first()->value"
+                                                    size="sm"
                                                 />
                                             </div>
 
-                                            <flux:button type="button" variant="outline" icon="arrow-up-right" x-on:click="go()">
+                                            <flux:button type="button" size="sm" variant="outline" icon="arrow-up-right" x-on:click="go()">
                                                 {{ __('common.actions.open') }}
                                             </flux:button>
                                         </div>
