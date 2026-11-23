@@ -11,9 +11,11 @@
                         <flux:icon name="squares-2x2" class="size-8 text-zinc-400" />
                         <flux:text>{{ __('dashboard.empty') }}</flux:text>
 
-                        <flux:button variant="outline" icon="plus" :href="route('admin.boards.create')" wire:navigate>
-                            {{ __('boards.create.title') }}
-                        </flux:button>
+                        @can('boards.create')
+                            <flux:button variant="outline" icon="plus" :href="route('admin.boards.create')" wire:navigate>
+                                {{ __('boards.create.title') }}
+                            </flux:button>
+                        @endcan
                     </div>
                 @else
                     <div x-data="{ tab: {{ $boards->first()->id }} }">
@@ -36,9 +38,11 @@
 
                             @foreach ($boards as $board)
                                 <div class="flex items-center gap-2 pb-2" x-show="tab === {{ $board->id }}" @if (! $loop->first) x-cloak @endif>
-                                    <flux:button size="sm" variant="outline" icon="squares-plus" :href="route('admin.boards.design', $board)">
-                                        {{ __('dashboard.design') }}
-                                    </flux:button>
+                                    @can('design.view')
+                                        <flux:button size="sm" variant="outline" icon="squares-plus" :href="route('admin.boards.design', $board)">
+                                            {{ __('dashboard.design') }}
+                                        </flux:button>
+                                    @endcan
 
                                     <flux:button size="sm" variant="outline" icon="arrow-top-right-on-square" :href="$board->publicUrl()" target="_blank">
                                         {{ __('dashboard.view') }}

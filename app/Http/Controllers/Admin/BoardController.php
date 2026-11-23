@@ -10,10 +10,28 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class BoardController extends Controller
+class BoardController extends Controller implements HasMiddleware
 {
+    /**
+     * Each action asks for its own permission.
+     *
+     * @return array<int, Middleware>
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:boards.view', only: ['index']),
+            new Middleware('can:boards.create', only: ['create', 'store']),
+            new Middleware('can:boards.update', only: ['edit', 'update']),
+            new Middleware('can:boards.delete', only: ['destroy']),
+            new Middleware('can:design.update', only: ['reorder']),
+        ];
+    }
+
     /**
      * Display a list of the boards.
      */
@@ -50,7 +68,7 @@ class BoardController extends Controller
 
         $to = $request->input('from') === 'design'
             ? to_route('admin.boards.design', $board)
-            : to_route('admin.boards.index');
+            : $this->toIndex('boards');
 
         return $to->with('success', __('boards.messages.created'));
     }
@@ -72,7 +90,7 @@ class BoardController extends Controller
 
         $to = $request->input('from') === 'design'
             ? to_route('admin.boards.design', $board)
-            : to_route('admin.boards.index');
+            : $this->toIndex('boards');
 
         return $to->with('success', __('boards.messages.updated'));
     }
@@ -83,7 +101,7 @@ class BoardController extends Controller
     public function destroy(Request $request, Board $board): RedirectResponse
     {
         if ($board->cards()->exists()) {
-            return ($request->input('from') === 'design' ? back() : to_route('admin.boards.index'))
+            return ($request->input('from') === 'design' ? back() : $this->toIndex('boards'))
                 ->with('error', __('boards.messages.has_cards', ['name' => $board->name]));
         }
 
@@ -92,7 +110,7 @@ class BoardController extends Controller
         // From the designer go on to the first board left, if any.
         $next = $request->input('from') === 'design' ? Board::ordered()->first() : null;
 
-        return ($next ? to_route('admin.boards.design', $next) : to_route('admin.boards.index'))
+        return ($next ? to_route('admin.boards.design', $next) : $this->toIndex('boards'))
             ->with('success', __('boards.messages.deleted'));
     }
 
@@ -112,6 +130,9 @@ class BoardController extends Controller
                     ->update(['sort_order' => $index + 1, 'updated_by' => $request->user()->id]);
             }
         });
+
+        $names = Board::whereIn('id', $ids)->pluck('name', 'id');
+        activity('design')->event('reordered')->log(collect($ids)->map(fn ($id) => $names[$id])->implode(' › '));
 
         return response()->json(['message' => __('boards.messages.updated')]);
     }

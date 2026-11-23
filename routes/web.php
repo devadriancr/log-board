@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\BoardController;
 use App\Http\Controllers\Admin\BoardDesignController;
 use App\Http\Controllers\Admin\CardController;
 use App\Http\Controllers\Admin\LinkController;
 use App\Http\Controllers\Admin\UploadController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicBoardController;
@@ -15,7 +17,7 @@ Route::get('/', [PublicBoardController::class, 'index'])->name('home');
 Route::get('board/{board:slug}', [PublicBoardController::class, 'show'])->name('boards.show');
 
 Route::get('dashboard', DashboardController::class)
-    ->middleware(['auth'])
+    ->middleware(['auth', 'can:dashboard.view'])
     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
@@ -35,6 +37,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('cards', CardController::class)->except('show');
     Route::resource('links', LinkController::class)->except('show');
     Route::resource('applications', ApplicationController::class)->except('show');
+    Route::resource('users', UserController::class)->except('show');
+    Route::get('activity', [ActivityController::class, 'index'])->name('activity.index');
 });
 
 require __DIR__.'/auth.php';

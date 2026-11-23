@@ -5,6 +5,7 @@
                 <flux:card.heading size="lg" level="1">{{ __('cards.title') }}</flux:card.heading>
 
                 <flux:card.actions>
+                    @can('cards.create')
                     <flux:button variant="outline" icon="plus" :href="route('admin.cards.create')" wire:navigate>
                         {{ __('cards.create.title') }}
                     </flux:button>
@@ -12,6 +13,7 @@
                     <flux:button variant="outline" icon="document-text" :href="route('admin.cards.create', ['type' => 'text'])" wire:navigate>
                         {{ __('cards.new_text') }}
                     </flux:button>
+                    @endcan
                 </flux:card.actions>
             </flux:card.header>
 
@@ -56,6 +58,7 @@
                                         </flux:table.cell>
                                         <flux:table.cell align="end" class="py-3">
                                             <div class="flex items-center justify-end gap-2">
+                                                @can('cards.update')
                                                 <flux:button
                                                     size="sm"
                                                     variant="outline"
@@ -66,7 +69,9 @@
                                                 >
                                                     {{ __('common.actions.edit') }}
                                                 </flux:button>
+                                                @endcan
 
+                                                @can('cards.delete')
                                                 <flux:modal.trigger :name="'delete-card-'.$card->id">
                                                     <flux:button
                                                         size="sm"
@@ -78,6 +83,7 @@
                                                         {{ __('common.actions.delete') }}
                                                     </flux:button>
                                                 </flux:modal.trigger>
+                                                @endcan
                                             </div>
                                         </flux:table.cell>
                                     </flux:table.row>
@@ -89,6 +95,7 @@
             </flux:card.body>
         </flux:card>
 
+        @can('cards.delete')
         @foreach ($cards as $card)
             <flux:modal :name="'delete-card-'.$card->id" class="max-w-md">
                 <form method="POST" action="{{ route('admin.cards.destroy', $card) }}" class="space-y-6">
@@ -107,5 +114,6 @@
                 </form>
             </flux:modal>
         @endforeach
+        @endcan
     </div>
 </x-layouts.app>

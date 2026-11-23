@@ -18,9 +18,9 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_users_can_authenticate_using_the_login_screen(): void
+    public function test_admins_go_to_the_dashboard_after_logging_in(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->superAdmin()->create();
 
         $response = LivewireVolt::test('auth.login')
             ->set('email', $user->email)
@@ -30,6 +30,20 @@ class AuthenticationTest extends TestCase
         $response
             ->assertHasNoErrors()
             ->assertRedirect(route('dashboard', absolute: false));
+
+        $this->assertAuthenticated();
+    }
+
+    public function test_plain_users_go_to_the_public_board_after_logging_in(): void
+    {
+        $user = User::factory()->plainUser()->create();
+
+        LivewireVolt::test('auth.login')
+            ->set('email', $user->email)
+            ->set('password', 'password')
+            ->call('login')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('home'));
 
         $this->assertAuthenticated();
     }

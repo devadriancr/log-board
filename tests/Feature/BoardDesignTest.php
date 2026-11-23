@@ -37,7 +37,7 @@ class BoardDesignTest extends TestCase
             'grid_y' => $n - 1,
         ]));
 
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->superAdmin()->create());
     }
 
     public function test_saves_a_card_one_row_tall_and_the_position_of_its_links(): void

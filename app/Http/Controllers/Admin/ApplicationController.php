@@ -8,10 +8,27 @@ use App\Models\Application;
 use App\Models\Board;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class ApplicationController extends Controller
+class ApplicationController extends Controller implements HasMiddleware
 {
+    /**
+     * Each action asks for its own permission.
+     *
+     * @return array<int, Middleware>
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:applications.view', only: ['index']),
+            new Middleware('can:applications.create', only: ['create', 'store']),
+            new Middleware('can:applications.update', only: ['edit', 'update']),
+            new Middleware('can:applications.delete', only: ['destroy']),
+        ];
+    }
+
     /**
      * Display a list of the applications.
      */
@@ -51,7 +68,7 @@ class ApplicationController extends Controller
 
         $designBoard = $request->input('from') === 'design' ? Board::find($request->integer('board')) : null;
 
-        return ($designBoard ? to_route('admin.boards.design', $designBoard) : to_route('admin.applications.index'))
+        return ($designBoard ? to_route('admin.boards.design', $designBoard) : $this->toIndex('applications'))
             ->with('success', __('applications.messages.created'));
     }
 
@@ -72,7 +89,7 @@ class ApplicationController extends Controller
             ->fill($request->validated() + ['updated_by' => $request->user()->id])
             ->save();
 
-        return to_route('admin.applications.index')
+        return $this->toIndex('applications')
             ->with('success', __('applications.messages.updated'));
     }
 
@@ -82,13 +99,13 @@ class ApplicationController extends Controller
     public function destroy(Application $application): RedirectResponse
     {
         if ($application->links()->exists()) {
-            return to_route('admin.applications.index')
+            return $this->toIndex('applications')
                 ->with('error', __('applications.messages.has_links', ['name' => $application->name]));
         }
 
         $application->delete();
 
-        return to_route('admin.applications.index')
+        return $this->toIndex('applications')
             ->with('success', __('applications.messages.deleted'));
     }
 }

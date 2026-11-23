@@ -2,7 +2,7 @@
     $fromDesign = request('from') === 'design';
     $cancelUrl = $fromDesign && $card->board_id
         ? route('admin.boards.design', $card->board_id)
-        : route('admin.cards.index');
+        : (auth()->user()->can('cards.view') ? route('admin.cards.index') : route('dashboard'));
 @endphp
 
 <flux:card body="divided" class="w-full">

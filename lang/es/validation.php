@@ -6,7 +6,9 @@
 return [
     'array' => 'El campo :attribute debe ser una lista.',
     'boolean' => 'El campo :attribute debe ser verdadero o falso.',
+    'confirmed' => 'La confirmación de :attribute no coincide.',
     'distinct' => 'El campo :attribute tiene un valor repetido.',
+    'email' => 'El campo :attribute debe ser un correo válido.',
     'enum' => 'El valor seleccionado en :attribute no es válido.',
     'exists' => 'El valor seleccionado en :attribute no es válido.',
     'in' => 'El valor seleccionado en :attribute no es válido.',

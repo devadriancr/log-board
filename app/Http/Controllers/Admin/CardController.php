@@ -8,10 +8,27 @@ use App\Models\Board;
 use App\Models\Card;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class CardController extends Controller
+class CardController extends Controller implements HasMiddleware
 {
+    /**
+     * Each action asks for its own permission.
+     *
+     * @return array<int, Middleware>
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:cards.view', only: ['index']),
+            new Middleware('can:cards.create', only: ['create', 'store']),
+            new Middleware('can:cards.update', only: ['edit', 'update']),
+            new Middleware('can:cards.delete', only: ['destroy']),
+        ];
+    }
+
     /**
      * Display a list of the cards.
      */
@@ -106,7 +123,7 @@ class CardController extends Controller
     {
         $to = $request->input('from') === 'design'
             ? to_route('admin.boards.design', $card->board_id)
-            : to_route('admin.cards.index');
+            : $this->toIndex('cards');
 
         if ($card->links()->exists()) {
             return $to->with('error', __('cards.messages.has_links', ['name' => $card->title]));
@@ -144,7 +161,7 @@ class CardController extends Controller
     {
         $to = $request->input('from') === 'design'
             ? to_route('admin.boards.design', $card->board_id)
-            : to_route('admin.cards.index');
+            : $this->toIndex('cards');
 
         return $to->with('success', $message);
     }

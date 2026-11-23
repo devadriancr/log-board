@@ -2,10 +2,32 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsChanges;
 use Illuminate\Database\Eloquent\Model;
 
 class Link extends Model
 {
+    use LogsChanges;
+
+    /** Sección de la bitácora y campos cuyo cambio se registra. */
+    protected string $logSection = 'links';
+
+    protected array $logFields = [
+        'card_id',
+        'application_id',
+        'label',
+        'path',
+        'description',
+        'show_description',
+        'open_in_new_tab',
+        'is_active',
+    ];
+
+    protected function activityLabel(): string
+    {
+        return $this->label;
+    }
+
     protected $fillable = [
         'card_id',
         'application_id',

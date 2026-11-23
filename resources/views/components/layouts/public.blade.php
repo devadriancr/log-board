@@ -50,17 +50,47 @@
                     </flux:menu>
                 </flux:dropdown>
 
-                <flux:dropdown position="bottom" align="end">
-                    <flux:button variant="ghost" size="sm" icon="ellipsis-vertical" :aria-label="__('public.more')" :title="__('public.more')" />
+                @auth
+                    {{-- The circle with the initials: profile, admin (only if allowed) and log out --}}
+                    <flux:dropdown position="bottom" align="end">
+                        <button
+                            type="button"
+                            class="flex size-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 text-xs font-semibold text-zinc-700 hover:bg-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                            aria-label="{{ __('public.account') }}"
+                            title="{{ __('public.account') }}"
+                        >
+                            {{ auth()->user()->initials() }}
+                        </button>
 
-                    <flux:menu>
-                        @auth
-                            <flux:menu.item icon="cog-6-tooth" :href="route('admin.boards.index')">{{ __('public.admin') }}</flux:menu.item>
-                        @else
-                            <flux:menu.item icon="arrow-right-end-on-rectangle" :href="route('login')">{{ __('public.login') }}</flux:menu.item>
-                        @endauth
-                    </flux:menu>
-                </flux:dropdown>
+                        <flux:menu class="w-56">
+                            <div class="grid px-2 py-1.5 text-sm leading-tight">
+                                <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
+                                <span class="truncate text-xs text-zinc-500 dark:text-zinc-400">{{ auth()->user()->email }}</span>
+                            </div>
+
+                            <flux:menu.separator />
+
+                            <flux:menu.item icon="user" :href="route('settings.profile')">{{ __('public.profile') }}</flux:menu.item>
+
+                            @can('dashboard.view')
+                                <flux:menu.item icon="cog-6-tooth" :href="route('dashboard')">{{ __('public.admin') }}</flux:menu.item>
+                            @endcan
+
+                            <flux:menu.separator />
+
+                            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                @csrf
+                                <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                                    {{ __('public.logout') }}
+                                </flux:menu.item>
+                            </form>
+                        </flux:menu>
+                    </flux:dropdown>
+                @else
+                    <flux:button variant="ghost" size="sm" icon="arrow-right-end-on-rectangle" :href="route('login')">
+                        {{ __('public.login') }}
+                    </flux:button>
+                @endauth
             </div>
         </header>
 

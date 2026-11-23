@@ -24,7 +24,7 @@ class TextCardTest extends TestCase
         parent::setUp();
 
         $this->board = Board::create(['name' => 'Home', 'slug' => 'home', 'is_home' => true]);
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->superAdmin()->create());
     }
 
     private function payload(array $extra = []): array

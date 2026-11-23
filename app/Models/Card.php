@@ -3,12 +3,36 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Models\Concerns\LogsChanges;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Stevebauman\Purify\Facades\Purify;
 
 class Card extends Model
 {
+    use LogsChanges;
+
+    /** Sección de la bitácora y campos cuyo cambio se registra. */
+    protected string $logSection = 'cards';
+
+    protected array $logFields = [
+        'board_id',
+        'title',
+        'icon',
+        'type',
+        'content',
+        'slide_seconds',
+        'color',
+        'grid_w',
+        'grid_h',
+        'is_active',
+    ];
+
+    protected function activityLabel(): string
+    {
+        return $this->title;
+    }
+
     public const TYPE_LINKS = 'links';
 
     public const TYPE_TEXT = 'text';

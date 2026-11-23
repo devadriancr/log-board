@@ -2,6 +2,8 @@
     // After a failed save only the modal that was submitted shows what the user typed.
     $old = fn (string $form, string $key, $default = null) => old('_form') === $form ? old($key, $default) : $default;
     $hasHome = $boards->contains('is_home', true);
+    $canDesign = auth()->user()->can('design.update');
+    $canEditLinks = auth()->user()->can('links.update');
 @endphp
 
 <x-layouts.app>
@@ -11,10 +13,13 @@
                 <flux:card.heading size="lg" level="1">{{ __('design.title') }}</flux:card.heading>
 
                 <flux:card.actions>
+                    @can('boards.update')
                     <flux:modal.trigger name="board-settings">
                         <flux:button variant="outline" icon="cog-6-tooth">{{ __('design.board_settings') }}</flux:button>
                     </flux:modal.trigger>
+                    @endcan
 
+                    @can('applications.create')
                     <flux:button
                         variant="outline"
                         icon="computer-desktop"
@@ -22,7 +27,9 @@
                     >
                         {{ __('design.new_application') }}
                     </flux:button>
+                    @endcan
 
+                    @can('cards.create')
                     <flux:button
                         variant="outline"
                         icon="rectangle-group"
@@ -38,11 +45,14 @@
                     >
                         {{ __('cards.new_text_short') }}
                     </flux:button>
+                    @endcan
 
                     @if ($cards->isNotEmpty())
+                        @can('design.update')
                         <flux:button id="design-save" type="button" variant="outline" icon="check">
                             {{ __('design.save') }}
                         </flux:button>
+                        @endcan
                     @endif
                 </flux:card.actions>
             </flux:card.header>
@@ -58,11 +68,11 @@
                     @foreach ($boards as $item)
                         <a
                             data-board="{{ $item->id }}"
-                            @if ($item->is_home) data-home title="{{ __('boards.fields.is_home') }}" @else draggable="true" @endif
+                            @if ($item->is_home) data-home title="{{ __('boards.fields.is_home') }}" @elseif ($canDesign) draggable="true" @endif
                             href="{{ route('admin.boards.design', $item) }}"
                             @class([
                                 '-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium',
-                                'cursor-grab active:cursor-grabbing' => ! $item->is_home,
+                                'cursor-grab active:cursor-grabbing' => ! $item->is_home && $canDesign,
                                 'border-zinc-800 text-zinc-900 dark:border-white dark:text-white' => $item->id === $board->id,
                                 'border-transparent text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-white' => $item->id !== $board->id,
                             ])
@@ -75,6 +85,7 @@
                         </a>
                     @endforeach
 
+                    @can('boards.create')
                     <flux:modal.trigger name="new-board">
                         <button
                             type="button"
@@ -86,6 +97,7 @@
                             <flux:icon name="plus" variant="micro" class="size-4" />
                         </button>
                     </flux:modal.trigger>
+                    @endcan
                 </nav>
 
                 @if ($cards->isEmpty())
@@ -109,6 +121,7 @@
                     <div
                         id="board-design"
                         class="grid-stack board-guides flex-1"
+                        @unless ($canDesign) data-readonly @endunless
                         data-url="{{ route('admin.boards.design.update', $board) }}"
                         data-token="{{ csrf_token() }}"
                         data-saved="{{ __('design.messages.saved') }}"
@@ -145,6 +158,7 @@
                                         <div class="flex shrink-0 items-center gap-2">
                                             <span data-size class="design-size rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-xs text-zinc-500 dark:bg-zinc-600 dark:text-zinc-200">{{ $card->grid_w }}×{{ $card->grid_h }}</span>
 
+                                            @can('cards.update')
                                             <flux:button
                                                 size="xs"
                                                 variant="outline"
@@ -153,7 +167,9 @@
                                                 :aria-label="__('common.actions.edit')"
                                                 :title="__('common.actions.edit')"
                                             />
+                                            @endcan
 
+                                            @can('cards.delete')
                                             <flux:modal.trigger :name="'delete-card-'.$card->id">
                                                 <flux:button
                                                     size="xs"
@@ -164,6 +180,7 @@
                                                     :title="__('common.actions.delete')"
                                                 />
                                             </flux:modal.trigger>
+                                            @endcan
                                         </div>
                                     </div>
                                     @if ($card->isText())
@@ -189,10 +206,11 @@
                                                             <span data-order class="w-4 shrink-0 text-right font-mono text-xs text-zinc-400" title="{{ __('links.fields.sort_order') }}">{{ $link->sort_order }}</span>
                                                             <a
                                                                 draggable="false"
-                                                                href="{{ route('admin.links.edit', ['link' => $link, 'from' => 'design']) }}"
+                                                                @if ($canEditLinks) href="{{ route('admin.links.edit', ['link' => $link, 'from' => 'design']) }}" @endif
                                                                 title="{{ $link->label }}"
                                                                 @class([
-                                                                    'min-w-0 truncate text-zinc-700 hover:text-zinc-900 hover:underline dark:text-zinc-200 dark:hover:text-white',
+                                                                    'min-w-0 truncate text-zinc-700 dark:text-zinc-200',
+                                                                    'hover:text-zinc-900 hover:underline dark:hover:text-white' => $canEditLinks,
                                                                     'line-through opacity-60' => ! $link->is_active,
                                                                 ])
                                                             >
@@ -206,6 +224,7 @@
                                     </div>
 
 
+                                    @can('links.create')
                                     <div class="border-t border-zinc-200 px-3 py-2 dark:border-zinc-600">
                                         <flux:button
                                             size="xs"
@@ -219,6 +238,7 @@
                                             <span class="design-label truncate">{{ __('design.new_link') }}</span>
                                         </flux:button>
                                     </div>
+                                    @endcan
                                     @endif
                                 </div>
                             </div>
@@ -261,6 +281,7 @@
 
                 {{-- Delete asks for a second click; its form is outside this one (forms cannot nest) and is reached with form="" --}}
                 <div class="flex flex-wrap items-center justify-between gap-2" x-data="{ confirm: false }" x-on:modal-close.document="confirm = false">
+                    @can('boards.delete')
                     <div class="flex items-center gap-2">
                         <flux:button
                             type="button"
@@ -280,6 +301,7 @@
                             <flux:button type="submit" form="delete-board-form" variant="outline" color="red" icon="trash">{{ __('common.actions.delete') }}</flux:button>
                         </span>
                     </div>
+                    @endcan
 
                     <div class="flex gap-2">
                         <flux:modal.close>
@@ -290,16 +312,20 @@
                     </div>
                 </div>
 
+                @can('boards.delete')
                 @if ($cards->isNotEmpty())
                     <flux:text class="text-xs">{{ __('design.delete_board_blocked') }}</flux:text>
                 @endif
+                @endcan
             </form>
 
+            @can('boards.delete')
             <form id="delete-board-form" method="POST" action="{{ route('admin.boards.destroy', $board) }}" hidden>
                 @csrf
                 @method('DELETE')
                 <input type="hidden" name="from" value="design">
             </form>
+            @endcan
         </flux:modal>
 
         <flux:modal name="new-board" class="w-full max-w-lg">
@@ -345,6 +371,7 @@
             </form>
         </flux:modal>
 
+        @can('cards.delete')
         @foreach ($cards as $card)
             <flux:modal :name="'delete-card-'.$card->id" class="max-w-md">
                 <form method="POST" action="{{ route('admin.cards.destroy', $card) }}" class="space-y-6">
@@ -368,5 +395,6 @@
                 </form>
             </flux:modal>
         @endforeach
+        @endcan
     </div>
 </x-layouts.app>

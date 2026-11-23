@@ -2,10 +2,29 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsChanges;
 use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
 {
+    use LogsChanges;
+
+    /** Sección de la bitácora y campos cuyo cambio se registra. */
+    protected string $logSection = 'applications';
+
+    protected array $logFields = [
+        'name',
+        'base_url',
+        'requires_auth',
+        'notes',
+        'is_active',
+    ];
+
+    protected function activityLabel(): string
+    {
+        return $this->name;
+    }
+
     protected $fillable = [
         'name',
         'base_url',

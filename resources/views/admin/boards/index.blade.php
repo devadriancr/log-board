@@ -5,9 +5,11 @@
                 <flux:card.heading size="lg" level="1">{{ __('boards.title') }}</flux:card.heading>
 
                 <flux:card.actions>
+                    @can('boards.create')
                     <flux:button variant="outline" icon="plus" :href="route('admin.boards.create')" wire:navigate>
                         {{ __('boards.create.title') }}
                     </flux:button>
+                    @endcan
                 </flux:card.actions>
             </flux:card.header>
 
@@ -53,6 +55,7 @@
                                         </flux:table.cell>
                                         <flux:table.cell align="end" class="py-3">
                                             <div class="flex items-center justify-end gap-2">
+                                                @can('design.view')
                                                 <flux:button
                                                     size="sm"
                                                     variant="outline"
@@ -62,7 +65,9 @@
                                                 >
                                                     {{ __('boards.actions.design') }}
                                                 </flux:button>
+                                                @endcan
 
+                                                @can('boards.update')
                                                 <flux:button
                                                     size="sm"
                                                     variant="outline"
@@ -73,7 +78,9 @@
                                                 >
                                                     {{ __('common.actions.edit') }}
                                                 </flux:button>
+                                                @endcan
 
+                                                @can('boards.delete')
                                                 <flux:modal.trigger :name="'delete-board-'.$board->id">
                                                     <flux:button
                                                         size="sm"
@@ -85,6 +92,7 @@
                                                         {{ __('common.actions.delete') }}
                                                     </flux:button>
                                                 </flux:modal.trigger>
+                                                @endcan
                                             </div>
                                         </flux:table.cell>
                                     </flux:table.row>
@@ -96,6 +104,7 @@
             </flux:card.body>
         </flux:card>
 
+        @can('boards.delete')
         @foreach ($boards as $board)
             <flux:modal :name="'delete-board-'.$board->id" class="max-w-md">
                 <form method="POST" action="{{ route('admin.boards.destroy', $board) }}" class="space-y-6">
@@ -116,5 +125,6 @@
                 </form>
             </flux:modal>
         @endforeach
+        @endcan
     </div>
 </x-layouts.app>

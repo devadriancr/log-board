@@ -5,9 +5,11 @@
                 <flux:card.heading size="lg" level="1">{{ __('links.title') }}</flux:card.heading>
 
                 <flux:card.actions>
+                    @can('links.create')
                     <flux:button variant="outline" icon="plus" :href="route('admin.links.create')" wire:navigate>
                         {{ __('links.create.title') }}
                     </flux:button>
+                    @endcan
                 </flux:card.actions>
             </flux:card.header>
 
@@ -47,6 +49,7 @@
                                         </flux:table.cell>
                                         <flux:table.cell align="end" class="py-3">
                                             <div class="flex items-center justify-end gap-2">
+                                                @can('links.update')
                                                 <flux:button
                                                     size="sm"
                                                     variant="outline"
@@ -57,7 +60,9 @@
                                                 >
                                                     {{ __('common.actions.edit') }}
                                                 </flux:button>
+                                                @endcan
 
+                                                @can('links.delete')
                                                 <flux:modal.trigger :name="'delete-link-'.$link->id">
                                                     <flux:button
                                                         size="sm"
@@ -69,6 +74,7 @@
                                                         {{ __('common.actions.delete') }}
                                                     </flux:button>
                                                 </flux:modal.trigger>
+                                                @endcan
                                             </div>
                                         </flux:table.cell>
                                     </flux:table.row>
@@ -80,6 +86,7 @@
             </flux:card.body>
         </flux:card>
 
+        @can('links.delete')
         @foreach ($links as $link)
             <flux:modal :name="'delete-link-'.$link->id" class="max-w-md">
                 <form method="POST" action="{{ route('admin.links.destroy', $link) }}" class="space-y-6">
@@ -98,5 +105,6 @@
                 </form>
             </flux:modal>
         @endforeach
+        @endcan
     </div>
 </x-layouts.app>

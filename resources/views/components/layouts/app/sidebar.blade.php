@@ -7,21 +7,42 @@
         <flux:sidebar sticky stashable class="border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-            <a href="{{ route('dashboard') }}" class="flex justify-center py-1" wire:navigate>
+            <a href="{{ auth()->user()->landingUrl() }}" class="flex justify-center py-1" wire:navigate>
                 <x-app-logo class="size-8" href="#"></x-app-logo>
             </a>
 
             <flux:navlist variant="outline">
                 <flux:navlist.group heading="Platform" class="grid">
-                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('menu.dashboard') }}</flux:navlist.item>
+                    @can('dashboard.view')
+                        <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('menu.dashboard') }}</flux:navlist.item>
+                    @endcan
+
+                    <flux:navlist.item icon="squares-2x2" :href="route('home')">{{ __('menu.public') }}</flux:navlist.item>
                 </flux:navlist.group>
 
-                <flux:navlist.group heading="{{ __('menu.admin') }}" class="grid">
-                    <flux:navlist.item icon="squares-2x2" :href="route('admin.boards.index')" :current="request()->routeIs('admin.boards.*')" wire:navigate>{{ __('menu.boards') }}</flux:navlist.item>
-                    <flux:navlist.item icon="rectangle-group" href="{{ route('admin.cards.index') }}" :current="request()->routeIs('admin.cards.*')" wire:navigate>{{ __('menu.cards') }}</flux:navlist.item>
-                    <flux:navlist.item icon="computer-desktop" href="{{ route('admin.applications.index') }}" :current="request()->routeIs('admin.applications.*')" wire:navigate>{{ __('menu.applications') }}</flux:navlist.item>
-                    <flux:navlist.item icon="link" href="{{ route('admin.links.index') }}" :current="request()->routeIs('admin.links.*')" wire:navigate>{{ __('menu.links') }}</flux:navlist.item>
-                </flux:navlist.group>
+                {{-- Each entry is for who can see that list: whoever can only create works from the board designer --}}
+                @canany(['boards.view', 'cards.view', 'applications.view', 'links.view', 'users.view', 'activity.view'])
+                    <flux:navlist.group heading="{{ __('menu.admin') }}" class="grid">
+                        @can('boards.view')
+                            <flux:navlist.item icon="squares-2x2" :href="route('admin.boards.index')" :current="request()->routeIs('admin.boards.*')" wire:navigate>{{ __('menu.boards') }}</flux:navlist.item>
+                        @endcan
+                        @can('cards.view')
+                            <flux:navlist.item icon="rectangle-group" href="{{ route('admin.cards.index') }}" :current="request()->routeIs('admin.cards.*')" wire:navigate>{{ __('menu.cards') }}</flux:navlist.item>
+                        @endcan
+                        @can('applications.view')
+                            <flux:navlist.item icon="computer-desktop" href="{{ route('admin.applications.index') }}" :current="request()->routeIs('admin.applications.*')" wire:navigate>{{ __('menu.applications') }}</flux:navlist.item>
+                        @endcan
+                        @can('links.view')
+                            <flux:navlist.item icon="link" href="{{ route('admin.links.index') }}" :current="request()->routeIs('admin.links.*')" wire:navigate>{{ __('menu.links') }}</flux:navlist.item>
+                        @endcan
+                        @can('users.view')
+                            <flux:navlist.item icon="users" href="{{ route('admin.users.index') }}" :current="request()->routeIs('admin.users.*')" wire:navigate>{{ __('menu.users') }}</flux:navlist.item>
+                        @endcan
+                        @can('activity.view')
+                            <flux:navlist.item icon="clipboard-document-list" href="{{ route('admin.activity.index') }}" :current="request()->routeIs('admin.activity.*')" wire:navigate>{{ __('menu.activity') }}</flux:navlist.item>
+                        @endcan
+                    </flux:navlist.group>
+                @endcanany
             </flux:navlist>
 
             <flux:spacer />

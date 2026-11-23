@@ -4,10 +4,29 @@ namespace App\Models;
 
 use App\Enums\LinkStyle;
 use Illuminate\Database\Eloquent\Collection;
+use App\Models\Concerns\LogsChanges;
 use Illuminate\Database\Eloquent\Model;
 
 class Board extends Model
 {
+    use LogsChanges;
+
+    /** Sección de la bitácora y campos cuyo cambio se registra. */
+    protected string $logSection = 'boards';
+
+    protected array $logFields = [
+        'name',
+        'slug',
+        'link_style',
+        'is_home',
+        'is_active',
+    ];
+
+    protected function activityLabel(): string
+    {
+        return $this->name;
+    }
+
     protected $fillable = [
         'name',
         'slug',

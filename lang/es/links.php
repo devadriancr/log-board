@@ -22,6 +22,7 @@ return [
         'open_in_new_tab' => 'Abrir en pestaña nueva',
         'sort_order' => 'Orden',
         'is_active' => 'Activo',
+        'options' => 'Opciones',
     ],
 
     'attributes' => [

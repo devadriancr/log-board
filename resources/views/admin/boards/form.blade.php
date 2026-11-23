@@ -63,7 +63,7 @@
 
         <flux:card.footer>
             <flux:card.actions>
-                <flux:button variant="outline" icon="x-mark" :href="route('admin.boards.index')" wire:navigate>
+                <flux:button variant="outline" icon="x-mark" :href="(auth()->user()->can('boards.view') ? route('admin.boards.index') : route('dashboard'))" wire:navigate>
                     {{ __('common.actions.cancel') }}
                 </flux:button>
 

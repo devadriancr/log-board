@@ -9,10 +9,25 @@ use App\Models\Card;
 use App\Models\Link;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class BoardDesignController extends Controller
+class BoardDesignController extends Controller implements HasMiddleware
 {
+    /**
+     * Each action asks for its own permission.
+     *
+     * @return array<int, Middleware>
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:design.view', only: ['edit']),
+            new Middleware('can:design.update', only: ['update']),
+        ];
+    }
+
     /**
      * Show the designer of the board.
      */
@@ -77,6 +92,8 @@ class BoardDesignController extends Controller
                 ]);
             }
         });
+
+        activity('design')->performedOn($board)->event('updated')->log($board->name);
 
         return response()->json(['message' => __('design.messages.saved')]);
     }

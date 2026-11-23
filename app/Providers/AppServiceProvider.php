@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // El superadministrador pasa todas las revisiones de permisos. Debe devolver null (no false)
+        // para que los demás usuarios sigan con la revisión normal.
+        Gate::before(fn (User $user) => $user->isSuperAdmin() ? true : null);
     }
 }

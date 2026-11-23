@@ -7,4 +7,7 @@ return [
     'cards' => 'Tarjetas',
     'links' => 'Enlaces',
     'applications' => 'Aplicaciones',
+    'users' => 'Usuarios',
+    'activity' => 'Bitácora',
+    'public' => 'Vista pública',
 ];

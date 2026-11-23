@@ -10,10 +10,27 @@ use App\Models\Link;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class LinkController extends Controller
+class LinkController extends Controller implements HasMiddleware
 {
+    /**
+     * Each action asks for its own permission.
+     *
+     * @return array<int, Middleware>
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('can:links.view', only: ['index']),
+            new Middleware('can:links.create', only: ['create', 'store']),
+            new Middleware('can:links.update', only: ['edit', 'update']),
+            new Middleware('can:links.delete', only: ['destroy']),
+        ];
+    }
+
     /**
      * Display a list of the links.
      */
@@ -88,7 +105,7 @@ class LinkController extends Controller
             $link->delete();
         });
 
-        return to_route('admin.links.index')
+        return $this->toIndex('links')
             ->with('success', __('links.messages.deleted'));
     }
 
@@ -142,6 +159,8 @@ class LinkController extends Controller
 
             $link->fill($data + ['updated_by' => $request->user()->id])->save();
 
+            $before = $this->optionsText($link);
+
             $link->options()->delete();
             $link->options()->createMany(
                 collect($options)
@@ -149,7 +168,25 @@ class LinkController extends Controller
                     ->map(fn (array $option, int $index) => $option + ['sort_order' => $index])
                     ->all()
             );
+
+            $after = $this->optionsText($link->refresh());
+
+            if ($before !== $after) {
+                activity('links')->performedOn($link)->event('updated')
+                    ->withProperties(['old' => ['options' => $before], 'attributes' => ['options' => $after]])
+                    ->log($link->label);
+            }
         });
+    }
+
+    /**
+     * The options of the link as one line of text ("value = label"), to compare and to write in the log.
+     */
+    private function optionsText(Link $link): string
+    {
+        return $link->options()->orderBy('sort_order')->get()
+            ->map(fn ($option) => $option->value.' = '.$option->label)
+            ->implode(', ');
     }
 
     /**
@@ -159,7 +196,7 @@ class LinkController extends Controller
     {
         $to = $request->input('from') === 'design'
             ? to_route('admin.boards.design', $link->card->board_id)
-            : to_route('admin.links.index');
+            : $this->toIndex('links');
 
         return $to->with('success', $message);
     }

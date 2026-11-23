@@ -14,6 +14,8 @@ class UploadController extends Controller
      */
     public function image(Request $request): JsonResponse
     {
+        abort_unless($request->user()->canAny(['cards.create', 'cards.update']), 403);
+
         $request->validate([
             'image' => ['required', 'file', 'mimes:jpg,jpeg,png,gif,webp', 'max:4096'],
         ]);

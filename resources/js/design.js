@@ -10,12 +10,16 @@ function init() {
 
     element.dataset.ready = '1';
 
+    // Without permission to save the design, cards and links cannot be moved or resized.
+    const readOnly = 'readonly' in element.dataset;
+
     const cellHeight = 110;
     element.style.setProperty('--cell-h', `${cellHeight}px`);
 
     const grid = GridStack.init(
         {
             column: 12,
+            staticGrid: readOnly,
             cellHeight,
             minRow: 4,
             margin: 8,
@@ -68,6 +72,7 @@ function init() {
         GridStack.init(
             {
                 column: 12,
+                staticGrid: readOnly,
                 cellHeight: 34,
                 margin: 3,
                 float: false,
