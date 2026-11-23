@@ -15,13 +15,28 @@ const IMAGE_SIZES = { image_small: ['P', 80], image_medium: ['M', 140], image_la
 // The editor only has two heading levels, so # and ## are titles and ### or deeper are subtitles.
 marked.use({ walkTokens: (token) => { if (token.type === 'heading') token.depth = token.depth <= 2 ? 2 : 3; } });
 
-// GitHub alerts ("> [!NOTE]") have no equivalent in the editor: they become a quote that starts with a bold label.
-// shortcut: no colored box, only the quote style; upgrade with a dedicated Tiptap node + class allowed in config/purify.php.
-const ALERTS = { NOTE: 'Nota', TIP: 'Consejo', IMPORTANT: 'Importante', WARNING: 'Advertencia', CAUTION: 'Precaución' };
-
+// GitHub alerts ("> [!NOTE]") become a quote with the class alert-note, alert-tip...: the icon and the title come from the CSS.
+// The same classes are allowed in config/purify.php.
 marked.use({
     hooks: {
-        preprocess: (text) => text.replace(/^(\s{0,3}>[ \t]*)\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*$/gim, (_, quote, type) => `${quote}**${ALERTS[type.toUpperCase()]}**`),
+        postprocess: (html) => html.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](?:<br>|\s*<\/p>\s*<p>|\s)?/gi, (_, type) => `<blockquote class="alert-${type.toLowerCase()}"><p>`),
+    },
+});
+
+// A quote keeps its alert class when the editor reads and saves the HTML.
+const AlertQuote = Extension.create({
+    name: 'alertQuote',
+    addGlobalAttributes() {
+        return [{
+            types: ['blockquote'],
+            attributes: {
+                class: {
+                    default: null,
+                    parseHTML: (element) => element.getAttribute('class')?.match(/alert-(note|tip|important|warning|caution)/)?.[0] ?? null,
+                    renderHTML: (attributes) => (attributes.class ? { class: attributes.class } : {}),
+                },
+            },
+        }];
     },
 });
 
@@ -83,6 +98,7 @@ function initSlide(slide, root, labels) {
             FontSize,
             PositionedImage,
             HashTitle,
+            AlertQuote,
         ],
         editorProps: {
             attributes: { class: 'rich-content min-h-48 px-3 py-2 outline-none' },

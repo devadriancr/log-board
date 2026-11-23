@@ -53,9 +53,9 @@ return [
         'card' => [
             'Core.Encoding' => 'utf-8',
             'HTML.Doctype' => 'HTML 4.01 Transitional',
-            'HTML.Allowed' => 'h2,h3,p[style],br,hr,strong,b,em,i,u,s,code,pre,blockquote,ul,ol,li,span[style],a[href|title|target|rel],img[src|alt|width|height|class]',
+            'HTML.Allowed' => 'h2,h3,p[style],br,hr,strong,b,em,i,u,s,code,pre,blockquote[class],ul,ol,li,span[style],a[href|title|target|rel],img[src|alt|width|height|class]',
             'CSS.AllowedProperties' => 'text-align,font-size',
-            'Attr.AllowedClasses' => ['img-left', 'img-center', 'img-right'],
+            'Attr.AllowedClasses' => ['img-left', 'img-center', 'img-right', 'alert-note', 'alert-tip', 'alert-important', 'alert-warning', 'alert-caution'],
             'Attr.AllowedFrameTargets' => ['_blank'],
             'Attr.AllowedRel' => ['noopener', 'noreferrer'],
             'AutoFormat.AutoParagraph' => false,
