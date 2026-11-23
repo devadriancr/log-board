@@ -15,6 +15,16 @@ const IMAGE_SIZES = { image_small: ['P', 80], image_medium: ['M', 140], image_la
 // The editor only has two heading levels, so # and ## are titles and ### or deeper are subtitles.
 marked.use({ walkTokens: (token) => { if (token.type === 'heading') token.depth = token.depth <= 2 ? 2 : 3; } });
 
+// GitHub alerts ("> [!NOTE]") have no equivalent in the editor: they become a quote that starts with a bold label.
+// shortcut: no colored box, only the quote style; upgrade with a dedicated Tiptap node + class allowed in config/purify.php.
+const ALERTS = { NOTE: 'Nota', TIP: 'Consejo', IMPORTANT: 'Importante', WARNING: 'Advertencia', CAUTION: 'Precaución' };
+
+marked.use({
+    hooks: {
+        preprocess: (text) => text.replace(/^(\s{0,3}>[ \t]*)\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*$/gim, (_, quote, type) => `${quote}**${ALERTS[type.toUpperCase()]}**`),
+    },
+});
+
 const MARKDOWN = [
     /^\s{0,3}#{1,6}\s+\S/m, // # title
     /^\s*(?:[-*+]|\d+[.)])\s+\S/m, // - list, 1. list
