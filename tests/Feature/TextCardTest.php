@@ -57,6 +57,53 @@ class TextCardTest extends TestCase
         $this->assertStringNotContainsString('javascript:', $card->content[0]);
     }
 
+    public function test_an_icon_inside_the_text_survives_cleaning_and_is_printed_as_svg_only_when_it_exists(): void
+    {
+        $this->post(route('admin.cards.store'), $this->payload([
+            'color' => 'teal',
+            'icon' => 'star',
+            'content' => ['<p>Hola <span data-icon="star"></span><span data-icon="nope"></span><span data-icon="x&quot; onload=&quot;1"></span></p>'],
+        ]))->assertSessionHasNoErrors();
+
+        $html = Card::withIcons(Card::first()->content[0]);
+
+        $this->assertMatchesRegularExpression('/<span data-icon="star"><svg[^>]*data-flux-icon/', $html);
+        $this->assertStringContainsString('<span data-icon="nope"></span>', $html);
+        $this->assertStringNotContainsString('" onload', $html); // the quote stays escaped: it cannot open a new attribute
+        $this->assertSame('teal', Card::first()->colorName());
+    }
+
+    public function test_a_callout_keeps_its_palette_colours_icon_title_and_size_and_gets_its_svg_when_shown(): void
+    {
+        $this->post(route('admin.cards.store'), $this->payload([
+            'content' => ['<blockquote class="callout x" data-callout-color="teal" data-callout-icon-color="rose" data-callout-icon="star" data-callout-title="Ojo" style="font-size:20px;position:fixed"><p>Hola</p></blockquote>'],
+        ]))->assertSessionHasNoErrors();
+
+        $html = Card::first()->content[0];
+
+        $this->assertStringContainsString('class="callout"', $html);
+        $this->assertStringContainsString('data-callout-color="teal"', $html);
+        $this->assertStringContainsString('data-callout-title="Ojo"', $html);
+        $this->assertStringContainsString('font-size:20px', $html);
+        $this->assertStringNotContainsString('position', $html);
+
+        $this->assertMatchesRegularExpression('/<blockquote[^>]*>\\s*<span class="callout-icon" data-callout-color="rose"><svg/', Card::withIcons($html));
+        $this->assertStringContainsString('<span class="callout-icon"><svg', Card::withIcons(str_replace('icon-color="rose"', 'icon-color="nope"', $html))); // unknown colour: the icon keeps the bar colour
+        $this->assertCount(20, Card::COLORS);
+    }
+
+    public function test_coloured_text_keeps_its_palette_colour(): void
+    {
+        $this->post(route('admin.cards.store'), $this->payload([
+            'content' => ['<p>Hola <span data-text-color="rose" style="position:fixed">mundo</span></p>'],
+        ]))->assertSessionHasNoErrors();
+
+        $html = Card::first()->content[0];
+
+        $this->assertStringContainsString('<span data-text-color="rose">mundo</span>', $html);
+        $this->assertStringNotContainsString('position', $html);
+    }
+
     public function test_a_text_card_needs_content_and_a_links_card_needs_a_title_and_a_hex_colour(): void
     {
         $this->post(route('admin.cards.store'), $this->payload(['content' => '']))->assertSessionHasErrors('content');
@@ -126,7 +173,7 @@ class TextCardTest extends TestCase
     public function test_a_links_card_takes_a_palette_colour_that_reaches_the_public_board_and_the_designer(): void
     {
         $this->post(route('admin.cards.store'), ['board_id' => $this->board->id, 'title' => 'Sistemas', 'type' => 'links', 'color' => 'green', 'is_active' => 1, 'grid_w' => 6, 'grid_h' => 2])->assertSessionHasNoErrors();
-        $this->post(route('admin.cards.store'), ['board_id' => $this->board->id, 'title' => 'X', 'type' => 'links', 'color' => 'pink', 'grid_w' => 6, 'grid_h' => 2])->assertSessionHasErrors('color');
+        $this->post(route('admin.cards.store'), ['board_id' => $this->board->id, 'title' => 'X', 'type' => 'links', 'color' => 'fucsia', 'grid_w' => 6, 'grid_h' => 2])->assertSessionHasErrors('color');
 
         $card = Card::first();
         $link = Link::create(['card_id' => $card->id, 'application_id' => Application::create(['name' => 'App', 'base_url' => 'https://example.com'])->id, 'label' => 'L', 'sort_order' => 1, 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 12]);

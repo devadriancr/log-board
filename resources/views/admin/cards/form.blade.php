@@ -27,7 +27,7 @@
                     :value="old('board_id', $card->board_id)"
                 />
 
-                {{-- Text cards have no header: no title, icon or colour (the title is written in the content) --}}
+                {{-- Text cards have no header or title (it is written in the content); they do take an icon and a colour --}}
                 @unless ($card->isText())
                 <flux:input
                     name="title"
@@ -60,7 +60,6 @@
                     required
                 />
 
-                @unless ($card->isText())
                 {{-- x-data goes on a plain div: @js is not evaluated inside component tag attributes --}}
                 <div x-data="{ icon: @js((string) old('icon', $card->icon)), search: '', open: false }">
                 <flux:field>
@@ -85,6 +84,7 @@
 
                             <div
                                 x-ref="grid"
+                                data-icon-library
                                 x-effect="icon; $refs.preview.innerHTML = $el.querySelector(`[data-icon='${icon}']`)?.innerHTML ?? ''"
                                 class="grid max-h-64 grid-cols-6 gap-1 overflow-y-auto"
                             >
@@ -144,7 +144,6 @@
                         <flux:error name="color" />
                     </flux:field>
                 </div>
-                @endunless
                 <div class="md:self-end md:pb-2.5">
                     <flux:checkbox
                         name="is_active"
@@ -165,11 +164,12 @@
                     data-upload="{{ route('admin.uploads.image') }}"
                     data-token="{{ csrf_token() }}"
                     data-labels="{{ json_encode(__('cards.editor')) }}"
+                    data-colors="{{ json_encode(\App\Models\Card::COLORS) }}"
                 >
                     <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
                         <div>
                             <flux:label>{{ __('cards.fields.slides') }}</flux:label>
-                            <flux:text class="text-xs">{{ __('cards.slides_hint') }} {{ __('cards.markdown_hint') }}</flux:text>
+                            <flux:text class="text-xs">{{ __('cards.slides_hint') }}</flux:text>
                         </div>
 
                         <div class="w-44">

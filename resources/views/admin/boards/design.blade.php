@@ -139,6 +139,7 @@
                                 <div @if ($card->colorName()) data-card-color="{{ $card->colorName() }}" @endif @class([
                                     'grid-stack-item-content design-card flex flex-col overflow-hidden rounded-xl border border-zinc-300 bg-white shadow-xs dark:border-zinc-800 dark:bg-zinc-900',
                                     'opacity-60' => ! $card->is_active,
+                                    'card-tint' => $card->isText(),
                                 ])>
                                     <div class="gs-handle flex cursor-move items-center justify-between gap-2 border-b border-zinc-200 px-3 py-2 dark:border-zinc-600 @if ($card->colorName()) card-head @endif">
                                         <div class="flex min-w-0 items-center gap-2">
@@ -147,10 +148,10 @@
                                             @if ($card->isText() && count($card->content) > 1)
                                                 <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ __('cards.slides_count', ['count' => count($card->content)]) }}</span>
                                             @endif
+                                            @if ($card->icon)
+                                                <flux:icon :name="$card->icon" class="size-5 shrink-0 text-zinc-600 dark:text-zinc-300" />
+                                            @endif
                                             @unless ($card->isText())
-                                                @if ($card->icon)
-                                                    <flux:icon :name="$card->icon" class="size-5 shrink-0 text-zinc-600 dark:text-zinc-300" />
-                                                @endif
                                                 <span class="truncate text-sm font-medium text-zinc-800 dark:text-white">{{ $card->title }}</span>
                                             @endunless
                                         </div>
@@ -184,7 +185,7 @@
                                         </div>
                                     </div>
                                     @if ($card->isText())
-                                        <div class="rich-content flex-1 overflow-y-auto px-3 py-2 text-zinc-700 dark:text-zinc-200">{!! $card->content[0] ?? '' !!}</div>
+                                        <div class="rich-content flex-1 overflow-y-auto px-3 py-2 text-zinc-700 dark:text-zinc-200">{!! \App\Models\Card::withIcons($card->content[0] ?? '') !!}</div>
                                     @else
                                     <div class="flex-1 overflow-y-auto px-2 py-1.5 text-sm">
                                         @if ($card->links->isEmpty())

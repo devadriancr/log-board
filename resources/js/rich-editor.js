@@ -1,5 +1,6 @@
-import { Editor, Extension, textblockTypeInputRule } from '@tiptap/core';
-import { marked } from 'marked';
+import { Editor, Extension, Mark, Node, mergeAttributes } from '@tiptap/core';
+import { Plugin } from '@tiptap/pm/state';
+import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
@@ -11,51 +12,130 @@ const FONT_SIZES = [10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64];
 // Fixed image widths (px) offered in the toolbar: the same preset gives the same size in every notice and card.
 const IMAGE_SIZES = { image_small: ['P', 80], image_medium: ['M', 140], image_large: ['G', 220] };
 
-// Markdown pasted as plain text (a .md file, Notepad, VS Code...) becomes formatted text.
-// The editor only has two heading levels, so # and ## are titles and ### or deeper are subtitles.
-marked.use({ walkTokens: (token) => { if (token.type === 'heading') token.depth = token.depth <= 2 ? 2 : 3; } });
+// Fills a grid with a button per icon of the system (their SVGs come from the icon picker of the card form).
+const fillIconGrid = (grid) => document.querySelectorAll('[data-icon-library] [data-icon]').forEach((source) => {
+    const item = Object.assign(document.createElement('button'), { type: 'button', title: source.dataset.icon, innerHTML: source.innerHTML });
 
-// GitHub alerts ("> [!NOTE]") become a quote with the class alert-note, alert-tip...: the icon and the title come from the CSS.
-// The same classes are allowed in config/purify.php.
-marked.use({
-    hooks: {
-        postprocess: (html) => html.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](?:<br>|\s*<\/p>\s*<p>|\s)?/gi, (_, type) => `<blockquote class="alert-${type.toLowerCase()}"><p>`),
-    },
+    item.dataset.icon = source.dataset.icon;
+    item.className = 'flex size-9 items-center justify-center rounded-md text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600 [&>svg]:size-5';
+    grid.append(item);
 });
 
-// A quote keeps its alert class when the editor reads and saves the HTML.
-const AlertQuote = Extension.create({
-    name: 'alertQuote',
+const filterIconGrid = (grid, text) => grid.childNodes.forEach((item) => {
+    item.hidden = !item.dataset.icon.includes(text.trim().toLowerCase());
+});
+
+// A quote can be a callout made with the callout panel: class "callout", its own colour (one of the card palette), icon
+// (and icon colour), title and size. Everything is saved on the <blockquote>; the colours are styled by app.css.
+const DEFAULT_COLOR = 'blue'; // a key of Card::COLORS
+const keyOf = (value) => (/^[a-z]+$/.test(value ?? '') ? value : null);
+
+const CalloutQuote = Extension.create({
+    name: 'calloutQuote',
     addGlobalAttributes() {
         return [{
             types: ['blockquote'],
             attributes: {
                 class: {
                     default: null,
-                    parseHTML: (element) => element.getAttribute('class')?.match(/alert-(note|tip|important|warning|caution)/)?.[0] ?? null,
+                    parseHTML: (element) => (element.classList.contains('callout') ? 'callout' : null),
                     renderHTML: (attributes) => (attributes.class ? { class: attributes.class } : {}),
+                },
+                calloutColor: {
+                    default: null,
+                    parseHTML: (element) => keyOf(element.getAttribute('data-callout-color')),
+                    renderHTML: (attributes) => (attributes.calloutColor ? { 'data-callout-color': attributes.calloutColor } : {}),
+                },
+                calloutIconColor: {
+                    default: null,
+                    parseHTML: (element) => keyOf(element.getAttribute('data-callout-icon-color')),
+                    renderHTML: (attributes) => (attributes.calloutIconColor ? { 'data-callout-icon-color': attributes.calloutIconColor } : {}),
+                },
+                calloutIcon: {
+                    default: null,
+                    parseHTML: (element) => element.getAttribute('data-callout-icon'),
+                    renderHTML: (attributes) => (attributes.calloutIcon ? { 'data-callout-icon': attributes.calloutIcon } : {}),
+                },
+                calloutTitle: {
+                    default: null,
+                    parseHTML: (element) => element.getAttribute('data-callout-title'),
+                    renderHTML: (attributes) => (attributes.calloutTitle ? { 'data-callout-title': attributes.calloutTitle } : {}),
+                },
+                // Size of the whole callout (text, title and icon): saved as font-size on the quote.
+                fontSize: {
+                    default: null,
+                    parseHTML: (element) => element.style.fontSize || null,
+                    renderHTML: (attributes) => (attributes.fontSize ? { style: `font-size:${attributes.fontSize}` } : {}),
                 },
             },
         }];
     },
+    // The icon of a callout is drawn inside the editor as a widget at the start of the quote (the server adds it when it shows the card).
+    addProseMirrorPlugins() {
+        return [new Plugin({
+            props: {
+                decorations: ({ doc }) => {
+                    const widgets = [];
+
+                    doc.descendants((node, pos) => {
+                        if (node.type.name === 'blockquote' && node.attrs.calloutIcon) {
+                            widgets.push(Decoration.widget(pos + 1, () => {
+                                const icon = Object.assign(document.createElement('span'), { className: 'callout-icon', contentEditable: 'false', innerHTML: iconSvg(node.attrs.calloutIcon) });
+
+                                if (node.attrs.calloutIconColor) {
+                                    icon.dataset.calloutColor = node.attrs.calloutIconColor;
+                                }
+
+                                return icon;
+                            }, { side: -1, ignoreSelection: true }));
+                        }
+                    });
+
+                    return DecorationSet.create(doc, widgets);
+                },
+            },
+        })];
+    },
 });
 
-const MARKDOWN = [
-    /^\s{0,3}#{1,6}\s+\S/m, // # title
-    /^\s*(?:[-*+]|\d+[.)])\s+\S/m, // - list, 1. list
-    /^\s{0,3}>\s+\S/m, // > quote
-    /^\s{0,3}(?:```|---+\s*$)/m, // code block, rule
-    /\*\*[^*\n]+\*\*|~~[^~\n]+~~|`[^`\n]+`/, // **bold**, ~~strike~~, `code`
-    /\[[^\]\n]+\]\(https?:\/\/[^)\s]+\)/, // [text](https://...)
-];
+// Coloured text: a colour of the card palette saved as <span data-text-color="teal">; the colour itself comes from app.css.
+const TextColor = Mark.create({
+    name: 'textColor',
+    priority: 101, // before TextStyle, which also reads <span>
+    addAttributes() {
+        return { color: { default: null, parseHTML: (element) => keyOf(element.getAttribute('data-text-color')), renderHTML: (attributes) => ({ 'data-text-color': attributes.color }) } };
+    },
+    parseHTML() {
+        return [{ tag: 'span[data-text-color]' }];
+    },
+    renderHTML: ({ HTMLAttributes }) => ['span', HTMLAttributes, 0],
+});
 
-const looksLikeMarkdown = (text) => MARKDOWN.some((pattern) => pattern.test(text));
+// The SVGs of the icons come from the icon picker of the card form (it renders every icon of the system).
+const iconSvg = (name) => document.querySelector(`[data-icon-library] [data-icon="${name}"]`)?.innerHTML ?? '';
 
-// Typing "# " also makes a title (the shortcuts "## " and "### " already come with the editor).
-const HashTitle = Extension.create({
-    name: 'hashTitle',
-    addInputRules() {
-        return [textblockTypeInputRule({ find: /^#\s$/, type: this.editor.schema.nodes.heading, getAttributes: { level: 2 } })];
+// An icon inside the text: saved as <span data-icon="name"></span>, the server fills in the SVG when it shows the card.
+const InlineIcon = Node.create({
+    name: 'icon',
+    group: 'inline',
+    inline: true,
+    atom: true,
+    priority: 1001, // before TextStyle, which also reads <span>
+    addAttributes() {
+        return { name: { default: null, parseHTML: (element) => element.getAttribute('data-icon') } };
+    },
+    parseHTML() {
+        return [{ tag: 'span[data-icon]' }];
+    },
+    renderHTML: ({ node, HTMLAttributes }) => ['span', mergeAttributes(HTMLAttributes, { 'data-icon': node.attrs.name })],
+    addNodeView() {
+        return ({ node }) => {
+            const dom = Object.assign(document.createElement('span'), { contentEditable: 'false', innerHTML: iconSvg(node.attrs.name) });
+
+            dom.dataset.icon = node.attrs.name;
+
+            return { dom };
+        };
     },
 });
 
@@ -97,29 +177,12 @@ function initSlide(slide, root, labels) {
             TextStyle,
             FontSize,
             PositionedImage,
-            HashTitle,
-            AlertQuote,
+            CalloutQuote,
+            InlineIcon,
+            TextColor,
         ],
         editorProps: {
             attributes: { class: 'rich-content min-h-48 px-3 py-2 outline-none' },
-            handlePaste: (view, event) => {
-                const data = event.clipboardData;
-                const text = data?.getData('text/plain') ?? '';
-
-                // Text copied from a web page or Word already has its own format: only plain text (or VS Code) is read as Markdown.
-                const plain = !data?.types.includes('text/html') || data.types.includes('vscode-editor-data');
-
-                // An alert ("> [!NOTE]") is always Markdown, even when the browser also copied HTML (a chat, a web page).
-                const alert = /^\s{0,3}>\s*\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/im.test(text);
-
-                if (!(plain || alert) || !looksLikeMarkdown(text)) {
-                    return false;
-                }
-
-                editor.commands.insertContent(marked.parse(text, { gfm: true, breaks: true }));
-
-                return true;
-            },
         },
         onUpdate: ({ editor }) => {
             field.value = editor.isEmpty ? '' : editor.getHTML();
@@ -220,11 +283,74 @@ function initSlide(slide, root, labels) {
         }
     };
 
+    // Icon picker: a small panel under the toolbar with a search box and the icons of the card form.
+    const iconPanel = document.createElement('div');
+
+    iconPanel.hidden = true;
+    iconPanel.className = 'absolute start-2 top-full z-20 mt-1 flex w-80 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-2 shadow-md dark:border-zinc-600 dark:bg-zinc-700';
+    iconPanel.innerHTML = `<input type="search" placeholder="${labels.icon_search}" class="w-full rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-200"><div class="grid max-h-56 grid-cols-7 gap-1 overflow-y-auto"></div>`;
+
+    const iconGrid = iconPanel.lastElementChild;
+    const iconSearch = iconPanel.firstElementChild;
+
+    fillIconGrid(iconGrid);
+    iconSearch.addEventListener('input', () => filterIconGrid(iconGrid, iconSearch.value));
+
+    iconGrid.addEventListener('click', (event) => {
+        const name = event.target.closest('[data-icon]')?.dataset.icon;
+
+        if (name) {
+            iconPanel.hidden = true;
+            editor.chain().focus().insertContent({ type: 'icon', attrs: { name } }).run();
+        }
+    });
+
+    slide.classList.add('relative');
+    slide.append(iconPanel);
+    document.addEventListener('click', (event) => {
+        if (!iconPanel.hidden && !iconPanel.contains(event.target) && !event.target.closest('[data-icon-button]')) {
+            iconPanel.hidden = true;
+        }
+    });
+
+    const toggleIcons = () => {
+        iconPanel.hidden = !iconPanel.hidden;
+
+        if (!iconPanel.hidden) {
+            iconSearch.focus();
+        }
+    };
+
+    // Text colour: a panel with the colours of the card palette (the same as the callouts).
+    const colors = JSON.parse(root.dataset.colors);
+    const colorPanel = document.createElement('div');
+
+    colorPanel.hidden = true;
+    colorPanel.className = iconPanel.className;
+    colorPanel.innerHTML = `<div class="flex flex-wrap items-center gap-1.5"><button type="button" data-key="" class="h-6 rounded-md border border-zinc-300 px-2 text-xs text-zinc-700 dark:border-zinc-500 dark:text-zinc-200">${labels.text_color_none}</button>${Object.entries(colors).map(([key, name]) => `<button type="button" data-key="${key}" data-card-color="${key}" title="${name}" aria-label="${name}" class="card-swatch size-6 rounded-md"></button>`).join('')}</div>`;
+    colorPanel.addEventListener('click', (event) => {
+        const key = event.target.closest('[data-key]')?.dataset.key;
+
+        if (key === undefined) {
+            return;
+        }
+
+        colorPanel.hidden = true;
+        (key ? editor.chain().focus().setMark('textColor', { color: key }) : editor.chain().focus().unsetMark('textColor')).run();
+    });
+    slide.append(colorPanel);
+    document.addEventListener('click', (event) => {
+        if (!colorPanel.hidden && !colorPanel.contains(event.target) && !event.target.closest('[data-text-color-button]')) {
+            colorPanel.hidden = true;
+        }
+    });
+
     // [text, label key, command, is active?, only enabled while an image is selected]
     const buttons = [
         ['B', 'bold', () => editor.chain().focus().toggleBold().run(), () => editor.isActive('bold')],
         ['I', 'italic', () => editor.chain().focus().toggleItalic().run(), () => editor.isActive('italic')],
         ['U', 'underline', () => editor.chain().focus().toggleUnderline().run(), () => editor.isActive('underline')],
+        ['A', 'text_color', () => { colorPanel.hidden = !colorPanel.hidden; }, () => editor.isActive('textColor')],
         ['S', 'strike', () => editor.chain().focus().toggleStrike().run(), () => editor.isActive('strike')],
         ['</>', 'code', () => editor.chain().focus().toggleCode().run(), () => editor.isActive('code')],
         ['{ }', 'code_block', () => editor.chain().focus().toggleCodeBlock().run(), () => editor.isActive('codeBlock')],
@@ -241,6 +367,7 @@ function initSlide(slide, root, labels) {
         ['⇥', 'align_right', () => editor.chain().focus().setTextAlign('right').run(), () => editor.isActive({ textAlign: 'right' })],
         null,
         ['🔗', 'link', askLink, () => editor.isActive('link')],
+        ['★', 'icon', toggleIcons, () => false],
         ['🖼', 'image', () => picker.click(), () => false],
         ['◧', 'image_left', imageClass('img-left'), () => editor.isActive('image', { class: 'img-left' }), true],
         ['▣', 'image_center', imageClass('img-center'), () => editor.isActive('image', { class: 'img-center' }), true],
@@ -253,6 +380,7 @@ function initSlide(slide, root, labels) {
 
     const toolbar = slide.querySelector('[data-toolbar]');
     const refreshers = [];
+    let quoteButton;
 
     buttons.forEach((definition) => {
         if (!definition) {
@@ -262,6 +390,7 @@ function initSlide(slide, root, labels) {
         }
 
         const [text, key, run, active, imageOnly] = definition;
+
         const button = document.createElement('button');
 
         button.type = 'button';
@@ -270,6 +399,12 @@ function initSlide(slide, root, labels) {
         button.setAttribute('aria-label', labels[key]);
         button.className = 'min-w-8 rounded-md px-2 py-1 text-sm text-zinc-700 hover:bg-zinc-100 disabled:opacity-30 dark:text-zinc-200 dark:hover:bg-zinc-600';
         button.addEventListener('click', run);
+        button.toggleAttribute('data-icon-button', key === 'icon');
+        button.toggleAttribute('data-text-color-button', key === 'text_color');
+
+        if (key === 'quote') {
+            quoteButton = button;
+        }
         toolbar.append(button);
 
         refreshers.push(() => {
@@ -298,6 +433,99 @@ function initSlide(slide, root, labels) {
     refreshers.push(() => {
         size.value = parseInt(editor.getAttributes('textStyle').fontSize, 10) || 14;
     });
+
+    // Callout panel: a quote with the colour, icon, title and size chosen here (they are saved on the quote itself).
+    const inputClass = 'w-full rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-200';
+    const swatches = (kind) => Object.entries(colors).map(([key, name]) => `<button type="button" data-pick="${kind}" data-key="${key}" data-card-color="${key}" title="${name}" aria-label="${name}" class="card-swatch size-6 rounded-md"></button>`).join('');
+    const panel = document.createElement('div');
+
+    panel.hidden = true;
+    panel.className = iconPanel.className;
+    panel.innerHTML = `
+        <input data-title type="text" maxlength="40" placeholder="${labels.callout_title}" class="${inputClass}">
+        <div class="text-xs text-zinc-500 dark:text-zinc-300">${labels.callout_color}<div class="mt-1 flex flex-wrap gap-1.5">${swatches('color')}</div></div>
+        <div class="text-xs text-zinc-500 dark:text-zinc-300">${labels.callout_icon_color}<div class="mt-1 flex flex-wrap items-center gap-1.5"><button type="button" data-pick="icon-color" data-key="" class="h-6 rounded-md border border-zinc-300 px-2 text-xs text-zinc-700 dark:border-zinc-500 dark:text-zinc-200">${labels.callout_same_color}</button>${swatches('icon-color')}</div></div>
+        <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">${labels.callout_size}<select data-size class="${inputClass} !w-auto">${FONT_SIZES.map((n) => `<option value="${n}">${n}</option>`).join('')}</select></label>
+        <input data-search type="search" placeholder="${labels.icon_search}" class="${inputClass}">
+        <div data-icons class="grid max-h-40 grid-cols-7 gap-1 overflow-y-auto"></div>
+        <div class="flex justify-between text-sm">
+            <button type="button" data-no-icon class="rounded-md px-2 py-1 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-600">${labels.callout_no_icon}</button>
+            <button type="button" data-remove class="rounded-md px-2 py-1 text-red-600 hover:bg-zinc-100 dark:text-red-400 dark:hover:bg-zinc-600">${labels.callout_remove}</button>
+        </div>`;
+
+    const q = (selector) => panel.querySelector(selector);
+    const set = (attributes) => editor.chain().updateAttributes('blockquote', attributes).run();
+
+    fillIconGrid(q('[data-icons]'));
+    slide.append(panel);
+
+    q('[data-title]').addEventListener('input', (event) => set({ calloutTitle: event.target.value.trim() || null }));
+    q('[data-size]').addEventListener('change', (event) => set({ fontSize: Number(event.target.value) === 14 ? null : `${event.target.value}px` }));
+    q('[data-search]').addEventListener('input', (event) => filterIconGrid(q('[data-icons]'), event.target.value));
+    q('[data-no-icon]').addEventListener('click', () => set({ calloutIcon: null }));
+    q('[data-remove]').addEventListener('click', () => {
+        panel.hidden = true;
+        editor.chain().focus().toggleBlockquote().run();
+    });
+    panel.addEventListener('click', (event) => {
+        const icon = event.target.closest('[data-icons] [data-icon]')?.dataset.icon;
+        const pick = event.target.closest('[data-pick]');
+
+        if (pick) {
+            set(pick.dataset.pick === 'color' ? { calloutColor: pick.dataset.key } : { calloutIconColor: pick.dataset.key || null });
+        } else if (icon) {
+            set({ calloutIcon: icon });
+        }
+    });
+
+    // Shows the values of the quote under the cursor (the title is left alone while it is being typed).
+    const syncPanel = () => {
+        const quote = editor.getAttributes('blockquote');
+
+        if (document.activeElement !== q('[data-title]')) {
+            q('[data-title]').value = quote.calloutTitle ?? '';
+        }
+
+        q('[data-size]').value = parseInt(quote.fontSize, 10) || 14;
+        panel.querySelectorAll('[data-pick]').forEach((swatch) => {
+            const current = (swatch.dataset.pick === 'color' ? quote.calloutColor : quote.calloutIconColor) ?? '';
+
+            ['ring-2', 'ring-zinc-500', 'ring-offset-1'].forEach((name) => swatch.classList.toggle(name, current === swatch.dataset.key));
+        });
+    };
+
+    const calloutButton = Object.assign(document.createElement('button'), { type: 'button', textContent: '🗨', title: labels.callout });
+
+    calloutButton.setAttribute('aria-label', labels.callout);
+    calloutButton.setAttribute('data-callout-button', '');
+    calloutButton.className = 'min-w-8 rounded-md px-2 py-1 text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-600';
+    calloutButton.addEventListener('click', () => {
+        if (!panel.hidden) {
+            panel.hidden = true;
+
+            return;
+        }
+
+        // A normal paragraph becomes a callout with a default colour, icon and title; an existing quote keeps what it has.
+        if (!editor.isActive('blockquote')) {
+            editor.chain().focus().toggleBlockquote().run();
+            set({ class: 'callout', calloutColor: DEFAULT_COLOR, calloutIcon: 'information-circle', calloutTitle: labels.callout_default });
+        } else if (!editor.getAttributes('blockquote').class) {
+            set({ class: 'callout', calloutColor: DEFAULT_COLOR });
+        }
+
+        iconPanel.hidden = true;
+        panel.hidden = false;
+        syncPanel();
+    });
+    quoteButton.after(calloutButton);
+
+    document.addEventListener('click', (event) => {
+        if (!panel.hidden && !panel.contains(event.target) && !event.target.closest('[data-callout-button]')) {
+            panel.hidden = true;
+        }
+    });
+    refreshers.push(() => !panel.hidden && syncPanel());
 
     const refresh = () => refreshers.forEach((fn) => fn());
 

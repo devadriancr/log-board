@@ -31,7 +31,11 @@
                 style="--x: {{ $card->grid_x + 1 }}; --w: {{ $card->grid_w }}; --y: {{ $card->grid_y + 1 }}; --h: {{ $card->grid_h }}"
             >
                 {{-- The card keeps the size it was given in the designer: when its content does not fit, the body scrolls --}}
-                <flux:card body="divided" class="flex h-full flex-col overflow-hidden" :data-card-color="$card->colorName()">
+                <flux:card body="divided" @class(['relative flex h-full flex-col overflow-hidden', 'card-tint' => $card->isText()]) :data-card-color="$card->colorName()">
+                    @if ($card->isText() && $card->icon)
+                        <flux:icon :name="$card->icon" class="absolute end-2 top-2 size-6 opacity-80" />
+                    @endif
+
                     {{-- Text cards have no header: the title is part of the content --}}
                     @unless ($card->isText())
                     <flux:card.header @class(['card-head', 'bg-zinc-50 dark:bg-white/5' => ! $card->colorName()])>
@@ -47,7 +51,7 @@
                     @php($slides = $card->isText() ? $card->content : [])
 
                     {{-- With several notices the carousel scrolls inside itself, so the card body only clips --}}
-                    <flux:card.body @class(['min-h-0 flex-1', 'overflow-y-auto' => count($slides) < 2, 'overflow-hidden' => count($slides) > 1])>
+                    <flux:card.body @class(['min-h-0 flex-1', 'overflow-y-auto' => count($slides) < 2, 'overflow-hidden' => count($slides) > 1, 'pe-10' => $card->isText() && $card->icon])>
                         @if ($card->isText() && count($slides) > 1)
                             {{-- Carousel: one notice at a time, changing every slide_seconds; it pauses while the pointer or focus is on it --}}
                             <div
@@ -79,7 +83,7 @@
                                             x-transition:enter-start="opacity-0"
                                             x-transition:enter-end="opacity-100"
                                             class="rich-content"
-                                        >{!! $html !!}</div>
+                                        >{!! \App\Models\Card::withIcons($html) !!}</div>
                                     @endforeach
                                 </div>
 
@@ -104,7 +108,7 @@
                                 </div>
                             </div>
                         @elseif ($card->isText())
-                            <div class="rich-content">{!! $slides[0] ?? '' !!}</div>
+                            <div class="rich-content">{!! \App\Models\Card::withIcons($slides[0] ?? '') !!}</div>
                         @else
                         <div class="board-links grid gap-1.5">
                             @foreach ($card->links as $link)

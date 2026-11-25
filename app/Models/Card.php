@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Models\Concerns\LogsChanges;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 use Stevebauman\Purify\Facades\Purify;
 
@@ -45,6 +46,20 @@ class Card extends Model
         'amber' => 'Amarillo',
         'purple' => 'Morado',
         'slate' => 'Gris',
+        'teal' => 'Turquesa',
+        'cyan' => 'Cian',
+        'indigo' => 'Índigo',
+        'pink' => 'Rosa',
+        'orange' => 'Naranja',
+        'lime' => 'Lima',
+        'sky' => 'Celeste',
+        'emerald' => 'Esmeralda',
+        'yellow' => 'Dorado',
+        'violet' => 'Violeta',
+        'fuchsia' => 'Fucsia',
+        'rose' => 'Rosado',
+        'brown' => 'Café',
+        'black' => 'Negro',
     ];
 
     protected $fillable = [
@@ -141,7 +156,36 @@ class Card extends Model
      */
     public static function isBlankSlide(?string $html): bool
     {
-        return trim(strip_tags((string) $html, '<img><hr>')) === '';
+        return trim(strip_tags((string) $html, '<img><hr>')) === '' && ! str_contains((string) $html, 'data-icon');
+    }
+
+    /**
+     * Fills the icon markers of a slide (inline <span data-icon="star"></span> and callouts) with the SVG of the icon.
+     * Unknown names are left empty, so only icons of the system are ever printed.
+     */
+    public static function withIcons(string $html): string
+    {
+        $svg = fn (string $name) => in_array($name, self::icons(), true)
+            ? Blade::render('<flux:icon :name="$name" />', ['name' => $name])
+            : null;
+
+        // Inline icons: <span data-icon="star"></span>
+        $html = preg_replace_callback(
+            '/<span data-icon="([\w-]+)"><\/span>/',
+            fn (array $m) => ($icon = $svg($m[1])) ? '<span data-icon="'.$m[1].'">'.$icon.'</span>' : $m[0],
+            $html,
+        );
+
+        // Callouts: the icon goes first inside the quote, in its own colour of the palette when it has one.
+        return preg_replace_callback('/<blockquote\b[^>]*\bdata-callout-icon="([\w-]+)"[^>]*>/', function (array $m) use ($svg) {
+            if (! ($icon = $svg($m[1]))) {
+                return $m[0];
+            }
+
+            $color = preg_match('/data-callout-icon-color="(\w+)"/', $m[0], $c) && isset(self::COLORS[$c[1]]) ? ' data-callout-color="'.$c[1].'"' : '';
+
+            return $m[0].'<span class="callout-icon"'.$color.'>'.$icon.'</span>';
+        }, $html);
     }
 
     public function isText(): bool
@@ -151,11 +195,10 @@ class Card extends Model
 
     /**
      * The key of the palette colour of the card (its CSS lives in app.css), or null when it has none.
-     * Text cards have no header, so they never use one.
      */
     public function colorName(): ?string
     {
-        return ! $this->isText() && isset(self::COLORS[$this->color]) ? $this->color : null;
+        return isset(self::COLORS[$this->color]) ? $this->color : null;
     }
 
     /**

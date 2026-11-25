@@ -240,41 +240,6 @@ select:focus[data-flux-control] {
     opacity: 0.85;
 }
 
-/* GitHub-style alerts (> [!NOTE]): colored bar, icon (Octicons) and title. */
-.rich-content blockquote[class^='alert-'] {
-    --alert: #4493f8;
-    --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'/%3E%3C/svg%3E");
-    --alert-title: 'Nota';
-    position: relative;
-    border-left: 4px solid var(--alert);
-    opacity: 1;
-}
-
-.rich-content blockquote[class^='alert-']::before {
-    content: var(--alert-title);
-    display: block;
-    padding-left: 1.5rem;
-    font-weight: 600;
-    color: var(--alert);
-}
-
-/* The icon is a mask painted with the color of the alert, placed at the left of the title. */
-.rich-content blockquote[class^='alert-']::after {
-    content: '';
-    position: absolute;
-    top: 0.2em;
-    left: 0.75rem;
-    width: 1rem;
-    height: 1rem;
-    background: var(--alert);
-    mask: var(--alert-icon) center / contain no-repeat;
-}
-
-.rich-content blockquote.alert-tip { --alert: #3fb950; --alert-title: 'Consejo'; --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z'/%3E%3C/svg%3E"); }
-.rich-content blockquote.alert-important { --alert: #ab7df8; --alert-title: 'Importante'; --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z'/%3E%3C/svg%3E"); }
-.rich-content blockquote.alert-warning { --alert: #d29922; --alert-title: 'Advertencia'; --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z'/%3E%3C/svg%3E"); }
-.rich-content blockquote.alert-caution { --alert: #f85149; --alert-title: 'Precaución'; --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'/%3E%3C/svg%3E"); }
-
 .rich-content code {
     font-family: var(--font-mono, ui-monospace, monospace);
     font-size: 0.85em;
@@ -424,19 +389,107 @@ select:focus[data-flux-control] {
 
 /* Colores de las tarjetas (Card::COLORS): encabezado, borde y texto del título. El cuerpo de la tarjeta no cambia.
    Cada color tiene su variante para el tema oscuro. */
-[data-card-color='blue'] { --cc-bg: #dbeafe; --cc-border: #2563eb; --cc-text: #1e3a8a; }
-[data-card-color='green'] { --cc-bg: #dcfce7; --cc-border: #16a34a; --cc-text: #14532d; }
-[data-card-color='red'] { --cc-bg: #fee2e2; --cc-border: #dc2626; --cc-text: #7f1d1d; }
-[data-card-color='amber'] { --cc-bg: #fef3c7; --cc-border: #d97706; --cc-text: #78350f; }
-[data-card-color='purple'] { --cc-bg: #f3e8ff; --cc-border: #9333ea; --cc-text: #581c87; }
-[data-card-color='slate'] { --cc-bg: #f1f5f9; --cc-border: #64748b; --cc-text: #1e293b; }
+[data-card-color='blue'], [data-callout-color='blue'], [data-text-color='blue'] { --cc-bg: #dbeafe; --cc-border: #2563eb; --cc-text: #1e3a8a; }
+[data-card-color='green'], [data-callout-color='green'], [data-text-color='green'] { --cc-bg: #dcfce7; --cc-border: #16a34a; --cc-text: #14532d; }
+[data-card-color='red'], [data-callout-color='red'], [data-text-color='red'] { --cc-bg: #fee2e2; --cc-border: #dc2626; --cc-text: #7f1d1d; }
+[data-card-color='amber'], [data-callout-color='amber'], [data-text-color='amber'] { --cc-bg: #fef3c7; --cc-border: #d97706; --cc-text: #78350f; }
+[data-card-color='purple'], [data-callout-color='purple'], [data-text-color='purple'] { --cc-bg: #f3e8ff; --cc-border: #9333ea; --cc-text: #581c87; }
+[data-card-color='slate'], [data-callout-color='slate'], [data-text-color='slate'] { --cc-bg: #f1f5f9; --cc-border: #64748b; --cc-text: #1e293b; }
+[data-card-color='teal'], [data-callout-color='teal'], [data-text-color='teal'] { --cc-bg: #ccfbf1; --cc-border: #0d9488; --cc-text: #134e4a; }
+[data-card-color='cyan'], [data-callout-color='cyan'], [data-text-color='cyan'] { --cc-bg: #cffafe; --cc-border: #0891b2; --cc-text: #164e63; }
+[data-card-color='indigo'], [data-callout-color='indigo'], [data-text-color='indigo'] { --cc-bg: #e0e7ff; --cc-border: #4f46e5; --cc-text: #312e81; }
+[data-card-color='pink'], [data-callout-color='pink'], [data-text-color='pink'] { --cc-bg: #fce7f3; --cc-border: #db2777; --cc-text: #831843; }
+[data-card-color='orange'], [data-callout-color='orange'], [data-text-color='orange'] { --cc-bg: #ffedd5; --cc-border: #ea580c; --cc-text: #7c2d12; }
+[data-card-color='lime'], [data-callout-color='lime'], [data-text-color='lime'] { --cc-bg: #ecfccb; --cc-border: #65a30d; --cc-text: #365314; }
+[data-card-color='sky'], [data-callout-color='sky'], [data-text-color='sky'] { --cc-bg: #e0f2fe; --cc-border: #0284c7; --cc-text: #0c4a6e; }
+[data-card-color='emerald'], [data-callout-color='emerald'], [data-text-color='emerald'] { --cc-bg: #d1fae5; --cc-border: #059669; --cc-text: #064e3b; }
+[data-card-color='yellow'], [data-callout-color='yellow'], [data-text-color='yellow'] { --cc-bg: #fef9c3; --cc-border: #ca8a04; --cc-text: #713f12; }
+[data-card-color='violet'], [data-callout-color='violet'], [data-text-color='violet'] { --cc-bg: #ede9fe; --cc-border: #7c3aed; --cc-text: #4c1d95; }
+[data-card-color='fuchsia'], [data-callout-color='fuchsia'], [data-text-color='fuchsia'] { --cc-bg: #fae8ff; --cc-border: #c026d3; --cc-text: #701a75; }
+[data-card-color='rose'], [data-callout-color='rose'], [data-text-color='rose'] { --cc-bg: #ffe4e6; --cc-border: #e11d48; --cc-text: #881337; }
+[data-card-color='brown'], [data-callout-color='brown'], [data-text-color='brown'] { --cc-bg: #efe6dd; --cc-border: #8b5e3c; --cc-text: #3f2a1a; }
+[data-card-color='black'], [data-callout-color='black'], [data-text-color='black'] { --cc-bg: #e4e4e7; --cc-border: #18181b; --cc-text: #18181b; }
 
-.dark [data-card-color='blue'] { --cc-bg: #1e3a8a; --cc-border: #60a5fa; --cc-text: #dbeafe; }
-.dark [data-card-color='green'] { --cc-bg: #14532d; --cc-border: #4ade80; --cc-text: #dcfce7; }
-.dark [data-card-color='red'] { --cc-bg: #7f1d1d; --cc-border: #f87171; --cc-text: #fee2e2; }
-.dark [data-card-color='amber'] { --cc-bg: #78350f; --cc-border: #fbbf24; --cc-text: #fef3c7; }
-.dark [data-card-color='purple'] { --cc-bg: #581c87; --cc-border: #c084fc; --cc-text: #f3e8ff; }
-.dark [data-card-color='slate'] { --cc-bg: #1e293b; --cc-border: #94a3b8; --cc-text: #f1f5f9; }
+.dark [data-card-color='blue'], .dark [data-callout-color='blue'], .dark [data-text-color='blue'] { --cc-border: #60a5fa; --cc-text: #dbeafe; }
+.dark [data-card-color='green'], .dark [data-callout-color='green'], .dark [data-text-color='green'] { --cc-border: #4ade80; --cc-text: #dcfce7; }
+.dark [data-card-color='red'], .dark [data-callout-color='red'], .dark [data-text-color='red'] { --cc-border: #f87171; --cc-text: #fee2e2; }
+.dark [data-card-color='amber'], .dark [data-callout-color='amber'], .dark [data-text-color='amber'] { --cc-border: #fbbf24; --cc-text: #fef3c7; }
+.dark [data-card-color='purple'], .dark [data-callout-color='purple'], .dark [data-text-color='purple'] { --cc-border: #c084fc; --cc-text: #f3e8ff; }
+.dark [data-card-color='slate'], .dark [data-callout-color='slate'], .dark [data-text-color='slate'] { --cc-border: #94a3b8; --cc-text: #f1f5f9; }
+.dark [data-card-color='teal'], .dark [data-callout-color='teal'], .dark [data-text-color='teal'] { --cc-border: #2dd4bf; --cc-text: #ccfbf1; }
+.dark [data-card-color='cyan'], .dark [data-callout-color='cyan'], .dark [data-text-color='cyan'] { --cc-border: #22d3ee; --cc-text: #cffafe; }
+.dark [data-card-color='indigo'], .dark [data-callout-color='indigo'], .dark [data-text-color='indigo'] { --cc-border: #818cf8; --cc-text: #e0e7ff; }
+.dark [data-card-color='pink'], .dark [data-callout-color='pink'], .dark [data-text-color='pink'] { --cc-border: #f472b6; --cc-text: #fce7f3; }
+.dark [data-card-color='orange'], .dark [data-callout-color='orange'], .dark [data-text-color='orange'] { --cc-border: #fb923c; --cc-text: #ffedd5; }
+.dark [data-card-color='lime'], .dark [data-callout-color='lime'], .dark [data-text-color='lime'] { --cc-border: #a3e635; --cc-text: #ecfccb; }
+.dark [data-card-color='sky'], .dark [data-callout-color='sky'], .dark [data-text-color='sky'] { --cc-border: #38bdf8; --cc-text: #e0f2fe; }
+.dark [data-card-color='emerald'], .dark [data-callout-color='emerald'], .dark [data-text-color='emerald'] { --cc-border: #34d399; --cc-text: #d1fae5; }
+.dark [data-card-color='yellow'], .dark [data-callout-color='yellow'], .dark [data-text-color='yellow'] { --cc-border: #facc15; --cc-text: #fef9c3; }
+.dark [data-card-color='violet'], .dark [data-callout-color='violet'], .dark [data-text-color='violet'] { --cc-border: #a78bfa; --cc-text: #ede9fe; }
+.dark [data-card-color='fuchsia'], .dark [data-callout-color='fuchsia'], .dark [data-text-color='fuchsia'] { --cc-border: #e879f9; --cc-text: #fae8ff; }
+.dark [data-card-color='rose'], .dark [data-callout-color='rose'], .dark [data-text-color='rose'] { --cc-border: #fb7185; --cc-text: #ffe4e6; }
+.dark [data-card-color='brown'], .dark [data-callout-color='brown'], .dark [data-text-color='brown'] { --cc-border: #c8956d; --cc-text: #f3e8dc; }
+.dark [data-card-color='black'], .dark [data-callout-color='black'], .dark [data-text-color='black'] { --cc-border: #a1a1aa; --cc-text: #fafafa; }
+
+/* En oscuro el fondo sale del propio color del borde mezclado con el de la tarjeta, así todos se distinguen. */
+.dark [data-card-color] { --cc-bg: color-mix(in oklab, var(--cc-border) 32%, var(--color-zinc-900)); }
+
+/* Avisos hechos con el panel del editor: color, icono, color del icono y título propios (colores de la paleta de las tarjetas). */
+.rich-content blockquote.callout {
+    --alert: var(--cc-border, #2563eb);
+    position: relative;
+    border-left: 4px solid var(--alert);
+    opacity: 1;
+}
+
+.rich-content blockquote.callout[data-callout-icon] {
+    padding-left: calc(0.75rem + 1.6em);
+}
+
+.rich-content blockquote.callout[data-callout-title]::before {
+    content: attr(data-callout-title);
+    display: block;
+    font-weight: 600;
+    color: var(--alert);
+}
+
+.rich-content .callout-icon {
+    position: absolute;
+    top: 0.3em;
+    left: 0.75rem;
+    color: var(--alert);
+}
+
+/* Icono con color propio: toma el de la paleta. */
+.rich-content .callout-icon[data-callout-color] {
+    color: var(--cc-border);
+}
+
+.rich-content .callout-icon svg {
+    width: 1.2em;
+    height: 1.2em;
+}
+
+/* Texto de color (botón del editor): el color de la paleta de las tarjetas, con su variante en oscuro. */
+.rich-content [data-text-color] {
+    color: var(--cc-border);
+}
+
+/* Iconos dentro del texto: van en línea, del tamaño de la letra y con su color. */
+.rich-content [data-icon] {
+    display: inline-block;
+    vertical-align: text-bottom;
+}
+
+.rich-content [data-icon] svg {
+    width: 1.2em;
+    height: 1.2em;
+}
+
+.rich-content [data-icon].ProseMirror-selectednode {
+    outline: 2px solid var(--color-accent, #3b82f6);
+    border-radius: 3px;
+}
 
 [data-card-color]:not(.card-swatch) {
     border-color: var(--cc-border);
@@ -454,6 +507,16 @@ select:focus[data-flux-control] {
 
 [data-card-color] .card-head,
 [data-card-color] .card-head * {
+    color: var(--cc-text);
+}
+
+/* Las tarjetas de texto no tienen encabezado: con color, todo el fondo se tiñe. */
+[data-card-color].card-tint,
+[data-card-color].card-tint > * {
+    background-color: var(--cc-bg);
+}
+
+[data-card-color].card-tint .rich-content {
     color: var(--cc-text);
 }
 

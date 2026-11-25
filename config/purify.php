@@ -1,7 +1,5 @@
 <?php
 
-use Stevebauman\Purify\Definitions\Html5Definition;
-
 return [
 
     /*
@@ -53,9 +51,9 @@ return [
         'card' => [
             'Core.Encoding' => 'utf-8',
             'HTML.Doctype' => 'HTML 4.01 Transitional',
-            'HTML.Allowed' => 'h2,h3,p[style],br,hr,strong,b,em,i,u,s,code,pre,blockquote[class],ul,ol,li,span[style],a[href|title|target|rel],img[src|alt|width|height|class]',
+            'HTML.Allowed' => 'h2,h3,p[style],br,hr,strong,b,em,i,u,s,code,pre,blockquote[class|style|data-callout-icon|data-callout-icon-color|data-callout-color|data-callout-title],ul,ol,li,span[style|data-icon|data-text-color],a[href|title|target|rel],img[src|alt|width|height|class]',
             'CSS.AllowedProperties' => 'text-align,font-size',
-            'Attr.AllowedClasses' => ['img-left', 'img-center', 'img-right', 'alert-note', 'alert-tip', 'alert-important', 'alert-warning', 'alert-caution'],
+            'Attr.AllowedClasses' => ['img-left', 'img-center', 'img-right', 'callout'],
             'Attr.AllowedFrameTargets' => ['_blank'],
             'Attr.AllowedRel' => ['noopener', 'noreferrer'],
             'AutoFormat.AutoParagraph' => false,
@@ -81,7 +79,7 @@ return [
     |
     */
 
-    'definitions' => Html5Definition::class,
+    'definitions' => \App\Purify\CardDefinition::class,
 
     /*
     |--------------------------------------------------------------------------
