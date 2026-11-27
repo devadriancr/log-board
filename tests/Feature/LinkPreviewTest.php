@@ -77,26 +77,8 @@ class LinkPreviewTest extends TestCase
         $this->assertTrue(Link::sole()->show_preview);
         $this->get(route('home'))->assertOk()
             ->assertSee('data-url="http://iot.test/r/a%20b"', false)
-            ->assertSee('x-bind:data-url="thumbnail"', false)
+            ->assertSee('x-bind:data-url="target"', false)
             ->assertSee('--rows-placed: 1fr', false);
-    }
-
-    public function test_the_thumbnail_can_load_through_another_address_while_the_link_stays_the_same(): void
-    {
-        $this->actingAs(User::factory()->superAdmin()->create());
-        $update = fn (string $address) => $this->put(route('admin.applications.update', $this->application), [
-            'name' => 'IOT', 'base_url' => 'http://iot.test', 'preview_url' => $address, 'is_active' => '1',
-        ]);
-
-        $update('javascript:alert(1)')->assertSessionHasErrors('preview_url');
-        $update('http://board.test:9090/')->assertSessionHasNoErrors();
-        $this->assertSame('http://board.test:9090', $this->application->fresh()->preview_url);
-
-        $this->save(['show_preview' => '1'])->assertSessionHasNoErrors();
-
-        $this->get(route('home'))->assertOk()
-            ->assertSee('data-url="http://board.test:9090/"', false)
-            ->assertSee('href="http://iot.test/"', false);
     }
 
     public function test_an_unknown_size_is_rejected_and_the_form_offers_the_sizes(): void

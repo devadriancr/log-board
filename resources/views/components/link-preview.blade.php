@@ -4,7 +4,7 @@
 <div
     {{ $attributes->class('link-preview-box') }}
     data-size="{{ $link->preview_size }}"
-    data-url="{{ $url ?? $link->previewUrlTemplate() }}"
+    data-url="{{ $url ?? $link->urlTemplate() }}"
     data-title="{{ __('public.preview_title', ['name' => $link->tr('label')]) }}"
     x-data="linkPreview"
 >

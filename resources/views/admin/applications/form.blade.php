@@ -32,17 +32,6 @@
                 />
 
                 <div class="md:col-span-2">
-                    <flux:input
-                        name="preview_url"
-                        type="text"
-                        class:input="font-mono"
-                        :label="__('applications.fields.preview_url')"
-                        :description="__('applications.preview_url_help')"
-                        :value="old('preview_url', $application->preview_url)"
-                    />
-                </div>
-
-                <div class="md:col-span-2">
                     <flux:textarea
                         name="notes"
                         rows="3"

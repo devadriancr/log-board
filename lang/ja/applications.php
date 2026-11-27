@@ -12,7 +12,6 @@ return [
     'fields' => [
         'name' => '名前',
         'base_url' => 'ベースアドレス',
-        'preview_url' => 'プレビュー用アドレス',
         'requires_auth' => 'ログインが必要',
         'notes' => 'メモ',
         'is_active' => '有効',
@@ -20,13 +19,10 @@ return [
     'attributes' => [
         'name' => '名前',
         'base_url' => 'ベースアドレス',
-        'preview_url' => 'プレビュー用アドレス',
         'requires_auth' => 'ログインが必要',
         'notes' => 'メモ',
         'is_active' => '有効',
     ],
-    'preview_url_help' => '任意。サムネイルが読み込めない場合のみ：このボードと同じサーバーにある中継のアドレス。',
-
     'placeholders' => [
         'base_url' => 'http://192.168.0.10:8080',
     ],
