@@ -15,7 +15,7 @@
                 <img src="{{ asset('images/ykm.svg') }}" alt="YKM" class="h-6 w-auto dark:brightness-125">
             </a>
 
-            <nav class="flex min-w-0 flex-1 gap-1 overflow-x-auto" aria-label="Tableros">
+            <nav class="flex min-w-0 flex-1 gap-1 overflow-x-auto" aria-label="{{ __('public.boards') }}">
                 @if ($boards->count() > 1)
                     @foreach ($boards as $item)
                         <a
@@ -28,13 +28,15 @@
                             ])
                             @if ($board && $item->id === $board->id) aria-current="page" @endif
                         >
-                            {{ $item->name }}
+                            {{ $item->tr('name') }}
                         </a>
                     @endforeach
                 @endif
             </nav>
 
             <div class="flex shrink-0 items-center gap-1">
+                <x-locale-switcher />
+
                 <flux:dropdown x-data align="end">
                     <flux:button variant="subtle" size="sm" square class="group" :aria-label="__('appearance.title')" :title="__('appearance.title')">
                         <flux:icon.sun x-show="$flux.appearance === 'light'" variant="mini" class="text-zinc-500 dark:text-white" />

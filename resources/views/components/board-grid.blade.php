@@ -43,12 +43,12 @@
                             @if ($card->icon)
                                 <flux:icon :name="$card->icon" class="size-5 shrink-0" />
                             @endif
-                            {{ $card->title }}
+                            {{ $card->tr('title') }}
                         </flux:card.heading>
                     </flux:card.header>
                     @endunless
 
-                    @php($slides = $card->isText() ? $card->content : [])
+                    @php($slides = $card->isText() ? $card->localizedSlides() : [])
 
                     {{-- With several notices the carousel scrolls inside itself, so the card body only clips --}}
                     <flux:card.body @class(['min-h-0 flex-1', 'overflow-y-auto' => count($slides) < 2, 'overflow-hidden' => count($slides) > 1, 'pe-10' => $card->isText() && $card->icon])>
@@ -125,10 +125,10 @@
                                         @endunless
 
                                         <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-                                            <span class="truncate {{ $labelClasses }}" title="{{ $link->label }}">{{ $link->label }}</span>
+                                            <span class="truncate {{ $labelClasses }}" title="{{ $link->tr('label') }}">{{ $link->tr('label') }}</span>
 
-                                            @if ($link->show_description && $link->description)
-                                                <span class="truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $link->description }}">{{ $link->description }}</span>
+                                            @if ($link->show_description && $link->tr('description'))
+                                                <span class="truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $link->tr('description') }}">{{ $link->tr('description') }}</span>
                                             @endif
                                         </span>
 
@@ -160,10 +160,10 @@
                                             @endunless
 
                                             <span class="flex min-w-0 flex-col gap-0.5">
-                                                <span class="truncate text-sm font-medium text-zinc-800 dark:text-white" title="{{ $link->label }}">{{ $link->label }}</span>
+                                                <span class="truncate text-sm font-medium text-zinc-800 dark:text-white" title="{{ $link->tr('label') }}">{{ $link->tr('label') }}</span>
 
-                                                @if ($link->show_description && $link->description)
-                                                    <span class="truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $link->description }}">{{ $link->description }}</span>
+                                                @if ($link->show_description && $link->tr('description'))
+                                                    <span class="truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $link->tr('description') }}">{{ $link->tr('description') }}</span>
                                                 @endif
                                             </span>
 
@@ -176,7 +176,7 @@
                                             <div class="w-36">
                                                 <x-listbox
                                                     x-model="param"
-                                                    :options="$link->options->pluck('label', 'value')"
+                                                    :options="$link->options->mapWithKeys(fn ($option) => [$option->value => $option->tr('label')])"
                                                     :value="$link->options->first()->value"
                                                     size="sm"
                                                 />

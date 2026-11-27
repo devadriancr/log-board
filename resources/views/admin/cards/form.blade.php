@@ -38,6 +38,7 @@
                     autofocus
                 />
 
+                <x-translations name="title" :label="__('cards.fields.title')" :model="$card" />
                 @endunless
 
                 <flux:input
@@ -126,7 +127,7 @@
                                 x-bind:class="! color && 'ring-2 ring-zinc-500 ring-offset-2 ring-offset-white dark:ring-zinc-300 dark:ring-offset-zinc-800'"
                             >Aa</button>
 
-                            @foreach (\App\Models\Card::COLORS as $key => $name)
+                            @foreach (\App\Models\Card::colors() as $key => $name)
                                 <button
                                     type="button"
                                     data-card-color="{{ $key }}"
@@ -138,7 +139,7 @@
                                 >Aa</button>
                             @endforeach
 
-                            <span class="text-sm text-zinc-500 dark:text-zinc-400" x-text="color ? @js(\App\Models\Card::COLORS)[color] : @js(__('cards.fields.color_none'))"></span>
+                            <span class="text-sm text-zinc-500 dark:text-zinc-400" x-text="color ? @js(\App\Models\Card::colors())[color] : @js(__('cards.fields.color_none'))"></span>
                         </div>
 
                         <flux:error name="color" />
@@ -155,51 +156,26 @@
             </div>
 
             @if ($card->isText())
-                @php($slides = array_values((array) old('content', $card->content)) ?: [''])
-
-                {{-- Each notice (slide) has its own editor; with several the public board shows them as a carousel --}}
-                <div
-                    id="rich-editor"
-                    class="mt-6"
-                    data-upload="{{ route('admin.uploads.image') }}"
-                    data-token="{{ csrf_token() }}"
-                    data-labels="{{ json_encode(__('cards.editor')) }}"
-                    data-colors="{{ json_encode(\App\Models\Card::COLORS) }}"
-                >
-                    <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
-                        <div>
-                            <flux:label>{{ __('cards.fields.slides') }}</flux:label>
-                            <flux:text class="text-xs">{{ __('cards.slides_hint') }}</flux:text>
-                        </div>
-
-                        <div class="w-44">
-                            <flux:input
-                                name="slide_seconds"
-                                type="number"
-                                min="3"
-                                max="60"
-                                size="sm"
-                                :label="__('cards.fields.slide_seconds')"
-                                :value="old('slide_seconds', $card->slide_seconds)"
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <div data-slides>
-                        @foreach ($slides as $html)
-                            @include('admin.cards.slide', ['html' => $html, 'number' => $loop->iteration])
+                {{-- One editor per language: Spanish is the main one, English and Japanese are optional translations --}}
+                <div class="mt-6" x-data="{ lang: 'es' }">
+                    <div class="mb-3 flex gap-1" role="tablist">
+                        @foreach (['es', 'en', 'ja'] as $code)
+                            <button
+                                type="button"
+                                role="tab"
+                                x-on:click="lang = '{{ $code }}'"
+                                x-bind:aria-selected="lang === '{{ $code }}'"
+                                x-bind:class="lang === '{{ $code }}' ? 'bg-zinc-200 dark:bg-zinc-600' : 'hover:bg-zinc-100 dark:hover:bg-zinc-700'"
+                                class="rounded-md px-3 py-1 text-sm font-medium text-zinc-700 dark:text-zinc-200"
+                            >{{ config('app.locales')[$code] }}</button>
                         @endforeach
                     </div>
 
-                    <template data-slide-template>
-                        @include('admin.cards.slide', ['html' => '', 'number' => 0])
-                    </template>
-
-                    <flux:button type="button" variant="outline" icon="plus" data-add-slide>{{ __('cards.add_slide') }}</flux:button>
-
-                    <flux:error name="content" />
-                    <flux:error name="slide_seconds" />
+                    @foreach (['es' => 'content', 'en' => 'content_en', 'ja' => 'content_ja'] as $code => $field)
+                        <div x-show="lang === '{{ $code }}'" @if ($code !== 'es') x-cloak @endif lang="{{ $code }}">
+                            @include('admin.cards.editor', ['card' => $card, 'field' => $field, 'main' => $code === 'es'])
+                        </div>
+                    @endforeach
                 </div>
             @endif
         </flux:card.body>

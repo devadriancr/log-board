@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'boards' => 'Tableros',
     'login' => 'Iniciar sesión',
     'admin' => 'Administrar',
     'more' => 'Más opciones',

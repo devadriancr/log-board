@@ -283,11 +283,16 @@ function initSlide(slide, root, labels) {
         }
     };
 
+    // A panel opens right under the toolbar (the toolbar can be taller when it wraps).
+    const placeUnderToolbar = (panel) => {
+        panel.style.top = `${slide.querySelector('[data-toolbar]').offsetTop + slide.querySelector('[data-toolbar]').offsetHeight + 4}px`;
+    };
+
     // Icon picker: a small panel under the toolbar with a search box and the icons of the card form.
     const iconPanel = document.createElement('div');
 
     iconPanel.hidden = true;
-    iconPanel.className = 'absolute start-2 top-full z-20 mt-1 flex w-80 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-2 shadow-md dark:border-zinc-600 dark:bg-zinc-700';
+    iconPanel.className = 'absolute end-2 top-full z-20 mt-1 flex w-80 max-w-[calc(100%-1rem)] flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-2 shadow-md dark:border-zinc-600 dark:bg-zinc-700';
     iconPanel.innerHTML = `<input type="search" placeholder="${labels.icon_search}" class="w-full rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm dark:border-zinc-500 dark:bg-zinc-800 dark:text-zinc-200"><div class="grid max-h-56 grid-cols-7 gap-1 overflow-y-auto"></div>`;
 
     const iconGrid = iconPanel.lastElementChild;
@@ -315,6 +320,7 @@ function initSlide(slide, root, labels) {
 
     const toggleIcons = () => {
         iconPanel.hidden = !iconPanel.hidden;
+        placeUnderToolbar(iconPanel);
 
         if (!iconPanel.hidden) {
             iconSearch.focus();
@@ -350,7 +356,7 @@ function initSlide(slide, root, labels) {
         ['B', 'bold', () => editor.chain().focus().toggleBold().run(), () => editor.isActive('bold')],
         ['I', 'italic', () => editor.chain().focus().toggleItalic().run(), () => editor.isActive('italic')],
         ['U', 'underline', () => editor.chain().focus().toggleUnderline().run(), () => editor.isActive('underline')],
-        ['A', 'text_color', () => { colorPanel.hidden = !colorPanel.hidden; }, () => editor.isActive('textColor')],
+        ['A', 'text_color', () => { colorPanel.hidden = !colorPanel.hidden; placeUnderToolbar(colorPanel); }, () => editor.isActive('textColor')],
         ['S', 'strike', () => editor.chain().focus().toggleStrike().run(), () => editor.isActive('strike')],
         ['</>', 'code', () => editor.chain().focus().toggleCode().run(), () => editor.isActive('code')],
         ['{ }', 'code_block', () => editor.chain().focus().toggleCodeBlock().run(), () => editor.isActive('codeBlock')],
@@ -442,7 +448,6 @@ function initSlide(slide, root, labels) {
     panel.hidden = true;
     panel.className = iconPanel.className;
     panel.innerHTML = `
-        <input data-title type="text" maxlength="40" placeholder="${labels.callout_title}" class="${inputClass}">
         <div class="text-xs text-zinc-500 dark:text-zinc-300">${labels.callout_color}<div class="mt-1 flex flex-wrap gap-1.5">${swatches('color')}</div></div>
         <div class="text-xs text-zinc-500 dark:text-zinc-300">${labels.callout_icon_color}<div class="mt-1 flex flex-wrap items-center gap-1.5"><button type="button" data-pick="icon-color" data-key="" class="h-6 rounded-md border border-zinc-300 px-2 text-xs text-zinc-700 dark:border-zinc-500 dark:text-zinc-200">${labels.callout_same_color}</button>${swatches('icon-color')}</div></div>
         <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">${labels.callout_size}<select data-size class="${inputClass} !w-auto">${FONT_SIZES.map((n) => `<option value="${n}">${n}</option>`).join('')}</select></label>
@@ -459,7 +464,6 @@ function initSlide(slide, root, labels) {
     fillIconGrid(q('[data-icons]'));
     slide.append(panel);
 
-    q('[data-title]').addEventListener('input', (event) => set({ calloutTitle: event.target.value.trim() || null }));
     q('[data-size]').addEventListener('change', (event) => set({ fontSize: Number(event.target.value) === 14 ? null : `${event.target.value}px` }));
     q('[data-search]').addEventListener('input', (event) => filterIconGrid(q('[data-icons]'), event.target.value));
     q('[data-no-icon]').addEventListener('click', () => set({ calloutIcon: null }));
@@ -482,10 +486,6 @@ function initSlide(slide, root, labels) {
     const syncPanel = () => {
         const quote = editor.getAttributes('blockquote');
 
-        if (document.activeElement !== q('[data-title]')) {
-            q('[data-title]').value = quote.calloutTitle ?? '';
-        }
-
         q('[data-size]').value = parseInt(quote.fontSize, 10) || 14;
         panel.querySelectorAll('[data-pick]').forEach((swatch) => {
             const current = (swatch.dataset.pick === 'color' ? quote.calloutColor : quote.calloutIconColor) ?? '';
@@ -494,7 +494,7 @@ function initSlide(slide, root, labels) {
         });
     };
 
-    const calloutButton = Object.assign(document.createElement('button'), { type: 'button', textContent: '🗨', title: labels.callout });
+    const calloutButton = Object.assign(document.createElement('button'), { type: 'button', textContent: 'ⓘ', title: labels.callout });
 
     calloutButton.setAttribute('aria-label', labels.callout);
     calloutButton.setAttribute('data-callout-button', '');
@@ -508,14 +508,30 @@ function initSlide(slide, root, labels) {
 
         // A normal paragraph becomes a callout with a default colour, icon and title; an existing quote keeps what it has.
         if (!editor.isActive('blockquote')) {
-            editor.chain().focus().toggleBlockquote().run();
-            set({ class: 'callout', calloutColor: DEFAULT_COLOR, calloutIcon: 'information-circle', calloutTitle: labels.callout_default });
+            editor.chain().focus().toggleBlockquote()
+                .command(({ state, tr }) => {
+                    const { $from } = state.selection;
+
+                    for (let depth = $from.depth; depth > 0; depth--) {
+                        if ($from.node(depth).type.name === 'blockquote') {
+                            tr.insert($from.start(depth), state.schema.nodes.heading.create({ level: 3 }, state.schema.text(labels.callout_default)));
+
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
+                .updateAttributes('blockquote', { class: 'callout', calloutColor: DEFAULT_COLOR, calloutIcon: 'information-circle' })
+                .run();
         } else if (!editor.getAttributes('blockquote').class) {
             set({ class: 'callout', calloutColor: DEFAULT_COLOR });
         }
 
         iconPanel.hidden = true;
+        colorPanel.hidden = true;
         panel.hidden = false;
+        placeUnderToolbar(panel);
         syncPanel();
     });
     quoteButton.after(calloutButton);
@@ -534,10 +550,13 @@ function initSlide(slide, root, labels) {
 }
 
 // A text card is a list of notices: each one has its own editor, and they can be added or removed.
+// There is one list per language (Spanish, English, Japanese), each in its own [data-rich-editor].
 function init() {
-    const root = document.getElementById('rich-editor');
+    document.querySelectorAll('[data-rich-editor]').forEach(setup);
+}
 
-    if (!root || root.dataset.ready) {
+function setup(root) {
+    if (root.dataset.ready) {
         return;
     }
 

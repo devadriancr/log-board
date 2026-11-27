@@ -18,6 +18,8 @@
                     autofocus
                 />
 
+                <x-translations name="name" :label="__('boards.fields.name')" :model="$board" />
+
                 <flux:input
                     name="slug"
                     type="text"

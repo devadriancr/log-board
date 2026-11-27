@@ -78,9 +78,15 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'es'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+
+    /*
+    | Languages of the site (Spanish is the main one: the texts of the database are written in it,
+    | the others are translations that fall back to it when they are empty).
+    */
+    'locales' => ['es' => 'Español', 'en' => 'English', 'ja' => '日本語'],
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 

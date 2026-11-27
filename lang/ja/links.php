@@ -1,0 +1,71 @@
+<?php
+
+return [
+    'title' => 'リンク',
+    'empty' => 'まだリンクがありません。',
+    'create' => [
+        'title' => '新しいリンク',
+    ],
+    'edit' => [
+        'title' => 'リンクを編集',
+    ],
+    'fields' => [
+        'card_id' => 'カード',
+        'application_id' => 'アプリケーション',
+        'label' => 'テキスト',
+        'label_en' => 'テキスト（英語）',
+        'label_ja' => 'テキスト（日本語）',
+        'path' => 'パス',
+        'description' => '説明',
+        'description_en' => '説明（英語）',
+        'description_ja' => '説明（日本語）',
+        'show_description' => '説明を表示',
+        'open_in_new_tab' => '新しいタブで開く',
+        'sort_order' => '順序',
+        'is_active' => '有効',
+        'options' => 'オプション',
+    ],
+    'attributes' => [
+        'card_id' => 'カード',
+        'application_id' => 'アプリケーション',
+        'label' => 'テキスト',
+        'label_en' => '英語のテキスト',
+        'label_ja' => '日本語のテキスト',
+        'path' => 'パス',
+        'description' => '説明',
+        'description_en' => '英語の説明',
+        'description_ja' => '日本語の説明',
+        'show_description' => '説明を表示',
+        'open_in_new_tab' => '新しいタブで開く',
+        'sort_order' => '順序',
+        'is_active' => '有効',
+        'options' => 'オプション',
+        'options.*.value' => '値',
+        'options.*.label' => 'ラベル',
+        'options.*.label_en' => '英語のラベル',
+        'options.*.label_ja' => '日本語のラベル',
+    ],
+    'placeholders' => [
+        'path' => '/report/{param}',
+    ],
+    'options' => [
+        'title' => '{param}のオプション',
+        'value' => '値',
+        'label' => 'ラベル',
+        'add' => 'オプションを追加',
+    ],
+    'columns' => [
+        'card' => 'カード',
+        'application' => 'アプリケーション',
+        'options' => 'オプション',
+        'status' => '状態',
+    ],
+    'delete' => [
+        'title' => '「:name」を削除しますか？',
+    ],
+    'messages' => [
+        'created' => 'リンクを作成しました。',
+        'updated' => 'リンクを更新しました。',
+        'deleted' => 'リンクを削除しました。',
+    ],
+];

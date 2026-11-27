@@ -45,6 +45,8 @@
                     autofocus
                 />
 
+                <x-translations name="label" :label="__('links.fields.label')" :model="$link" />
+
                 <flux:input
                     name="path"
                     type="text"
@@ -73,6 +75,8 @@
                     >{{ old('description', $link->description) }}</flux:textarea>
                 </div>
 
+                <x-translations name="description" :label="__('links.fields.description')" :model="$link" :textarea="true" />
+
                 <flux:checkbox
                     name="show_description"
                     value="1"
@@ -93,7 +97,7 @@
                     <flux:heading>{{ __('links.options.title') }}</flux:heading>
 
                     <template x-for="(option, i) in options" x-bind:key="i">
-                        <div class="grid grid-cols-[1fr_1fr_auto] items-center gap-3">
+                        <div class="grid grid-cols-2 items-center gap-3 md:grid-cols-[1fr_1fr_1fr_1fr_auto]">
                             <flux:input
                                 type="text"
                                 class:input="font-mono"
@@ -111,6 +115,24 @@
                                 :aria-label="__('links.options.label')"
                             />
 
+                            <flux:input
+                                type="text"
+                                lang="en"
+                                x-model="option.label_en"
+                                x-bind:name="'options[' + i + '][label_en]'"
+                                :placeholder="__('links.options.label').' ('.__('common.languages.en').')'"
+                                :aria-label="__('links.options.label').' ('.__('common.languages.en').')'"
+                            />
+
+                            <flux:input
+                                type="text"
+                                lang="ja"
+                                x-model="option.label_ja"
+                                x-bind:name="'options[' + i + '][label_ja]'"
+                                :placeholder="__('links.options.label').' ('.__('common.languages.ja').')'"
+                                :aria-label="__('links.options.label').' ('.__('common.languages.ja').')'"
+                            />
+
                             <flux:button type="button" variant="outline" color="red" icon="trash" x-on:click="options.splice(i, 1)">
                                 {{ __('common.actions.remove') }}
                             </flux:button>
@@ -124,7 +146,7 @@
                     @endif
 
                     <div>
-                        <flux:button type="button" variant="outline" icon="plus" x-on:click="options.push({ value: '', label: '' })">
+                        <flux:button type="button" variant="outline" icon="plus" x-on:click="options.push({ value: '', label: '', label_en: '', label_ja: '' })">
                             {{ __('links.options.add') }}
                         </flux:button>
                     </div>

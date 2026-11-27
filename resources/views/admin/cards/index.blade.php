@@ -42,7 +42,7 @@
                                         <flux:table.cell variant="strong" class="py-4">
                                             <span class="inline-flex items-center gap-2">
                                                 @if ($card->colorName())
-                                                    <span class="card-swatch size-3 shrink-0 rounded-full" data-card-color="{{ $card->colorName() }}" title="{{ \App\Models\Card::COLORS[$card->color] }}"></span>
+                                                    <span class="card-swatch size-3 shrink-0 rounded-full" data-card-color="{{ $card->colorName() }}" title="{{ \App\Models\Card::colors()[$card->color] }}"></span>
                                                 @endif
                                                 {{ $card->title }}
                                             </span>

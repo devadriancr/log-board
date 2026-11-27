@@ -15,9 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('board_id')->constrained('boards');
             $table->string('title', 255);
+            $table->string('title_en', 255)->nullable(); // translation (en)
+            $table->string('title_ja', 255)->nullable(); // translation (ja)
             $table->string('icon', 50)->nullable();
             $table->string('type', 10)->default('links'); // links | text
             $table->longText('content')->nullable(); // text cards: JSON list of sanitized HTML slides (the notices of the carousel)
+            $table->longText('content_en')->nullable(); // translation (en) of the slides
+            $table->longText('content_ja')->nullable(); // translation (ja) of the slides
             $table->unsignedTinyInteger('slide_seconds')->default(8); // how long each slide stays before the carousel moves on
             $table->string('color', 7)->nullable(); // palette colour (blue, green, red...), see Card::COLORS
             $table->unsignedTinyInteger('grid_x');

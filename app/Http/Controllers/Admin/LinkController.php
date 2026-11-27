@@ -130,7 +130,7 @@ class LinkController extends Controller implements HasMiddleware
 
         $options = $link->exists
             ? $link->options()->orderBy('sort_order')->get()
-                ->map(fn ($option) => ['value' => $option->value, 'label' => $option->label])
+                ->map(fn ($option) => $option->only('value', 'label', 'label_en', 'label_ja'))
                 ->all()
             : [];
 

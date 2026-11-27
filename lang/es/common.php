@@ -2,6 +2,13 @@
 
 return [
     'select' => 'Seleccionar…',
+    'language' => 'Idioma',
+
+    'languages' => [
+        'es' => 'Español',
+        'en' => 'Inglés',
+        'ja' => 'Japonés',
+    ],
 
     'actions' => [
         'title' => 'Acciones',

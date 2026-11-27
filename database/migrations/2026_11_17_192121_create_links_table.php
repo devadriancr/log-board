@@ -16,8 +16,12 @@ return new class extends Migration
             $table->foreignId('card_id')->constrained('cards');
             $table->foreignId('application_id')->constrained('applications');
             $table->string('label', 255);
+            $table->string('label_en', 255)->nullable(); // translation (en)
+            $table->string('label_ja', 255)->nullable(); // translation (ja)
             $table->string('path', 255)->default('/');
             $table->text('description')->nullable();
+            $table->text('description_en')->nullable(); // translation (en)
+            $table->text('description_ja')->nullable(); // translation (ja)
             $table->boolean('show_description')->default(false);
             $table->boolean('open_in_new_tab')->default(true);
             $table->smallInteger('sort_order')->default(0);

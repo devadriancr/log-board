@@ -19,6 +19,8 @@ return [
     // Etiquetas de los campos (formularios y tabla)
     'fields' => [
         'name' => 'Nombre',
+        'name_en' => 'Nombre (inglés)',
+        'name_ja' => 'Nombre (japonés)',
         'slug' => 'Dirección',
         'link_style' => 'Estilo de enlaces',
         'sort_order' => 'Orden',
@@ -29,6 +31,8 @@ return [
     // Nombres de los campos dentro de los mensajes de error (en minúsculas)
     'attributes' => [
         'name' => 'nombre',
+        'name_en' => 'nombre en inglés',
+        'name_ja' => 'nombre en japonés',
         'slug' => 'dirección',
         'link_style' => 'estilo de enlaces',
         'sort_order' => 'orden',

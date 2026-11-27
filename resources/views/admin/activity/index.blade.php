@@ -8,7 +8,7 @@
     // One value of the log written for people: Sí/No, a text cut short, the name of an enum...
     $show = function (string $key, mixed $value): string {
         return match (true) {
-            $key === 'content' => __('activity.content_changed'),
+            str_starts_with($key, 'content') => __('activity.content_changed'),
             $key === 'link_style' => LinkStyle::tryFrom((string) $value)?->label() ?? (string) $value,
             is_bool($value) => $value ? __('activity.values.yes') : __('activity.values.no'),
             $value === null || $value === '' => '—',

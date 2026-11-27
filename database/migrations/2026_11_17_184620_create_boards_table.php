@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('boards', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255);
+            $table->string('name_en', 255)->nullable(); // translation (en)
+            $table->string('name_ja', 255)->nullable(); // translation (ja)
             $table->string('slug', 255)->unique();
             $table->string('link_style')->default('button');
             $table->smallInteger('sort_order')->default(0);

@@ -453,9 +453,19 @@ select:focus[data-flux-control] {
     color: var(--alert);
 }
 
+/* El título del aviso es un subtítulo (H3) dentro de la cita: se edita ahí mismo y toma el color del aviso. */
+.rich-content blockquote.callout > h3 {
+    font-size: 1.15em;
+    color: var(--alert);
+}
+
+.rich-content blockquote.callout > * + * {
+    margin-top: 0.35em;
+}
+
 .rich-content .callout-icon {
     position: absolute;
-    top: 0.3em;
+    top: 0.25em;
     left: 0.75rem;
     color: var(--alert);
 }

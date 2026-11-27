@@ -17,5 +17,5 @@
     <div data-toolbar class="flex flex-wrap items-center gap-0.5 border-b border-zinc-200 p-1.5 dark:border-zinc-600"></div>
     <div data-editor></div>
 
-    <textarea name="content[]" hidden>{{ $html }}</textarea>
+    <textarea name="{{ $field ?? 'content' }}[]" hidden>{{ $html }}</textarea>
 </div>

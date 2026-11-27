@@ -11,8 +11,10 @@
                 <x-app-logo class="size-8" href="#"></x-app-logo>
             </a>
 
+            <x-locale-switcher :inline="true" />
+
             <flux:navlist variant="outline">
-                <flux:navlist.group heading="Platform" class="grid">
+                <flux:navlist.group :heading="__('Platform')" class="grid">
                     @can('dashboard.view')
                         <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('menu.dashboard') }}</flux:navlist.item>
                     @endcan
@@ -78,12 +80,12 @@
                     <flux:menu.separator />
 
                     <flux:menu.radio.group>
-                        <flux:menu.item href="/settings/profile" icon="cog" wire:navigate>Settings</flux:menu.item>
+                        <flux:menu.item href="/settings/profile" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />
 
-                    <div class="px-2 py-1">
+                    <div class="flex flex-col gap-1 px-2 py-1">
                         <x-appearance-switcher class="w-full" />
                     </div>
 
@@ -134,12 +136,12 @@
                     <flux:menu.separator />
 
                     <flux:menu.radio.group>
-                        <flux:menu.item href="/settings/profile" icon="cog" wire:navigate>Settings</flux:menu.item>
+                        <flux:menu.item href="/settings/profile" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />
 
-                    <div class="px-2 py-1">
+                    <div class="flex flex-col gap-1 px-2 py-1">
                         <x-appearance-switcher class="w-full" />
                     </div>
 

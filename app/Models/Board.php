@@ -5,17 +5,20 @@ namespace App\Models;
 use App\Enums\LinkStyle;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\Concerns\LogsChanges;
+use App\Models\Concerns\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class Board extends Model
 {
-    use LogsChanges;
+    use LogsChanges, Translatable;
 
     /** Sección de la bitácora y campos cuyo cambio se registra. */
     protected string $logSection = 'boards';
 
     protected array $logFields = [
         'name',
+        'name_en',
+        'name_ja',
         'slug',
         'link_style',
         'is_home',
@@ -29,6 +32,8 @@ class Board extends Model
 
     protected $fillable = [
         'name',
+        'name_en',
+        'name_ja',
         'slug',
         'link_style',
         'sort_order',

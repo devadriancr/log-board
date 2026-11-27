@@ -32,11 +32,15 @@ class LinkRequest extends FormRequest
             ->map(fn (array $option) => [
                 'value' => trim((string) ($option['value'] ?? '')),
                 'label' => trim((string) ($option['label'] ?? '')),
+                'label_en' => trim((string) ($option['label_en'] ?? '')) ?: null,
+                'label_ja' => trim((string) ($option['label_ja'] ?? '')) ?: null,
             ])
             ->filter(fn (array $option) => $option['value'] !== '' || $option['label'] !== '')
             ->map(fn (array $option) => [
                 'value' => $option['value'],
                 'label' => $option['label'] !== '' ? $option['label'] : $option['value'],
+                'label_en' => $option['label_en'],
+                'label_ja' => $option['label_ja'],
             ])
             ->values()
             ->all();
@@ -61,8 +65,12 @@ class LinkRequest extends FormRequest
             'card_id' => ['required', 'integer', Rule::exists('cards', 'id')->where('type', 'links')],
             'application_id' => ['required', 'integer', 'exists:applications,id'],
             'label' => ['required', 'string', 'max:255'],
+            'label_en' => ['nullable', 'string', 'max:255'],
+            'label_ja' => ['nullable', 'string', 'max:255'],
             'path' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'description_en' => ['nullable', 'string', 'max:1000'],
+            'description_ja' => ['nullable', 'string', 'max:1000'],
             'show_description' => ['boolean'],
             'open_in_new_tab' => ['boolean'],
             'is_active' => ['boolean'],
@@ -72,6 +80,8 @@ class LinkRequest extends FormRequest
             ],
             'options.*.value' => ['required', 'string', 'max:255', 'distinct'],
             'options.*.label' => ['required', 'string', 'max:255'],
+            'options.*.label_en' => ['nullable', 'string', 'max:255'],
+            'options.*.label_ja' => ['nullable', 'string', 'max:255'],
         ];
     }
 

@@ -38,6 +38,8 @@ class BoardRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'name_en' => ['nullable', 'string', 'max:255'],
+            'name_ja' => ['nullable', 'string', 'max:255'],
             'slug' => [
                 'required',
                 'string',

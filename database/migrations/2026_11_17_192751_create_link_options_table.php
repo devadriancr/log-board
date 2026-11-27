@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('link_id')->constrained('links');
             $table->string('value', 255);
             $table->string('label', 255);
+            $table->string('label_en', 255)->nullable(); // translation (en)
+            $table->string('label_ja', 255)->nullable(); // translation (ja)
             $table->smallInteger('sort_order')->default(0); 
             $table->timestamps();
 

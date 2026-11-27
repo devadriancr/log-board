@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsChanges;
+use App\Models\Concerns\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class Link extends Model
 {
-    use LogsChanges;
+    use LogsChanges, Translatable;
 
     /** Sección de la bitácora y campos cuyo cambio se registra. */
     protected string $logSection = 'links';
@@ -16,8 +17,12 @@ class Link extends Model
         'card_id',
         'application_id',
         'label',
+        'label_en',
+        'label_ja',
         'path',
         'description',
+        'description_en',
+        'description_ja',
         'show_description',
         'open_in_new_tab',
         'is_active',
@@ -32,8 +37,12 @@ class Link extends Model
         'card_id',
         'application_id',
         'label',
+        'label_en',
+        'label_ja',
         'path',
         'description',
+        'description_en',
+        'description_ja',
         'show_description',
         'open_in_new_tab',
         'sort_order',

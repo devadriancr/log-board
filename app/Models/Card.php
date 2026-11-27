@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Models\Concerns\LogsChanges;
+use App\Models\Concerns\Translatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
@@ -11,7 +12,7 @@ use Stevebauman\Purify\Facades\Purify;
 
 class Card extends Model
 {
-    use LogsChanges;
+    use LogsChanges, Translatable;
 
     /** Sección de la bitácora y campos cuyo cambio se registra. */
     protected string $logSection = 'cards';
@@ -19,9 +20,13 @@ class Card extends Model
     protected array $logFields = [
         'board_id',
         'title',
+        'title_en',
+        'title_ja',
         'icon',
         'type',
         'content',
+        'content_en',
+        'content_ja',
         'slide_seconds',
         'color',
         'grid_w',
@@ -62,12 +67,26 @@ class Card extends Model
         'black' => 'Negro',
     ];
 
+    /**
+     * The names of the palette colours in the language of the visitor: key => name.
+     *
+     * @return array<string, string>
+     */
+    public static function colors(): array
+    {
+        return collect(self::COLORS)->map(fn ($name, $key) => __("cards.colors.$key"))->all();
+    }
+
     protected $fillable = [
         'board_id',
         'title',
+        'title_en',
+        'title_ja',
         'icon',
         'type',
         'content',
+        'content_en',
+        'content_ja',
         'slide_seconds',
         'color',
         'grid_x',
@@ -128,12 +147,28 @@ class Card extends Model
     }
 
     /**
-     * A text card holds a list of HTML slides (the notices of its carousel). Each one is cleaned every time
-     * it is stored, so it is safe to print as it is; blank ones are dropped.
+     * A text card holds a list of HTML slides (the notices of its carousel), in Spanish; content_en and content_ja
+     * hold the same list translated. Each one is cleaned every time it is stored, so it is safe to print as it is;
+     * blank ones are dropped.
      *
      * @return Attribute<array<int, string>, array<int, string>|string|null>
      */
     protected function content(): Attribute
+    {
+        return $this->slides();
+    }
+
+    protected function contentEn(): Attribute
+    {
+        return $this->slides();
+    }
+
+    protected function contentJa(): Attribute
+    {
+        return $this->slides();
+    }
+
+    private function slides(): Attribute
     {
         return Attribute::make(
             // shortcut: a card saved before slides existed holds one plain HTML text, shown as a single slide.
@@ -149,6 +184,18 @@ class Card extends Model
                 return $slides->isEmpty() ? null : $slides->toJson(JSON_UNESCAPED_UNICODE);
             },
         );
+    }
+
+    /**
+     * The slides in the language of the visitor, or the Spanish ones when that translation has none.
+     *
+     * @return array<int, string>
+     */
+    public function localizedSlides(): array
+    {
+        $locale = app()->getLocale();
+
+        return $locale !== 'es' && filled($this->getAttribute("content_$locale")) ? $this->getAttribute("content_$locale") : $this->content;
     }
 
     /**

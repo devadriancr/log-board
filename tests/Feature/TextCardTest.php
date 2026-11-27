@@ -76,7 +76,7 @@ class TextCardTest extends TestCase
     public function test_a_callout_keeps_its_palette_colours_icon_title_and_size_and_gets_its_svg_when_shown(): void
     {
         $this->post(route('admin.cards.store'), $this->payload([
-            'content' => ['<blockquote class="callout x" data-callout-color="teal" data-callout-icon-color="rose" data-callout-icon="star" data-callout-title="Ojo" style="font-size:20px;position:fixed"><p>Hola</p></blockquote>'],
+            'content' => ['<blockquote class="callout x" data-callout-color="teal" data-callout-icon-color="rose" data-callout-icon="star" data-callout-title="Ojo" style="font-size:20px;position:fixed"><h3>Mi subtítulo</h3><p>Hola</p></blockquote>'],
         ]))->assertSessionHasNoErrors();
 
         $html = Card::first()->content[0];
@@ -84,6 +84,7 @@ class TextCardTest extends TestCase
         $this->assertStringContainsString('class="callout"', $html);
         $this->assertStringContainsString('data-callout-color="teal"', $html);
         $this->assertStringContainsString('data-callout-title="Ojo"', $html);
+        $this->assertStringContainsString('<h3>Mi subtítulo</h3>', $html); // the title of a callout is a heading written inside it
         $this->assertStringContainsString('font-size:20px', $html);
         $this->assertStringNotContainsString('position', $html);
 
@@ -164,9 +165,10 @@ class TextCardTest extends TestCase
         $card = Card::create(['board_id' => $this->board->id, 'type' => 'text', 'content' => '<p>x</p>', 'grid_x' => 0, 'grid_y' => 0, 'grid_w' => 6, 'grid_h' => 2]);
 
         $this->get(route('admin.boards.design', $this->board))->assertOk()->assertSee('gs-id="'.$card->id.'"', false);
-        $this->get(route('admin.cards.edit', $card))->assertOk()->assertSee('id="rich-editor"', false);
-        $this->get(route('admin.cards.create', ['type' => 'text']))->assertOk()->assertSee('id="rich-editor"', false);
-        $this->get(route('admin.cards.create'))->assertOk()->assertDontSee('id="rich-editor"', false);
+        $this->get(route('admin.cards.edit', $card))->assertOk()->assertSee('data-rich-editor', false);
+        $this->get(route('admin.cards.create', ['type' => 'text']))->assertOk()->assertSee('data-rich-editor', false);
+        $this->get(route('admin.cards.create'))->assertOk()->assertDontSee('data-rich-editor', false);
+        $this->assertStringContainsString("querySelector('[data-rich-editor]')", file_get_contents(resource_path('js/app.js'))); // app.js loads the editor only where this marker is
         $this->get(route('admin.cards.index'))->assertOk();
     }
 
