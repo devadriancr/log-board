@@ -12,6 +12,7 @@ return [
     'fields' => [
         'name' => 'Name',
         'base_url' => 'Base address',
+        'preview_url' => 'Preview address',
         'requires_auth' => 'Requires login',
         'notes' => 'Notes',
         'is_active' => 'Active',
@@ -19,10 +20,13 @@ return [
     'attributes' => [
         'name' => 'name',
         'base_url' => 'base address',
+        'preview_url' => 'preview address',
         'requires_auth' => 'requires login',
         'notes' => 'notes',
         'is_active' => 'active',
     ],
+    'preview_url_help' => 'Optional. Only if the thumbnail does not load: the address of the relay, on the same server as this board.',
+
     'placeholders' => [
         'base_url' => 'http://192.168.0.10:8080',
     ],

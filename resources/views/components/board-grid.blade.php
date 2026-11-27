@@ -150,8 +150,10 @@
                                         x-data="{
                                             param: @js($link->options->first()->value),
                                             url: @js($link->urlTemplate()),
+                                            previewUrl: @js($link->previewUrlTemplate()),
                                             blank: @js($link->open_in_new_tab),
                                             get target() { return this.url.replace('{param}', encodeURIComponent(this.param)) },
+                                            get thumbnail() { return this.previewUrl.replace('{param}', encodeURIComponent(this.param)) },
                                             go() {
                                                 this.blank ? window.open(this.target, '_blank', 'noopener') : (window.location.href = this.target);
                                             },
@@ -194,10 +196,10 @@
 
                                         @if ($link->show_preview)
                                             {{-- Preview of the chosen option; a click on it opens that page --}}
-                                            @php($chosen = str_replace('{param}', rawurlencode($link->options->first()->value), $link->urlTemplate()))
+                                            @php($first = rawurlencode($link->options->first()->value))
                                             <div @class(['link-preview flex flex-col rounded-md', 'flex-1' => $link->preview_size === 'fill'])>
                                                 <a
-                                                    href="{{ $chosen }}"
+                                                    href="{{ str_replace('{param}', $first, $link->urlTemplate()) }}"
                                                     x-bind:href="target"
                                                     @if ($link->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
                                                     class="link-preview-link"
@@ -205,7 +207,7 @@
                                                     title="{{ $link->tr('label') }}"
                                                 ></a>
 
-                                                <x-link-preview :$link :url="$chosen" x-bind:data-url="target" />
+                                                <x-link-preview :$link :url="str_replace('{param}', $first, $link->previewUrlTemplate())" x-bind:data-url="thumbnail" />
                                             </div>
                                         @endif
                                     </div>

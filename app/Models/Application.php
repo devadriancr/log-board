@@ -15,6 +15,7 @@ class Application extends Model
     protected array $logFields = [
         'name',
         'base_url',
+        'preview_url',
         'requires_auth',
         'notes',
         'is_active',
@@ -28,6 +29,7 @@ class Application extends Model
     protected $fillable = [
         'name',
         'base_url',
+        'preview_url',
         'requires_auth',
         'notes',
         'is_active',

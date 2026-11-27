@@ -19,12 +19,13 @@ class ApplicationRequest extends FormRequest
      * Prepare the data for validation.
      *
      * Unchecked checkboxes are not sent by the browser, so they are converted to false here.
-     * The base URL is saved without a trailing slash.
+     * The addresses are saved without a trailing slash; an empty preview address is saved as null.
      */
     protected function prepareForValidation(): void
     {
         $this->merge([
             'base_url' => rtrim(trim((string) $this->input('base_url')), '/'),
+            'preview_url' => rtrim(trim((string) $this->input('preview_url')), '/') ?: null,
             'requires_auth' => $this->boolean('requires_auth'),
             'is_active' => $this->boolean('is_active'),
         ]);
@@ -51,6 +52,7 @@ class ApplicationRequest extends FormRequest
                 'regex:/^https?:\/\/\S+$/i',
                 Rule::unique('applications', 'base_url')->ignore($this->route('application')),
             ],
+            'preview_url' => ['nullable', 'string', 'max:255', 'regex:/^https?:\/\/\S+$/i'],
             'requires_auth' => ['boolean'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['boolean'],
@@ -76,6 +78,7 @@ class ApplicationRequest extends FormRequest
     {
         return [
             'base_url.regex' => __('applications.validation.base_url'),
+            'preview_url.regex' => __('applications.validation.base_url'),
         ];
     }
 }

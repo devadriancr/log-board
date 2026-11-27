@@ -81,9 +81,17 @@ class Link extends Model
     /**
      * Get the full URL of the link. The {param} placeholder is kept when the link has options.
      */
-    public function urlTemplate(): string
+    public function urlTemplate(?string $base = null): string
     {
-        return rtrim($this->application->base_url, '/').'/'.ltrim($this->path, '/');
+        return rtrim($base ?: $this->application->base_url, '/').'/'.ltrim($this->path, '/');
+    }
+
+    /**
+     * The address the thumbnail loads: through the preview address of the application when it has one.
+     */
+    public function previewUrlTemplate(): string
+    {
+        return $this->urlTemplate($this->application->preview_url);
     }
 
     /**
