@@ -10,6 +10,9 @@ class Link extends Model
 {
     use LogsChanges, Translatable;
 
+    /** Height of the preview: "fill" takes what is left in the card, the others are fixed. */
+    public const PREVIEW_SIZES = ['fill', 'sm', 'md', 'lg'];
+
     /** Sección de la bitácora y campos cuyo cambio se registra. */
     protected string $logSection = 'links';
 
@@ -25,6 +28,8 @@ class Link extends Model
         'description_ja',
         'show_description',
         'open_in_new_tab',
+        'show_preview',
+        'preview_size',
         'is_active',
     ];
 
@@ -45,6 +50,8 @@ class Link extends Model
         'description_ja',
         'show_description',
         'open_in_new_tab',
+        'show_preview',
+        'preview_size',
         'sort_order',
         'grid_x',
         'grid_y',
@@ -66,6 +73,7 @@ class Link extends Model
             'grid_w' => 'integer',
             'show_description' => 'boolean',
             'open_in_new_tab' => 'boolean',
+            'show_preview' => 'boolean',
             'is_active' => 'boolean',
         ];
     }

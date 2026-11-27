@@ -19,14 +19,8 @@
         <input type="hidden" name="type" value="{{ old('type', $card->type) }}">
 
         <flux:card.body>
-            <div class="grid gap-6 md:grid-cols-2">
-                <x-listbox
-                    name="board_id"
-                    :label="__('cards.fields.board_id')"
-                    :options="$boards"
-                    :value="old('board_id', $card->board_id)"
-                />
-
+            {{-- Three columns: the first row is the title in Spanish, English and Japanese --}}
+            <div class="grid items-start gap-6 lg:grid-cols-3">
                 {{-- Text cards have no header or title (it is written in the content); they do take an icon and a colour --}}
                 @unless ($card->isText())
                 <flux:input
@@ -40,6 +34,13 @@
 
                 <x-translations name="title" :label="__('cards.fields.title')" :model="$card" />
                 @endunless
+
+                <x-listbox
+                    name="board_id"
+                    :label="__('cards.fields.board_id')"
+                    :options="$boards"
+                    :value="old('board_id', $card->board_id)"
+                />
 
                 <flux:input
                     name="grid_w"
@@ -111,7 +112,7 @@
                 </div>
 
                 {{-- Palette colours: they colour the header, the border and the title of the card; the body stays white --}}
-                <div x-data="{ color: @js((string) old('color', $card->color)) }">
+                <div class="lg:col-span-2" x-data="{ color: @js((string) old('color', $card->color)) }">
                     <flux:field>
                         <flux:label>{{ __('cards.fields.color') }}</flux:label>
 
@@ -145,7 +146,7 @@
                         <flux:error name="color" />
                     </flux:field>
                 </div>
-                <div class="md:self-end md:pb-2.5">
+                <div class="lg:col-span-3">
                     <flux:checkbox
                         name="is_active"
                         value="1"

@@ -8,7 +8,8 @@
         @endisset
 
         <flux:card.body>
-            <div class="grid gap-6 md:grid-cols-2">
+            {{-- Three columns: the first row is the name in Spanish, English and Japanese --}}
+            <div class="grid items-start gap-6 lg:grid-cols-3">
                 <flux:input
                     name="name"
                     type="text"

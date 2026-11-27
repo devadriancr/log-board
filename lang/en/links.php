@@ -21,6 +21,8 @@ return [
         'description_ja' => 'Description (Japanese)',
         'show_description' => 'Show description',
         'open_in_new_tab' => 'Open in a new tab',
+        'show_preview' => 'Show preview',
+        'preview_size' => 'Preview size',
         'sort_order' => 'Order',
         'is_active' => 'Active',
         'options' => 'Options',
@@ -37,6 +39,8 @@ return [
         'description_ja' => 'Japanese description',
         'show_description' => 'show description',
         'open_in_new_tab' => 'open in a new tab',
+        'show_preview' => 'show preview',
+        'preview_size' => 'preview size',
         'sort_order' => 'order',
         'is_active' => 'active',
         'options' => 'options',
@@ -45,6 +49,15 @@ return [
         'options.*.label_en' => 'English label',
         'options.*.label_ja' => 'Japanese label',
     ],
+    'preview_help' => 'The page is shown as a thumbnail inside the card.',
+
+    'preview_sizes' => [
+        'fill' => 'Fit the card',
+        'sm' => 'Small',
+        'md' => 'Medium',
+        'lg' => 'Large',
+    ],
+
     'placeholders' => [
         'path' => '/report/{param}',
     ],

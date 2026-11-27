@@ -9,7 +9,7 @@
     <form
         method="POST"
         action="{{ $action }}"
-        x-data="{ path: @js(old('path', $link->path)), options: @js(old('options', $options)) }"
+        x-data="{ path: @js(old('path', $link->path)), options: @js(old('options', $options)), preview: @js((bool) old('show_preview', $link->show_preview)) }"
     >
         @csrf
         @isset($method)
@@ -36,60 +36,42 @@
                     :value="old('application_id', $link->application_id)"
                 />
 
-                <flux:input
-                    name="label"
-                    type="text"
-                    :label="__('links.fields.label')"
-                    :value="old('label', $link->label)"
-                    required
-                    autofocus
-                />
-
-                <x-translations name="label" :label="__('links.fields.label')" :model="$link" />
-
-                <flux:input
-                    name="path"
-                    type="text"
-                    class:input="font-mono"
-                    x-model="path"
-                    :label="__('links.fields.path')"
-                    :placeholder="__('links.placeholders.path')"
-                    :value="old('path', $link->path)"
-                    required
-                />
-
-                <div class="md:self-end md:pb-2.5">
-                    <flux:checkbox
-                        name="is_active"
-                        value="1"
-                        :label="__('links.fields.is_active')"
-                        :checked="(bool) old('is_active', $link->is_active)"
+                {{-- Spanish, English and Japanese side by side --}}
+                <div class="grid items-start gap-6 md:col-span-2 lg:grid-cols-3">
+                    <flux:input
+                        name="label"
+                        type="text"
+                        :label="__('links.fields.label')"
+                        :value="old('label', $link->label)"
+                        required
+                        autofocus
                     />
+
+                    <x-translations name="label" :label="__('links.fields.label')" :model="$link" />
                 </div>
 
                 <div class="md:col-span-2">
+                    <flux:input
+                        name="path"
+                        type="text"
+                        class:input="font-mono"
+                        x-model="path"
+                        :label="__('links.fields.path')"
+                        :placeholder="__('links.placeholders.path')"
+                        :value="old('path', $link->path)"
+                        required
+                    />
+                </div>
+
+                <div class="grid items-start gap-6 md:col-span-2 lg:grid-cols-3">
                     <flux:textarea
                         name="description"
                         rows="2"
                         :label="__('links.fields.description')"
                     >{{ old('description', $link->description) }}</flux:textarea>
+
+                    <x-translations name="description" :label="__('links.fields.description')" :model="$link" :textarea="true" />
                 </div>
-
-                <x-translations name="description" :label="__('links.fields.description')" :model="$link" :textarea="true" />
-
-                <flux:checkbox
-                    name="show_description"
-                    value="1"
-                    :label="__('links.fields.show_description')"
-                    :checked="(bool) old('show_description', $link->show_description)"
-                />
-
-                <flux:checkbox
-                    name="open_in_new_tab"
-                    value="1"
-                    :label="__('links.fields.open_in_new_tab')"
-                    :checked="(bool) old('open_in_new_tab', $link->open_in_new_tab)"
-                />
 
                 <div class="flex flex-col gap-4 md:col-span-2" x-show="path.includes('{param}')" x-cloak>
                     <flux:separator variant="subtle" />
@@ -149,6 +131,59 @@
                         <flux:button type="button" variant="outline" icon="plus" x-on:click="options.push({ value: '', label: '', label_en: '', label_ja: '' })">
                             {{ __('links.options.add') }}
                         </flux:button>
+                    </div>
+                </div>
+
+                {{-- All the checkboxes together, at the end, in the same three columns as the texts --}}
+                <div class="grid items-start gap-x-6 gap-y-4 md:col-span-2 lg:grid-cols-3">
+                    <div>
+                        <flux:checkbox
+                            name="is_active"
+                            value="1"
+                            :label="__('links.fields.is_active')"
+                            :checked="(bool) old('is_active', $link->is_active)"
+                        />
+                    </div>
+
+                    <div>
+                        <flux:checkbox
+                            name="show_description"
+                            value="1"
+                            :label="__('links.fields.show_description')"
+                            :checked="(bool) old('show_description', $link->show_description)"
+                        />
+                    </div>
+
+                    <div>
+                        <flux:checkbox
+                            name="open_in_new_tab"
+                            value="1"
+                            :label="__('links.fields.open_in_new_tab')"
+                            :checked="(bool) old('open_in_new_tab', $link->open_in_new_tab)"
+                        />
+                    </div>
+                </div>
+
+                {{-- Last: the preview, with its size beside it (only asked for when the preview is on) --}}
+                <div class="grid items-center gap-x-6 gap-y-4 md:col-span-2 lg:grid-cols-3">
+                    <div>
+                        <flux:checkbox
+                            name="show_preview"
+                            value="1"
+                            x-model="preview"
+                            :label="__('links.fields.show_preview')"
+                            :description="__('links.preview_help')"
+                            :checked="(bool) old('show_preview', $link->show_preview)"
+                        />
+                    </div>
+
+                    <div x-show="preview" x-cloak>
+                        <x-listbox
+                            name="preview_size"
+                            :label="__('links.fields.preview_size')"
+                            :options="collect(\App\Models\Link::PREVIEW_SIZES)->mapWithKeys(fn ($size) => [$size => __('links.preview_sizes.'.$size)])"
+                            :value="old('preview_size', $link->preview_size ?? 'fill')"
+                        />
                     </div>
                 </div>
             </div>

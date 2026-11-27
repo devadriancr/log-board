@@ -13,4 +13,7 @@ return [
     'slide' => 'お知らせ :n',
     'previous' => '前のお知らせ',
     'next' => '次のお知らせ',
+    'preview_loading' => 'プレビューを読み込み中…',
+    'preview_failed' => 'プレビューを表示できませんでした',
+    'preview_title' => ':name のプレビュー',
 ];

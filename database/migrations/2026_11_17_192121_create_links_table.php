@@ -24,6 +24,8 @@ return new class extends Migration
             $table->text('description_ja')->nullable(); // translation (ja)
             $table->boolean('show_description')->default(false);
             $table->boolean('open_in_new_tab')->default(true);
+            $table->boolean('show_preview')->default(false);
+            $table->string('preview_size', 4)->default('fill');
             $table->smallInteger('sort_order')->default(0);
             $table->unsignedTinyInteger('grid_x')->default(0);
             $table->unsignedSmallInteger('grid_y')->default(0);

@@ -13,4 +13,7 @@ return [
     'slide' => 'Notice :n',
     'previous' => 'Previous notice',
     'next' => 'Next notice',
+    'preview_loading' => 'Loading preview…',
+    'preview_failed' => 'The preview could not be shown',
+    'preview_title' => 'Preview of :name',
 ];

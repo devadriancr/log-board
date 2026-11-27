@@ -60,6 +60,8 @@ class LinkController extends Controller implements HasMiddleware
             'path' => '/',
             'show_description' => false,
             'open_in_new_tab' => true,
+            'show_preview' => false,
+            'preview_size' => 'fill',
             'is_active' => true,
         ]);
 

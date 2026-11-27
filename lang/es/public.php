@@ -13,4 +13,7 @@ return [
     'slide' => 'Aviso :n',
     'previous' => 'Aviso anterior',
     'next' => 'Aviso siguiente',
+    'preview_loading' => 'Cargando vista previa…',
+    'preview_failed' => 'No se pudo mostrar la vista previa',
+    'preview_title' => 'Vista previa de :name',
 ];

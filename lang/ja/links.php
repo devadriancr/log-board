@@ -21,6 +21,8 @@ return [
         'description_ja' => '説明（日本語）',
         'show_description' => '説明を表示',
         'open_in_new_tab' => '新しいタブで開く',
+        'show_preview' => 'プレビューを表示',
+        'preview_size' => 'プレビューのサイズ',
         'sort_order' => '順序',
         'is_active' => '有効',
         'options' => 'オプション',
@@ -37,6 +39,8 @@ return [
         'description_ja' => '日本語の説明',
         'show_description' => '説明を表示',
         'open_in_new_tab' => '新しいタブで開く',
+        'show_preview' => 'プレビュー表示',
+        'preview_size' => 'プレビューのサイズ',
         'sort_order' => '順序',
         'is_active' => '有効',
         'options' => 'オプション',
@@ -45,6 +49,15 @@ return [
         'options.*.label_en' => '英語のラベル',
         'options.*.label_ja' => '日本語のラベル',
     ],
+    'preview_help' => 'ページがカード内に縮小表示されます。',
+
+    'preview_sizes' => [
+        'fill' => 'カードに合わせる',
+        'sm' => '小',
+        'md' => '中',
+        'lg' => '大',
+    ],
+
     'placeholders' => [
         'path' => '/report/{param}',
     ],

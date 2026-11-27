@@ -24,6 +24,8 @@ return [
         'description_ja' => 'Descripción (japonés)',
         'show_description' => 'Mostrar descripción',
         'open_in_new_tab' => 'Abrir en pestaña nueva',
+        'show_preview' => 'Mostrar vista previa',
+        'preview_size' => 'Tamaño de la vista previa',
         'sort_order' => 'Orden',
         'is_active' => 'Activo',
         'options' => 'Opciones',
@@ -41,6 +43,8 @@ return [
         'description_ja' => 'descripción en japonés',
         'show_description' => 'mostrar descripción',
         'open_in_new_tab' => 'abrir en pestaña nueva',
+        'show_preview' => 'mostrar vista previa',
+        'preview_size' => 'tamaño de la vista previa',
         'sort_order' => 'orden',
         'is_active' => 'activo',
         'options' => 'opciones',
@@ -48,6 +52,15 @@ return [
         'options.*.label' => 'etiqueta',
         'options.*.label_en' => 'etiqueta en inglés',
         'options.*.label_ja' => 'etiqueta en japonés',
+    ],
+
+    'preview_help' => 'La página se ve en miniatura dentro de la tarjeta.',
+
+    'preview_sizes' => [
+        'fill' => 'Ajustar a la tarjeta',
+        'sm' => 'Pequeña',
+        'md' => 'Mediana',
+        'lg' => 'Grande',
     ],
 
     'placeholders' => [

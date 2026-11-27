@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Link;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -50,6 +51,8 @@ class LinkRequest extends FormRequest
             'options' => str_contains($path, '{param}') ? $options : [],
             'show_description' => $this->boolean('show_description'),
             'open_in_new_tab' => $this->boolean('open_in_new_tab'),
+            'show_preview' => $this->boolean('show_preview'),
+            'preview_size' => $this->input('preview_size') ?: 'fill',
             'is_active' => $this->boolean('is_active'),
         ]);
     }
@@ -73,6 +76,8 @@ class LinkRequest extends FormRequest
             'description_ja' => ['nullable', 'string', 'max:1000'],
             'show_description' => ['boolean'],
             'open_in_new_tab' => ['boolean'],
+            'show_preview' => ['boolean'],
+            'preview_size' => ['required', Rule::in(Link::PREVIEW_SIZES)],
             'is_active' => ['boolean'],
             'options' => [
                 Rule::requiredIf(fn () => str_contains((string) $this->input('path'), '{param}')),

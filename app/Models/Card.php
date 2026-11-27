@@ -265,6 +265,25 @@ class Card extends Model
     }
 
     /**
+     * Rows of the link grid when a preview fits the card ("1fr" takes the free height), both as placed in the
+     * designer and stacked on narrow cards. Null when no preview needs it.
+     */
+    public function previewRows(): ?string
+    {
+        $fills = fn (Link $link) => $link->show_preview && $link->preview_size === 'fill';
+
+        if (! $this->links->contains($fills)) {
+            return null;
+        }
+
+        $placed = collect(range(0, $this->links->max('grid_y')))
+            ->map(fn (int $y) => $this->links->where('grid_y', $y)->contains($fills));
+        $rows = fn ($filled) => $filled->map(fn (bool $fill) => $fill ? '1fr' : 'auto')->implode(' ');
+
+        return "--rows-placed: {$rows($placed)}; --rows-stacked: {$rows($this->links->toBase()->map($fills))}";
+    }
+
+    /**
      * Get the user who last updated the card.
      */
     public function updatedBy()

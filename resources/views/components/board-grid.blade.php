@@ -110,82 +110,104 @@
                         @elseif ($card->isText())
                             <div class="rich-content">{!! \App\Models\Card::withIcons($slides[0] ?? '') !!}</div>
                         @else
-                        <div class="board-links grid gap-1.5">
+                        @php($rows = $card->previewRows())
+                        <div
+                            @class(['board-links grid gap-1.5', 'board-links-fill' => $rows])
+                            style="{{ $rows }}"
+                        >
                             @foreach ($card->links as $link)
                                 @php($place = sprintf('--x: %d; --w: %d; --y: %d', $link->grid_x + 1, $link->grid_w, $link->grid_y + 1))
-                                @if ($link->options->isEmpty())
+                                @if ($link->show_preview && $link->options->isEmpty())
+                                    {{-- One link covers the whole box (an iframe cannot go inside an <a>) --}}
+                                    <div style="{{ $place }}" class="board-link link-preview group flex flex-col gap-1.5 {{ $itemClasses }} {{ $linkClasses }}">
+                                        <a
+                                            href="{{ $link->urlTemplate() }}"
+                                            @if ($link->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                                            class="link-preview-link"
+                                            aria-label="{{ $link->tr('label') }}"
+                                            title="{{ $link->tr('label') }}"
+                                        ></a>
+
+                                        <div class="flex items-center gap-3">
+                                            <x-link-body :$link :$isButton :$labelClasses :$arrowClasses />
+                                        </div>
+
+                                        <x-link-preview :$link />
+                                    </div>
+                                @elseif ($link->options->isEmpty())
                                     <a
                                         href="{{ $link->urlTemplate() }}"
                                         @if ($link->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
                                         style="{{ $place }}"
                                         class="board-link group flex items-center gap-3 {{ $itemClasses }} {{ $linkClasses }}"
                                     >
-                                        @unless ($isButton)
-                                            <flux:icon name="link" variant="micro" class="size-4 shrink-0 text-zinc-400" />
-                                        @endunless
-
-                                        <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-                                            <span class="truncate {{ $labelClasses }}" title="{{ $link->tr('label') }}">{{ $link->tr('label') }}</span>
-
-                                            @if ($link->show_description && $link->tr('description'))
-                                                <span class="truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $link->tr('description') }}">{{ $link->tr('description') }}</span>
-                                            @endif
-                                        </span>
-
-                                        <span class="flex shrink-0 items-center gap-1.5">
-                                            @if ($link->application->requires_auth)
-                                                <flux:icon name="lock-closed" variant="micro" class="size-4 text-zinc-400" :title="__('public.requires_auth')" />
-                                            @endif
-
-                                            <flux:icon name="arrow-up-right" variant="micro" class="size-4 {{ $arrowClasses }}" />
-                                        </span>
+                                        <x-link-body :$link :$isButton :$labelClasses :$arrowClasses />
                                     </a>
                                 @else
                                     <div
                                         style="{{ $place }}"
-                                        class="board-link flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 {{ $itemClasses }}"
+                                        class="board-link flex flex-col gap-1.5 {{ $itemClasses }}"
                                         x-data="{
                                             param: @js($link->options->first()->value),
                                             url: @js($link->urlTemplate()),
                                             blank: @js($link->open_in_new_tab),
+                                            get target() { return this.url.replace('{param}', encodeURIComponent(this.param)) },
                                             go() {
-                                                const target = this.url.replace('{param}', encodeURIComponent(this.param));
-                                                this.blank ? window.open(target, '_blank', 'noopener') : (window.location.href = target);
+                                                this.blank ? window.open(this.target, '_blank', 'noopener') : (window.location.href = this.target);
                                             },
                                         }"
                                     >
-                                        <div class="flex min-w-32 flex-1 items-center gap-2.5">
-                                            @unless ($isButton)
-                                                <flux:icon name="link" variant="micro" class="size-4 shrink-0 text-zinc-400" />
-                                            @endunless
+                                        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                                            <div class="flex min-w-32 flex-1 items-center gap-2.5">
+                                                @unless ($isButton)
+                                                    <flux:icon name="link" variant="micro" class="size-4 shrink-0 text-zinc-400" />
+                                                @endunless
 
-                                            <span class="flex min-w-0 flex-col gap-0.5">
-                                                <span class="truncate text-sm font-medium text-zinc-800 dark:text-white" title="{{ $link->tr('label') }}">{{ $link->tr('label') }}</span>
+                                                <span class="flex min-w-0 flex-col gap-0.5">
+                                                    <span class="truncate text-sm font-medium text-zinc-800 dark:text-white" title="{{ $link->tr('label') }}">{{ $link->tr('label') }}</span>
 
-                                                @if ($link->show_description && $link->tr('description'))
-                                                    <span class="truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $link->tr('description') }}">{{ $link->tr('description') }}</span>
+                                                    @if ($link->show_description && $link->tr('description'))
+                                                        <span class="truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $link->tr('description') }}">{{ $link->tr('description') }}</span>
+                                                    @endif
+                                                </span>
+
+                                                @if ($link->application->requires_auth)
+                                                    <flux:icon name="lock-closed" variant="micro" class="size-4 shrink-0 text-zinc-400" :title="__('public.requires_auth')" />
                                                 @endif
-                                            </span>
-
-                                            @if ($link->application->requires_auth)
-                                                <flux:icon name="lock-closed" variant="micro" class="size-4 shrink-0 text-zinc-400" :title="__('public.requires_auth')" />
-                                            @endif
-                                        </div>
-
-                                        <div class="ml-auto flex items-center gap-2">
-                                            <div class="w-36">
-                                                <x-listbox
-                                                    x-model="param"
-                                                    :options="$link->options->mapWithKeys(fn ($option) => [$option->value => $option->tr('label')])"
-                                                    :value="$link->options->first()->value"
-                                                    size="sm"
-                                                />
                                             </div>
 
-                                            <flux:button type="button" size="sm" variant="outline" icon="arrow-up-right" x-on:click="go()">
-                                                {{ __('common.actions.open') }}
-                                            </flux:button>
+                                            <div class="ml-auto flex items-center gap-2">
+                                                <div class="w-36">
+                                                    <x-listbox
+                                                        x-model="param"
+                                                        :options="$link->options->mapWithKeys(fn ($option) => [$option->value => $option->tr('label')])"
+                                                        :value="$link->options->first()->value"
+                                                        size="sm"
+                                                    />
+                                                </div>
+
+                                                <flux:button type="button" size="sm" variant="outline" icon="arrow-up-right" x-on:click="go()">
+                                                    {{ __('common.actions.open') }}
+                                                </flux:button>
+                                            </div>
                                         </div>
+
+                                        @if ($link->show_preview)
+                                            {{-- Preview of the chosen option; a click on it opens that page --}}
+                                            @php($chosen = str_replace('{param}', rawurlencode($link->options->first()->value), $link->urlTemplate()))
+                                            <div @class(['link-preview flex flex-col rounded-md', 'flex-1' => $link->preview_size === 'fill'])>
+                                                <a
+                                                    href="{{ $chosen }}"
+                                                    x-bind:href="target"
+                                                    @if ($link->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                                                    class="link-preview-link"
+                                                    aria-label="{{ $link->tr('label') }}"
+                                                    title="{{ $link->tr('label') }}"
+                                                ></a>
+
+                                                <x-link-preview :$link :url="$chosen" x-bind:data-url="target" />
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
                             @endforeach

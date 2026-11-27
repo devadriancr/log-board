@@ -128,7 +128,7 @@ select:focus[data-flux-control] {
 /* Cuadrícula del tablero (vista pública y vista previa del dashboard).
    Cada tarjeta ocupa el lugar que se le dio en el diseño (12 columnas) y se adapta al ancho disponible. */
 .board-grid-wrap {
-    container-type: inline-size;
+    container: board / inline-size;
 }
 
 .board-cards {
@@ -170,6 +170,94 @@ select:focus[data-flux-control] {
     .board-link {
         grid-column: var(--x) / span var(--w);
         grid-row: var(--y);
+    }
+}
+
+/* Vista previa de un enlace: la página en miniatura. El ancho sale de la tarjeta; el alto, del tamaño elegido. */
+:root {
+    --preview-radius: var(--radius-md);
+    --preview-surface: var(--color-zinc-100);
+    --preview-bone: var(--color-zinc-200);
+    --preview-text: var(--color-zinc-600);
+    --preview-height-sm: 8rem;
+    --preview-height-md: 14rem;
+    --preview-height-lg: 22rem;
+}
+
+.dark {
+    --preview-surface: var(--color-zinc-800);
+    --preview-bone: var(--color-zinc-700);
+    --preview-text: var(--color-zinc-300);
+}
+
+.link-preview {
+    position: relative;
+}
+
+.link-preview-link {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    border-radius: inherit;
+}
+
+.link-preview-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.link-preview-box {
+    position: relative;
+    flex: none;
+    overflow: hidden;
+    aspect-ratio: 16 / 9; /* "fill" cuando la tarjeta no tiene alto fijo (pantallas angostas) */
+    border-radius: var(--preview-radius);
+    background: var(--preview-surface);
+}
+
+.link-preview-box:is([data-size='sm'], [data-size='md'], [data-size='lg']) {
+    aspect-ratio: auto;
+}
+
+.link-preview-box[data-size='sm'] {
+    height: var(--preview-height-sm);
+}
+
+.link-preview-box[data-size='md'] {
+    height: var(--preview-height-md);
+}
+
+.link-preview-box[data-size='lg'] {
+    height: var(--preview-height-lg);
+}
+
+.link-preview-box iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1280px; /* igual que PAGE_WIDTH en link-preview.js */
+    border: 0;
+    transform-origin: 0 0;
+    pointer-events: none;
+    background: white;
+}
+
+@container board (min-width: 48rem) {
+    .board-links-fill {
+        height: 100%;
+        grid-template-rows: var(--rows-stacked);
+    }
+
+    .link-preview-box[data-size='fill'] {
+        flex: 1;
+        aspect-ratio: auto;
+        min-height: 6rem;
+    }
+
+    @container (min-width: 26rem) {
+        .board-links-fill {
+            grid-template-rows: var(--rows-placed);
+        }
     }
 }
 
@@ -365,9 +453,9 @@ select:focus[data-flux-control] {
     cursor: nwse-resize;
 }
 
-/* Tarjetas: esquinas más redondeadas y, en oscuro, fondo y borde sólidos (como TailAdmin) en lugar de un velo blanco. */
+/* Tarjetas: esquinas redondeadas y, en oscuro, fondo y borde sólidos (como TailAdmin) en lugar de un velo blanco. */
 [data-flux-card] {
-    --flux-card-radius: var(--radius-2xl);
+    --flux-card-radius: var(--radius-xl);
 }
 
 .dark [data-flux-card] {
