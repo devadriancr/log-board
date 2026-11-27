@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 255)->unique();
             $table->string('base_url', 255)->unique();
-            $table->string('preview_url', 255)->nullable(); // only for the thumbnails (see deploy/)
+            $table->string('preview_url', 255)->nullable(); // only for the thumbnails (see public/web.config)
             $table->boolean('requires_auth')->default(false);
             $table->text('notes')->nullable();
             $table->boolean('is_active')->default(true);
